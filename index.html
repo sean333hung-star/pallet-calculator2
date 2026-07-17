@@ -1,0 +1,1315 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>棧板堆疊規劃系統 Pro</title>
+<style>
+  :root{
+    --bg:#f4f7fb; --panel:#fff; --text:#172033; --muted:#637083;
+    --line:#d9e1ec; --primary:#175cd3; --primary2:#0b4bb3;
+    --good:#067647; --warn:#b54708; --bad:#b42318;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","Microsoft JhengHei",sans-serif;background:var(--bg);color:var(--text)}
+  header{padding:18px 24px;background:#0f2f5f;color:#fff}
+  header h1{margin:0;font-size:22px}
+  header p{margin:6px 0 0;opacity:.86;font-size:13px}
+  main{display:grid;grid-template-columns:minmax(550px,35vw) minmax(620px,1fr);gap:16px;padding:16px;min-height:calc(100vh - 82px)}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:0 4px 18px rgba(17,32,51,.06)}
+  .controls{padding:16px;overflow:auto;height:calc(100vh - 114px);max-height:calc(100vh - 114px);position:sticky;top:16px;resize:horizontal;min-width:550px;max-width:850px}
+  h2{font-size:16px;margin:4px 0 12px}
+  h3{font-size:14px;margin:18px 0 10px;padding-top:14px;border-top:1px solid var(--line)}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+  label{font-size:12px;color:var(--muted);display:block}
+  input[type=number],select{
+    width:100%;margin-top:5px;padding:9px 10px;border:1px solid #c8d2df;border-radius:8px;background:#fff;color:var(--text);font-size:14px
+  }
+  input:focus,select:focus{outline:2px solid #b9d2ff;border-color:var(--primary)}
+  .check{display:flex;gap:8px;align-items:flex-start;margin-top:10px;font-size:13px;color:var(--text)}
+  .check input{margin-top:2px}
+  button{border:0;border-radius:9px;padding:10px 13px;font-weight:650;cursor:pointer}
+  .primary{width:100%;background:var(--primary);color:#fff;margin-top:14px}
+  .primary:hover{background:var(--primary2)}
+  .secondary{background:#eef4ff;color:#164ca3}
+  .danger{background:#fff1f0;color:var(--bad)}
+  .view{display:grid;grid-template-rows:auto minmax(430px,1fr) auto;overflow:hidden}
+  .toolbar{display:none}
+  #canvasWrap{position:relative;min-height:430px;margin:0;padding:0;background:linear-gradient(#f9fbfe,#eef3f9);overflow:hidden}
+  canvas{width:100%;height:100%;display:block;cursor:grab}
+  canvas:active{cursor:grabbing}
+  .hint{position:absolute;left:12px;bottom:10px;background:rgba(255,255,255,.9);border:1px solid var(--line);padding:7px 9px;border-radius:8px;font-size:12px;color:var(--muted)}
+  .legend{position:absolute;right:4px;top:4px;background:rgba(255,255,255,.92);border:1px solid var(--line);padding:8px 10px;border-radius:8px;font-size:12px;line-height:1.55}
+  .results{padding:14px;border-top:1px solid var(--line)}
+  .cards{display:grid;grid-template-columns:repeat(7,minmax(100px,1fr));gap:9px}
+  .card{border:1px solid var(--line);border-radius:10px;padding:10px;background:#fff}
+  .card .k{font-size:11px;color:var(--muted)}
+  .card .v{font-size:19px;font-weight:750;margin-top:4px}
+  .details{margin-top:10px;padding:10px 12px;border-radius:10px;background:#f7f9fc;font-size:13px;line-height:1.65}
+  .ok{color:var(--good)} .warning{color:var(--warn)} .error{color:var(--bad)}
+  .layerTabs{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+  .layerTabs button.active{background:#163d73;color:#fff}
+  .layerTabs button{background:#edf2f7;color:#30445f;padding:7px 10px;font-size:12px}
+  @media(max-width:1050px){
+    main{grid-template-columns:1fr}
+    .controls{height:auto;max-height:none;position:static;resize:none;min-width:0;max-width:none}
+    .cards{grid-template-columns:repeat(3,1fr)}
+  }
+  @media(max-width:640px){
+    main{padding:8px}
+    .grid3{grid-template-columns:1fr}
+    .cards{grid-template-columns:repeat(2,1fr)}
+  }
+
+  .quickViews{display:flex;gap:5px;flex-wrap:wrap;align-items:center;padding:4px 8px;border-bottom:1px solid var(--line);background:#fafbfc}
+  .quickViews button{padding:7px 10px;font-size:12px}
+  .quickViews .viewActions{display:flex;gap:5px;flex-wrap:wrap;margin-left:auto}
+  .sectionTitleRow{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:18px 0 10px;padding-top:14px;border-top:1px solid var(--line)}
+  .sectionTitleRow h3{margin:0;padding:0;border:0}
+  .palletPresetButtons{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}
+  .presetBtn{padding:6px 9px;font-size:11px;background:#eef4ff;color:#164ca3;border:1px solid #cfe0ff}
+  .presetBtn:hover{background:#dce9ff}
+  .presetBtn.active{background:#175cd3;color:#fff;border-color:#175cd3}
+
+  .customPresetBtn{background:#f5f3ff;color:#5925dc;border-color:#d9d6fe}
+  .customPresetBtn:hover{background:#ebe9fe}
+  .templateDialog{width:min(520px,calc(100vw - 28px));border:0;border-radius:14px;padding:0;box-shadow:0 24px 70px rgba(15,47,95,.28)}
+  .templateDialog::backdrop{background:rgba(15,23,42,.45)}
+  .templateDialogHeader{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;background:#0f2f5f;color:#fff}
+  .templateDialogHeader strong{font-size:16px}.dialogClose{background:transparent;color:#fff;font-size:22px;padding:0 4px}
+  .templateDialogBody{padding:16px}.templateSavedRow{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:7px;align-items:end;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+  .templateDialogActions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}.templateDialogActions button{min-width:96px}
+  .templateHelp{font-size:11px;color:var(--muted);line-height:1.5;margin-top:8px}
+  .statusBox{position:absolute;left:4px;top:4px;background:rgba(255,255,255,.94);border:1px solid var(--line);padding:8px 10px;border-radius:9px;font-size:12px;line-height:1.55;max-width:300px}
+  .tabs{display:flex;gap:6px;padding:10px 14px;border-bottom:1px solid var(--line)}
+  .tabs button.active{background:#163d73;color:#fff}
+  .solutionTable{width:100%;border-collapse:collapse;font-size:13px}
+  .solutionTable th,.solutionTable td{padding:8px;border-bottom:1px solid var(--line);text-align:left}
+
+  .historyPanel{margin-top:16px;border-top:1px solid var(--line);padding-top:14px}
+  .historyHeader{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:9px}
+  .historyHeader h3{margin:0;padding:0;border:0}
+  .historyTabs{display:flex;gap:6px;margin-bottom:9px}
+  .historyTabs button{flex:1;background:#edf2f7;color:#30445f;padding:8px 9px;font-size:12px}
+  .historyTabs button.active{background:#163d73;color:#fff}
+  .historyList{display:grid;gap:8px;max-height:500px;overflow:auto;padding-right:2px}
+  .historyItem{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:9px;background:#fff}
+  .historyItem:hover{border-color:#a9bdd8;box-shadow:0 2px 8px rgba(17,32,51,.06)}
+  .historyMain{min-width:0;cursor:pointer}
+  .historyTitle{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .historyMeta{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.45}
+  .heartBtn{font-size:21px;line-height:1;background:transparent;padding:5px;color:#9aa7b6}
+  .heartBtn.saved{color:#e54875}
+  .historyEmpty{padding:18px 10px;text-align:center;color:var(--muted);font-size:12px;border:1px dashed var(--line);border-radius:10px}
+  .historyTools{display:flex;gap:6px}
+  .miniBtn{padding:6px 8px;font-size:11px;background:#f3f6fa;color:#53657b}
+  .folderBar{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:7px;margin-bottom:9px}.folderBar select{margin-top:0}.folderSelect{width:130px;margin-top:6px!important;padding:6px 7px!important;font-size:11px!important}.printActions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.printActions button{flex:1;min-width:150px}
+  .utilTargetBox{margin-top:10px;padding:10px;border:1px solid var(--line);border-radius:10px;background:#f8fbff}
+  .utilTargetRow{display:grid;grid-template-columns:1fr 110px;gap:8px;align-items:end}
+  .utilBadge{display:inline-flex;align-items:center;justify-content:center;min-width:76px;padding:4px 8px;border-radius:999px;font-size:12px;font-weight:750}
+  .utilGood{background:#ecfdf3;color:#067647;border:1px solid #abefc6}
+  .utilWarn{background:#fffaeb;color:#b54708;border:1px solid #fedf89}
+  .utilBad{background:#fef3f2;color:#b42318;border:1px solid #fecdca}
+  .rankingPanel{margin-top:12px;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .rankingHeader{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:10px 12px;background:#f7f9fc;border-bottom:1px solid var(--line)}
+  .rankingList{max-height:300px;overflow:auto}
+  .rankingItem{display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 12px;border-bottom:1px solid var(--line);font-size:12px}
+  .rankingItem:last-child{border-bottom:0}
+  .rankNo{font-weight:800;color:#53657b}
+  .rankTitle{font-weight:700}
+  .rankMeta{color:var(--muted);margin-top:3px}
+  .targetSearch{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+  .targetCard{border:1px solid var(--line);border-radius:10px;padding:9px;background:#fff;font-size:12px}
+  .targetCard b{display:block;font-size:15px;margin-bottom:4px}
+  header{display:flex;align-items:center;justify-content:space-between;gap:16px}
+  .headerText{min-width:0}
+  .languageSwitch{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+  .langBtn{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.35);padding:7px 11px;font-size:12px}
+  .langBtn:hover,.langBtn.active{background:#fff;color:#0f2f5f}
+  @media(max-width:640px){header{align-items:flex-start;flex-direction:column}.languageSwitch{justify-content:flex-start}}
+
+  .manualBtn{background:#ffd66b;color:#16324f;border:1px solid rgba(255,255,255,.45);padding:7px 11px;font-size:12px}
+  .manualBtn:hover{background:#ffe59c}
+  .manualModal{position:fixed;inset:0;background:rgba(15,31,50,.62);display:none;align-items:center;justify-content:center;padding:18px;z-index:3000}
+  .manualModal.open{display:flex}
+  .manualDialog{width:min(980px,96vw);max-height:92vh;background:#fff;border-radius:16px;box-shadow:0 24px 80px rgba(0,0,0,.28);display:grid;grid-template-rows:auto auto 1fr;overflow:hidden}
+  .manualTop{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 18px;background:#0f2f5f;color:#fff}
+  .manualTop h2{margin:0;font-size:19px}.manualClose{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.35);padding:7px 10px}
+  .manualToolbar{display:flex;gap:8px;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--line);background:#f7f9fc}
+  .manualToolbar input{flex:1;min-width:220px;padding:9px 10px;border:1px solid #c8d2df;border-radius:8px}
+  .manualContent{overflow:auto;padding:18px}.manualIntro{padding:12px 14px;background:#eef4ff;border-radius:10px;margin-bottom:14px;line-height:1.65}
+  .manualSection{border:1px solid var(--line);border-radius:12px;margin-bottom:12px;overflow:hidden}.manualSection h3{margin:0;padding:11px 13px;background:#f7f9fc;border:0;font-size:15px}
+  .manualSteps{margin:0;padding:12px 18px 14px 34px;line-height:1.7}.manualFeature{padding:10px 13px;border-top:1px solid var(--line)}
+  .manualFeature b{display:block;margin-bottom:4px}.manualFeature small{color:var(--muted)}.manualEmpty{text-align:center;color:var(--muted);padding:28px}
+  @media(max-width:640px){.manualDialog{width:100%;max-height:96vh}.manualTop{padding:12px}.manualContent{padding:12px}}
+  .guideHero{display:grid;grid-template-columns:64px 1fr;gap:14px;align-items:center;padding:16px;background:linear-gradient(135deg,#eef4ff,#f7fbff);border:1px solid #cfe0fb;border-radius:14px;margin-bottom:14px}
+  .guideHeroIcon{width:64px;height:64px;border-radius:18px;background:#175cd3;color:#fff;display:flex;align-items:center;justify-content:center;font-size:32px}
+  .guideHero h3{margin:0 0 6px;border:0;padding:0;font-size:18px}.guideHero p{margin:0;color:var(--muted);line-height:1.6}
+  .guideProgress{display:grid;grid-template-columns:repeat(6,1fr);gap:7px;margin-bottom:14px}
+  .guideStepBtn{background:#edf2f7;color:#40556f;padding:9px 6px;font-size:11px;border:1px solid transparent}
+  .guideStepBtn.active{background:#175cd3;color:#fff;border-color:#175cd3}
+  .guidePanel{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff}
+  .guidePanelHead{display:flex;align-items:flex-start;gap:12px;padding:15px;background:#f7f9fc;border-bottom:1px solid var(--line)}
+  .guideNo{flex:0 0 38px;width:38px;height:38px;border-radius:50%;background:#175cd3;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800}
+  .guidePanelHead h3{margin:0 0 4px;border:0;padding:0;font-size:17px}.guidePanelHead p{margin:0;color:var(--muted);line-height:1.5}
+  .guideBody{padding:16px}.guideChecklist{display:grid;gap:10px;margin:0;padding:0;list-style:none}
+  .guideChecklist li{display:grid;grid-template-columns:28px 1fr;gap:9px;align-items:flex-start;padding:10px 12px;background:#f8fafc;border-radius:10px;line-height:1.55}
+  .guideCheck{width:24px;height:24px;border-radius:50%;background:#eaf2ff;color:#175cd3;display:flex;align-items:center;justify-content:center;font-weight:800}
+  .guideTip{margin-top:12px;padding:11px 12px;border-left:4px solid #f59e0b;background:#fff8e8;border-radius:8px;line-height:1.55}
+  .guideNav{display:flex;justify-content:space-between;gap:8px;margin-top:14px}.guideNav button{min-width:110px}
+  .guideQuick{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.guideQuick div{padding:10px;border:1px solid var(--line);border-radius:10px;background:#fff;font-size:12px;line-height:1.5}
+  @media(max-width:700px){.guideProgress{grid-template-columns:repeat(3,1fr)}.guideQuick{grid-template-columns:1fr}.guideHero{grid-template-columns:48px 1fr}.guideHeroIcon{width:48px;height:48px;font-size:24px}}
+
+  .utilGuideModal{position:fixed;inset:0;background:rgba(15,31,50,.64);display:none;align-items:center;justify-content:center;padding:18px;z-index:3200}
+  .utilGuideModal.open{display:flex}
+  .utilGuideDialog{width:min(760px,96vw);max-height:90vh;background:#fff;border-radius:16px;box-shadow:0 24px 80px rgba(0,0,0,.3);overflow:hidden}
+  .utilGuideTop{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:15px 18px;background:#067647;color:#fff}
+  .utilGuideTop.warn{background:#b54708}.utilGuideTop h2{margin:0;font-size:19px}.utilGuideClose{background:rgba(255,255,255,.16);color:#fff;border:1px solid rgba(255,255,255,.4)}
+  .utilGuideBody{padding:18px;overflow:auto;max-height:calc(90vh - 62px)}
+  .utilGuideScore{display:flex;align-items:center;gap:14px;padding:14px;border-radius:12px;background:#ecfdf3;border:1px solid #abefc6;margin-bottom:14px}
+  .utilGuideScore.warn{background:#fff7ed;border-color:#fed7aa}.utilGuidePct{font-size:32px;font-weight:850;white-space:nowrap}.utilGuideText{line-height:1.6}
+  .utilGuideGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:12px 0}.utilGuideCard{border:1px solid var(--line);border-radius:10px;padding:11px;background:#f8fafc}.utilGuideCard span{display:block;color:var(--muted);font-size:11px}.utilGuideCard b{display:block;margin-top:4px;font-size:15px}
+  .utilGuideSteps{margin:10px 0 0;padding-left:22px;line-height:1.75}.utilGuideActions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px;flex-wrap:wrap}
+  @media(max-width:640px){.utilGuideGrid{grid-template-columns:1fr}.utilGuideDialog{width:100%}}
+
+</style>
+</head>
+<body>
+<header>
+  <div class="headerText">
+    <h1>棧板堆疊規劃系統 Pro</h1>
+    <p>整合高度、重量、承壓、支撐率、重心、安全邊距、突出與3D全景檢查。</p>
+  </div>
+  <div class="languageSwitch" aria-label="語言切換">
+    <button type="button" class="langBtn" data-lang="zh">中文</button>
+    <button type="button" class="langBtn" data-lang="en">English</button>
+    <button type="button" class="langBtn" data-lang="th">ไทย</button>
+    <button type="button" class="manualBtn" id="manualBtn">操作手冊</button>
+  </div>
+</header>
+
+
+<div class="manualModal" id="manualModal" aria-hidden="true">
+  <div class="manualDialog" role="dialog" aria-modal="true" aria-labelledby="manualTitle">
+    <div class="manualTop"><h2 id="manualTitle">操作手冊</h2><button class="manualClose" id="manualClose" type="button">關閉</button></div>
+    <div class="manualToolbar"><input id="manualSearch" type="search" placeholder="搜尋功能或操作步驟"><button class="secondary" id="manualPrint" type="button">列印手冊</button></div>
+    <div class="manualContent" id="manualContent"></div>
+  </div>
+</div>
+
+<div class="utilGuideModal" id="utilGuideModal" aria-hidden="true">
+  <div class="utilGuideDialog" role="dialog" aria-modal="true" aria-labelledby="utilGuideTitle">
+    <div class="utilGuideTop" id="utilGuideTop"><h2 id="utilGuideTitle">80% 空間利用率指引</h2><button class="utilGuideClose" id="utilGuideClose" type="button">關閉</button></div>
+    <div class="utilGuideBody" id="utilGuideBody"></div>
+  </div>
+</div>
+
+<main>
+<section class="panel controls">
+  <h2>輸入條件</h2>
+
+  <div class="sectionTitleRow">
+    <h3>棧板資料（cm / kg）</h3>
+    <div class="palletPresetButtons" aria-label="棧板標準尺寸快捷鍵">
+      <button type="button" class="presetBtn" data-pallet-preset="eu" title="120×80×15 cm｜總限高 155 cm｜載重 1500 kg">歐規</button>
+      <button type="button" class="presetBtn" data-pallet-preset="us" title="121.92×101.6×15 cm｜總限高 160 cm｜載重 1500 kg">美規</button>
+      <button type="button" class="presetBtn" data-pallet-preset="au" title="116.5×116.5×15 cm｜總限高 180 cm｜載重 1500 kg">澳規</button>
+      <button type="button" class="presetBtn customPresetBtn" id="customPresetBtn" title="新增、套用或管理自訂棧板模板">自訂模板</button>
+    </div>
+  </div>
+  <div class="grid3">
+    <label>長<input id="pL" type="number" min="0.01" step="0.01" value="120"></label>
+    <label>寬<input id="pW" type="number" min="0.01" step="0.01" value="80"></label>
+    <label>高<input id="pH" type="number" min="0" step="0.01" value="15"></label>
+  </div>
+  <div class="grid2" style="margin-top:8px">
+    <label>總限高（含棧板）<input id="maxH" type="number" min="0.01" step="0.01" value="155"></label>
+    <label>棧板最大載重<input id="maxW" type="number" min="0.01" step="0.01" value="1500"></label>
+  </div>
+
+  <h3>紙箱資料（cm / kg）</h3>
+  <div class="grid3">
+    <label>長<input id="bL" type="number" min="0.01" step="0.01" value="55.88"></label>
+    <label>寬<input id="bW" type="number" min="0.01" step="0.01" value="40.64"></label>
+    <label>高<input id="bH" type="number" min="0.01" step="0.01" value="29.21"></label>
+  </div>
+  <div class="grid2" style="margin-top:8px">
+    <label>每箱重量<input id="boxWeight" type="number" min="0.001" step="0.01" value="10.31"></label>
+    <label>貨物總箱數（選填）<input id="quantity" type="number" min="0" step="1" value="74"></label>
+  </div>
+  <div class="grid2" style="margin-top:8px">
+    <label>棧板自重（kg）<input id="palletWeight" type="number" min="0" step="0.01" value="25"></label>
+    <label>最大手動層數<input id="manualMaxLayers" type="number" min="1" step="1" value="99"></label>
+  </div>
+
+  <h3>安全與包材設定</h3>
+  <div class="grid2">
+    <label>四周安全邊距（cm）<input id="edgeMargin" type="number" min="0" step="0.1" value="0"></label>
+    <label>允許突出量（cm）<input id="overhang" type="number" min="0" step="0.1" value="0"></label>
+  </div>
+  <div class="grid2" style="margin-top:8px">
+    <label>每層隔板厚度（cm）<input id="layerPad" type="number" min="0" step="0.01" value="0"></label>
+    <label>頂板／包材高度（cm）<input id="topPack" type="number" min="0" step="0.01" value="0"></label>
+  </div>
+  <div class="grid2" style="margin-top:8px">
+    <label>箱與箱間隙（cm）<input id="boxGap" type="number" min="0" step="0.1" value="0"></label>
+    <label>包材總重量（kg）<input id="packWeight" type="number" min="0" step="0.01" value="0"></label>
+  </div>
+  <div class="grid2" style="margin-top:8px">
+    <label>單箱可承受上方重量（kg）<input id="boxCompression" type="number" min="0" step="0.1" value="80"></label>
+    <label>最低支撐率（%）<input id="minSupport" type="number" min="0" max="100" step="1" value="80"></label>
+  </div>
+
+  <h3>堆疊設定</h3>
+  <label>紙箱方向
+    <select id="orientationMode">
+      <option value="upright">保持正放（只旋轉底面90°）</option>
+      <option value="all">允許側放／倒放（比較6種方向）</option>
+    </select>
+  </label>
+  <label>交叉模式
+    <select id="crossMode">
+      <option value="auto">自動比較最佳交叉方式</option>
+      <option value="alternate">每層旋轉90°</option>
+      <option value="pair">每兩層交叉</option>
+      <option value="same">全部同向</option>
+    </select>
+  </label>
+  <label>最佳化目標
+    <select id="objective">
+      <option value="boxes">箱數最大</option>
+      <option value="stability">穩定性最高</option>
+      <option value="util">面積利用率最高</option>
+      <option value="space">空間利用率最高（限高內最多箱）</option>
+    </select>
+  </label>
+  <div class="utilTargetBox">
+    <label class="check" style="margin-top:0"><input id="enforceMinSpace" type="checkbox">強制達到最低空間利用率</label>
+    <div class="utilTargetRow">
+      <label>最低空間利用率（%）<input id="minSpaceUtil" type="number" min="0" max="100" step="1" value="80"></label>
+      <button class="secondary" id="apply80Target" type="button">套用 80%</button>
+    </div>
+  </div>
+  <label class="check"><input id="partialTop" type="checkbox" checked>允許最上層只放部分箱子</label>
+  <label class="check"><input id="centerBoxes" type="checkbox" checked>將每層箱子置中於棧板</label>
+  <label class="check"><input id="centerPartial" type="checkbox" checked>最後部分層重新置中</label>
+  <label class="check"><input id="enforceSupport" type="checkbox" checked>啟用層間支撐率檢查</label>
+  <label class="check"><input id="avgLastPallet" type="checkbox" checked>最後一板過少時平均分配</label>
+
+  <button class="primary" id="calculateBtn">重新計算並生成全景圖</button>
+  <div class="layerTabs" id="layerTabs"></div>
+
+  <div class="historyPanel">
+    <div class="historyHeader">
+      <h3>歷史紀錄</h3>
+      <div class="historyTools"><button class="miniBtn" id="exportFavorites">匯出HTML</button><button class="miniBtn" id="exportExcel">匯出Excel</button><button class="miniBtn" id="clearHistory">清除未收藏</button></div>
+    </div>
+    <div class="historyTabs">
+      <button class="active" data-history-tab="history">全部紀錄</button>
+      <button data-history-tab="favorites">❤ 收藏資料夾</button>
+    </div>
+    <div class="folderBar">
+      <select id="folderFilter"><option value="all">全部分類</option></select>
+      <button class="miniBtn" id="addFolder">新增分類</button>
+      <button class="miniBtn danger" id="removeFolder">取消分類</button>
+    </div>
+    <div class="historyList" id="historyList"></div>
+  </div>
+</section>
+
+<section class="panel view">
+  <div class="quickViews">
+    <button class="secondary" data-view="iso">等角視圖</button>
+    <button class="secondary" data-view="front">正視圖</button>
+    <button class="secondary" data-view="side">側視圖</button>
+    <button class="secondary" data-view="top">俯視圖</button>
+    <button class="secondary" id="toggleExplode">爆炸圖：關</button>
+    <button class="secondary" id="toggleLimit">限高面：開</button>
+    <div class="viewActions">
+      <button class="secondary" id="resetView">重設視角</button>
+      <button class="secondary" id="toggleLabels">尺寸標記：開</button>
+      <button class="secondary" id="downloadPNG">下載示意圖 PNG</button>
+    </div>
+    <span id="viewTitle" hidden>完整棧板全景圖</span>
+  </div>
+
+  <div id="canvasWrap">
+    <canvas id="scene"></canvas>
+    <div class="statusBox" id="statusBox">等待計算</div>
+    <div class="legend">
+      <div><b>操作：</b>拖曳旋轉、滾輪縮放</div>
+      <div>棕色：棧板　藍色：奇數層　橘色：偶數層</div>
+    </div>
+    <div class="hint">全景圖依輸入尺寸按比例繪製；箱子不會超出棧板邊界。</div>
+  </div>
+
+  <div class="results">
+    <div class="cards">
+      <div class="card"><div class="k">單層最多</div><div class="v" id="rPerLayer">—</div></div>
+      <div class="card"><div class="k">可堆完整層</div><div class="v" id="rLayers">—</div></div>
+      <div class="card"><div class="k">每板總箱數</div><div class="v" id="rTotal">—</div></div>
+      <div class="card"><div class="k">含棧板總高度</div><div class="v" id="rHeight">—</div></div>
+      <div class="card"><div class="k">貨物總重量</div><div class="v" id="rWeight">—</div></div>
+      <div class="card"><div class="k">需要棧板數</div><div class="v" id="rPallets">—</div></div>
+      <div class="card"><div class="k">穩定性</div><div class="v" id="rStability">—</div></div>
+      <div class="card"><div class="k">空間利用率</div><div class="v" id="rSpaceUtil">—</div></div>
+    </div>
+    <div class="details" id="details">請輸入條件後計算。</div><div class="printActions"><button class="secondary" id="exportPDF">PDF 堆疊報告</button><button class="secondary" id="printWorkOrder">一鍵列印工廠作業單</button></div>
+    <div class="targetSearch" id="targetSearch"></div>
+    <div class="rankingPanel">
+      <div class="rankingHeader"><strong>空間利用率排行榜 Top 10</strong><span style="font-size:11px;color:var(--muted)">點選方案可切換全景圖</span></div>
+      <div class="rankingList" id="rankingList"><div class="historyEmpty">等待計算。</div></div>
+    </div>
+  </div>
+</section>
+</main>
+
+<dialog class="templateDialog" id="templateDialog">
+  <div class="templateDialogHeader"><strong>自訂棧板模板</strong><button type="button" class="dialogClose" id="closeTemplateDialog" aria-label="關閉">×</button></div>
+  <div class="templateDialogBody">
+    <div class="templateSavedRow">
+      <label>已儲存模板<select id="savedTemplateSelect"><option value="">選擇模板</option></select></label>
+      <button type="button" class="secondary" id="applySavedTemplate">套用</button>
+      <button type="button" class="danger" id="deleteSavedTemplate">刪除</button>
+    </div>
+    <label>模板名稱<input id="customTemplateName" type="text" maxlength="30" placeholder="例如：客戶A空運棧板"></label>
+    <div class="grid3" style="margin-top:10px">
+      <label>長（cm）<input id="customPL" type="number" min="0.01" step="0.01"></label>
+      <label>寬（cm）<input id="customPW" type="number" min="0.01" step="0.01"></label>
+      <label>高（cm）<input id="customPH" type="number" min="0" step="0.01"></label>
+    </div>
+    <div class="grid2" style="margin-top:10px">
+      <label>總限高（cm）<input id="customMaxH" type="number" min="0.01" step="0.01"></label>
+      <label>最大載重（kg）<input id="customMaxW" type="number" min="0.01" step="0.01"></label>
+    </div>
+    <div class="templateHelp">可儲存多筆自訂模板。資料會保留在目前瀏覽器中，下次開啟仍可使用。</div>
+    <div class="templateDialogActions">
+      <button type="button" class="secondary" id="fillCurrentPallet">帶入目前欄位</button>
+      <button type="button" class="primary" id="saveCustomTemplate" style="width:auto;margin-top:0">儲存並套用</button>
+    </div>
+  </div>
+</dialog>
+
+<script>
+"use strict";
+
+const $ = id => document.getElementById(id);
+const canvas = $("scene");
+const ctx = canvas.getContext("2d");
+
+let model = null;
+let yaw = -0.72, pitch = 0.56, zoom = 1;
+let drag = false, lastX = 0, lastY = 0;
+let showLabels = true;
+let showLimit = true;
+let explode = false;
+let selectedLayer = -1; // -1 = all
+
+function n(id){
+  const v = Number($(id).value);
+  if(!Number.isFinite(v) || v < 0) throw new Error("請確認所有輸入值皆為有效的正數。");
+  return v;
+}
+function floorSafe(x){ return Math.floor(x + 1e-9); }
+function f2(x){ return (Math.round(x*100)/100).toFixed(2); }
+
+/* 建立矩形網格座標 */
+function gridLayout(PL,PW,a,b,offsetX=0,offsetY=0,regionL=PL,regionW=PW,gap=0){
+  const cols = floorSafe((regionL+gap)/(a+gap)), rows = floorSafe((regionW+gap)/(b+gap)), boxes=[];
+  for(let r=0;r<rows;r++) for(let c=0;c<cols;c++){
+    boxes.push({x:offsetX+c*(a+gap),y:offsetY+r*(b+gap),l:a,w:b});
+  }
+  return boxes;
+}
+
+/* 單層矩形裝箱啟發式：
+   1. 純網格
+   2. 沿長方向切割，左右區域採不同旋向
+   3. 沿寬方向切割，上下區域採不同旋向 */
+function bestLayer(PL,PW,a,b,preferRotated=false){
+  const candidates=[];
+  function add(boxes,name,rotationScore){
+    candidates.push({boxes,name,count:boxes.length,rotationScore});
+  }
+
+  add(gridLayout(PL,PW,a,b), "同向排列", preferRotated ? 0 : 2);
+  if(Math.abs(a-b)>1e-9) add(gridLayout(PL,PW,b,a), "旋轉90°同向排列", preferRotated ? 2 : 0);
+
+  for(const [u,v,tag] of [[a,b,"A"],[b,a,"B"]]){
+    const maxCols=floorSafe(PL/u);
+    for(let k=1;k<=maxCols;k++){
+      const cut=k*u, left=gridLayout(PL,PW,u,v,0,0,cut,PW);
+      const right=gridLayout(PL,PW,v,u,cut,0,PL-cut,PW);
+      add(left.concat(right), "長向混合排列", tag==="B" ? 2:1);
+    }
+    const maxRows=floorSafe(PW/v);
+    for(let k=1;k<=maxRows;k++){
+      const cut=k*v, bottom=gridLayout(PL,PW,u,v,0,0,PL,cut);
+      const top=gridLayout(PL,PW,v,u,0,cut,PL,PW-cut);
+      add(bottom.concat(top), "寬向混合排列", tag==="B" ? 2:1);
+    }
+  }
+
+  candidates.sort((x,y)=>
+    y.count-x.count ||
+    y.rotationScore-x.rotationScore ||
+    boundingWaste(x.boxes,PL,PW)-boundingWaste(y.boxes,PL,PW)
+  );
+  return candidates[0];
+}
+function boundingWaste(boxes,PL,PW){
+  if(!boxes.length) return Infinity;
+  let minX=Infinity,minY=Infinity,maxX=-Infinity,maxY=-Infinity;
+  boxes.forEach(b=>{minX=Math.min(minX,b.x);minY=Math.min(minY,b.y);maxX=Math.max(maxX,b.x+b.l);maxY=Math.max(maxY,b.y+b.w)});
+  return PL*PW-(maxX-minX)*(maxY-minY);
+}
+function centerLayout(boxes,PL,PW){
+  if(!boxes.length) return boxes;
+  let minX=Infinity,minY=Infinity,maxX=-Infinity,maxY=-Infinity;
+  boxes.forEach(b=>{minX=Math.min(minX,b.x);minY=Math.min(minY,b.y);maxX=Math.max(maxX,b.x+b.l);maxY=Math.max(maxY,b.y+b.w)});
+  const dx=(PL-(maxX-minX))/2-minX, dy=(PW-(maxY-minY))/2-minY;
+  return boxes.map(b=>({...b,x:b.x+dx,y:b.y+dy}));
+}
+function orientations(L,W,H,mode){
+  if(mode==="upright") return [{a:L,b:W,h:H,label:`${L}×${W}×${H}`}];
+  const raw=[
+    [L,W,H],[W,L,H],[L,H,W],[H,L,W],[W,H,L],[H,W,L]
+  ];
+  const seen=new Set(), out=[];
+  for(const [a,b,h] of raw){
+    const key=[a,b,h].map(v=>v.toFixed(6)).join("|");
+    if(!seen.has(key)){ seen.add(key); out.push({a,b,h,label:`${a}×${b}×${h}`}); }
+  }
+  return out;
+}
+
+function rectOverlap(a,b){
+  const x=Math.max(0,Math.min(a.x+a.l,b.x+b.l)-Math.max(a.x,b.x));
+  const y=Math.max(0,Math.min(a.y+a.w,b.y+b.w)-Math.max(a.y,b.y));
+  return x*y;
+}
+function supportRate(box,below){
+  const area=below.reduce((sum,b)=>sum+rectOverlap(box,b),0);
+  return Math.min(100,area/(box.l*box.w)*100);
+}
+function minLayerSupport(layers){
+  if(layers.length<2)return 100;
+  let min=100;
+  for(let i=1;i<layers.length;i++) for(const box of layers[i].boxes) min=Math.min(min,supportRate(box,layers[i-1].boxes));
+  return min;
+}
+function stackCG(layers,PL,PW){
+  let a=0,sx=0,sy=0;
+  for(const layer of layers) for(const b of layer.boxes){const q=b.l*b.w;a+=q;sx+=(b.x+b.l/2)*q;sy+=(b.y+b.w/2)*q;}
+  if(!a)return {d:Infinity}; const cx=sx/a,cy=sy/a;return {cx,cy,d:Math.hypot(cx-PL/2,cy-PW/2)};
+}
+function patternAt(k,mode,A,B){
+  if(mode==='same')return A;
+  if(mode==='pair')return Math.floor(k/2)%2?B:A;
+  return k%2?B:A;
+}
+const HISTORY_KEY="palletProHistoryV1";
+let historyView="history";
+let activeFolder="all";
+let activeHistoryId=null; // 目前載入或剛建立的歷史紀錄；改善方案會更新此筆
+const historyInputIds=["pL","pW","pH","maxH","maxW","bL","bW","bH","boxWeight","quantity","palletWeight","manualMaxLayers","edgeMargin","overhang","layerPad","topPack","boxGap","packWeight","boxCompression","minSupport","orientationMode","crossMode","objective","enforceMinSpace","minSpaceUtil","partialTop","centerBoxes","centerPartial","enforceSupport","avgLastPallet"];
+
+function readHistory(){
+  try{return JSON.parse(localStorage.getItem(HISTORY_KEY)||"[]")}catch{return []}
+}
+function writeHistory(items){localStorage.setItem(HISTORY_KEY,JSON.stringify(items.slice(0,100)))}
+function collectInputs(){
+  const data={};
+  historyInputIds.forEach(id=>{const el=$(id);data[id]=el.type==="checkbox"?el.checked:el.value});
+  return data;
+}
+function restoreInputs(data){
+  historyInputIds.forEach(id=>{const el=$(id);if(!el||data[id]===undefined)return;if(el.type==="checkbox")el.checked=!!data[id];else el.value=data[id]});
+}
+function historyResultFromCandidate(best,quantity){
+  return {totalBoxes:best.totalBoxes,perLayer:best.A.count,layers:best.occupiedLayers,totalHeight:best.totalHeight,grossWeight:best.usedWeight+best.palletWeight+best.packWeight,spaceUtil:best.spaceUtil||0,quantity};
+}
+function addHistoryRecord(best,quantity){
+  const items=readHistory();
+  const now=new Date();
+  const record={
+    id:`${Date.now()}-${Math.random().toString(16).slice(2)}`,
+    createdAt:now.toISOString(),updatedAt:now.toISOString(),favorite:false,folder:"未分類",inputs:collectInputs(),
+    result:historyResultFromCandidate(best,quantity)
+  };
+  items.unshift(record);writeHistory(items);activeHistoryId=record.id;renderHistory();
+  return record.id;
+}
+function updateActiveHistoryRecord(best,quantity,reason="改善方案"){
+  if(!activeHistoryId)return false;
+  const items=readHistory();
+  const target=items.find(x=>x.id===activeHistoryId);
+  if(!target)return false;
+  target.inputs=collectInputs();
+  target.result=historyResultFromCandidate(best,quantity);
+  target.updatedAt=new Date().toISOString();
+  target.updateReason=reason;
+  // 保留原始建立時間、愛心狀態與收藏分類，不另外新增紀錄。
+  writeHistory(items);renderHistory();
+  return true;
+}
+function formatHistoryTime(iso){
+  const d=new Date(iso);return d.toLocaleString("zh-TW",{month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hour12:false});
+}
+function safeFileNamePart(value){
+  return String(value??"").replace(/[\\/:*?"<>|]+/g,"-").replace(/\s+/g,"_").slice(0,60);
+}
+function escapeHtml(value){
+  return String(value??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[ch]));
+}
+function downloadFavoriteRecord(item){
+  const i=item.inputs||{}, r=item.result||{};
+  const created=new Date(item.createdAt);
+  const dateText=created.toLocaleString("zh-TW",{year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false});
+  const orientationLabels={upright:"保持正放",all:"允許側放／倒放"};
+  const crossLabels={auto:"自動比較",alternate:"每層旋轉90°",pair:"每兩層交叉",same:"全部同向"};
+  const objectiveLabels={boxes:"箱數最大",stability:"穩定性最高",util:"面積利用率最高",space:"空間利用率最高"};
+  const rows=[
+    ["紀錄時間",dateText],
+    ["棧板尺寸",`${i.pL} × ${i.pW} × ${i.pH} cm`],
+    ["總限高",`${i.maxH} cm`],
+    ["棧板最大載重",`${i.maxW} kg`],
+    ["紙箱尺寸",`${i.bL} × ${i.bW} × ${i.bH} cm`],
+    ["每箱重量",`${i.boxWeight} kg`],
+    ["貨物總箱數",i.quantity||"未指定"],
+    ["每板總箱數",`${r.totalBoxes??"-"} 箱`],
+    ["單層最多",`${r.perLayer??"-"} 箱`],
+    ["堆疊層數",`${r.layers??"-"} 層`],
+    ["含棧板總高度",`${f2(Number(r.totalHeight||0))} cm`],
+    ["整板毛重",`${f2(Number(r.grossWeight||0))} kg`],
+    ["空間利用率",`${f2(Number(r.spaceUtil||0))}%`],
+    ["紙箱方向",orientationLabels[i.orientationMode]||i.orientationMode||"-"],
+    ["交叉模式",crossLabels[i.crossMode]||i.crossMode||"-"],
+    ["最佳化目標",objectiveLabels[i.objective]||i.objective||"-"],
+    ["最低空間利用率",i.enforceMinSpace?`${i.minSpaceUtil}%（強制）`:"未強制"],
+    ["安全邊距",`${i.edgeMargin||0} cm`],
+    ["允許突出量",`${i.overhang||0} cm`],
+    ["箱與箱間隙",`${i.boxGap||0} cm`],
+    ["最低支撐率",`${i.minSupport||0}%`]
+  ];
+  const tableRows=rows.map(([k,v])=>`<tr><th>${escapeHtml(k)}</th><td>${escapeHtml(v)}</td></tr>`).join("");
+  const html=`<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>棧板計算收藏紀錄</title><style>
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","Microsoft JhengHei",sans-serif;background:#f4f7fb;color:#172033;margin:0;padding:28px}
+  .report{max-width:820px;margin:auto;background:#fff;border:1px solid #d9e1ec;border-radius:16px;padding:24px;box-shadow:0 8px 30px rgba(17,32,51,.08)}
+  h1{margin:0 0 6px;font-size:24px;color:#0f2f5f}.sub{color:#637083;margin-bottom:20px}
+  .summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
+  .card{border:1px solid #d9e1ec;border-radius:12px;padding:14px;background:#f8fbff}.k{font-size:12px;color:#637083}.v{font-size:21px;font-weight:800;margin-top:4px}
+  table{width:100%;border-collapse:collapse}th,td{padding:11px;border-bottom:1px solid #e5eaf1;text-align:left}th{width:34%;color:#53657b;background:#fafbfc}
+  .foot{margin-top:18px;font-size:12px;color:#637083}@media(max-width:640px){.summary{grid-template-columns:1fr}body{padding:12px}.report{padding:16px}}
+  </style></head><body><div class="report"><h1>棧板堆疊收藏紀錄</h1><div class="sub">由棧板堆疊規劃系統 Pro 匯出</div>
+  <div class="summary"><div class="card"><div class="k">每板總箱數</div><div class="v">${escapeHtml(r.totalBoxes??"-")} 箱</div></div><div class="card"><div class="k">總高度</div><div class="v">${f2(Number(r.totalHeight||0))} cm</div></div><div class="card"><div class="k">空間利用率</div><div class="v">${f2(Number(r.spaceUtil||0))}%</div></div></div>
+  <table>${tableRows}</table><div class="foot">紀錄 ID：${escapeHtml(item.id)}</div></div></body></html>`;
+  const blob=new Blob([html],{type:"text/html;charset=utf-8"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  const stamp=`${created.getFullYear()}${String(created.getMonth()+1).padStart(2,"0")}${String(created.getDate()).padStart(2,"0")}_${String(created.getHours()).padStart(2,"0")}${String(created.getMinutes()).padStart(2,"0")}`;
+  a.href=url;
+  a.download=`棧板收藏紀錄_${safeFileNamePart(i.bL)}x${safeFileNamePart(i.bW)}x${safeFileNamePart(i.bH)}_${stamp}.html`;
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+
+function exportAllFavoriteRecords(){
+  const favorites=readHistory().filter(x=>x.favorite);
+  if(!favorites.length){
+    alert("目前沒有已按愛心的收藏紀錄可匯出。");
+    return;
+  }
+  const orientationLabels={upright:"保持正放",all:"允許側放／倒放"};
+  const crossLabels={auto:"自動比較",alternate:"每層旋轉90°",pair:"每兩層交叉",same:"全部同向"};
+  const objectiveLabels={boxes:"箱數最大",stability:"穩定性最高",util:"面積利用率最高",space:"空間利用率最高"};
+  const sections=favorites.map((item,index)=>{
+    const i=item.inputs||{},r=item.result||{};
+    const created=new Date(item.createdAt);
+    const dateText=created.toLocaleString("zh-TW",{year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false});
+    const rows=[
+      ["紀錄時間",dateText],["棧板尺寸",`${i.pL} × ${i.pW} × ${i.pH} cm`],["總限高",`${i.maxH} cm`],["棧板最大載重",`${i.maxW} kg`],
+      ["紙箱尺寸",`${i.bL} × ${i.bW} × ${i.bH} cm`],["每箱重量",`${i.boxWeight} kg`],["貨物總箱數",i.quantity||"未指定"],
+      ["每板總箱數",`${r.totalBoxes??"-"} 箱`],["單層最多",`${r.perLayer??"-"} 箱`],["堆疊層數",`${r.layers??"-"} 層`],
+      ["含棧板總高度",`${f2(Number(r.totalHeight||0))} cm`],["整板毛重",`${f2(Number(r.grossWeight||0))} kg`],["空間利用率",`${f2(Number(r.spaceUtil||0))}%`],
+      ["紙箱方向",orientationLabels[i.orientationMode]||i.orientationMode||"-"],["交叉模式",crossLabels[i.crossMode]||i.crossMode||"-"],["最佳化目標",objectiveLabels[i.objective]||i.objective||"-"],
+      ["最低空間利用率",i.enforceMinSpace?`${i.minSpaceUtil}%（強制）`:"未強制"],["安全邊距",`${i.edgeMargin||0} cm`],["允許突出量",`${i.overhang||0} cm`],
+      ["箱與箱間隙",`${i.boxGap||0} cm`],["最低支撐率",`${i.minSupport||0}%`]
+    ];
+    const tableRows=rows.map(([k,v])=>`<tr><th>${escapeHtml(k)}</th><td>${escapeHtml(v)}</td></tr>`).join("");
+    return `<section class="record"><div class="recordHead"><div><h2>收藏紀錄 ${index+1}</h2><div class="sub">${escapeHtml(dateText)}｜紙箱 ${escapeHtml(i.bL)} × ${escapeHtml(i.bW)} × ${escapeHtml(i.bH)} cm</div></div><div class="badge">${f2(Number(r.spaceUtil||0))}%</div></div><div class="summary"><div class="card"><span>每板總箱數</span><strong>${escapeHtml(r.totalBoxes??"-")} 箱</strong></div><div class="card"><span>總高度</span><strong>${f2(Number(r.totalHeight||0))} cm</strong></div><div class="card"><span>整板毛重</span><strong>${f2(Number(r.grossWeight||0))} kg</strong></div></div><table>${tableRows}</table><div class="foot">紀錄 ID：${escapeHtml(item.id)}</div></section>`;
+  }).join("");
+  const html=`<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>棧板收藏紀錄匯出</title><style>
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","Microsoft JhengHei",sans-serif;background:#f4f7fb;color:#172033;margin:0;padding:28px}.wrap{max-width:980px;margin:auto}h1{margin:0;color:#0f2f5f}.intro{color:#637083;margin:7px 0 20px}.record{background:#fff;border:1px solid #d9e1ec;border-radius:16px;padding:22px;margin-bottom:18px;box-shadow:0 6px 24px rgba(17,32,51,.06);page-break-inside:avoid}.recordHead{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.record h2{margin:0 0 4px}.sub{color:#637083;font-size:13px}.badge{background:#ecfdf3;color:#067647;border:1px solid #abefc6;border-radius:999px;padding:7px 11px;font-weight:800}.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0}.card{border:1px solid #d9e1ec;border-radius:11px;padding:12px;background:#f8fbff}.card span{display:block;color:#637083;font-size:12px}.card strong{display:block;font-size:19px;margin-top:4px}table{width:100%;border-collapse:collapse}th,td{padding:9px 10px;border-bottom:1px solid #e5eaf1;text-align:left;font-size:13px}th{width:34%;color:#53657b;background:#fafbfc}.foot{margin-top:12px;color:#637083;font-size:11px}@media(max-width:640px){body{padding:12px}.summary{grid-template-columns:1fr}.record{padding:15px}}@media print{body{background:#fff;padding:0}.record{box-shadow:none}}
+  </style></head><body><div class="wrap"><h1>棧板收藏紀錄</h1><div class="intro">共匯出 ${favorites.length} 筆已按愛心的紀錄</div>${sections}</div></body></html>`;
+  const blob=new Blob([html],{type:"text/html;charset=utf-8"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  const now=new Date();
+  const stamp=`${now.getFullYear()}${String(now.getMonth()+1).padStart(2,"0")}${String(now.getDate()).padStart(2,"0")}_${String(now.getHours()).padStart(2,"0")}${String(now.getMinutes()).padStart(2,"0")}`;
+  a.href=url;a.download=`棧板收藏紀錄_共${favorites.length}筆_${stamp}.html`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+
+
+const FOLDER_KEY="palletProFavoriteFoldersV1";
+function readFolders(){
+  try{
+    const saved=JSON.parse(localStorage.getItem(FOLDER_KEY)||"[]");
+    return Array.isArray(saved)?saved.filter(x=>typeof x==="string"&&x.trim()):[];
+  }catch{return []}
+}
+function writeFolders(items){
+  const clean=[...new Set(items.map(x=>String(x).trim()).filter(Boolean))].filter(x=>x!=="未分類"&&x!=="全部分類");
+  localStorage.setItem(FOLDER_KEY,JSON.stringify(clean));
+}
+function getFavoriteFolders(){
+  const folders=new Set(["未分類",...readFolders()]);
+  readHistory().filter(x=>x.favorite).forEach(x=>folders.add(x.folder||"未分類"));
+  return [...folders].sort((a,b)=>a==="未分類"?-1:b==="未分類"?1:a.localeCompare(b,"zh-Hant"));
+}
+function renderFolderFilter(){
+  const el=$("folderFilter");if(!el)return;
+  const current=activeFolder;
+  el.innerHTML='<option value="all">全部分類</option>'+getFavoriteFolders().map(x=>`<option value="${escapeHtml(x)}">${escapeHtml(x)}</option>`).join('');
+  if([...el.options].some(o=>o.value===current))el.value=current;else{activeFolder="all";el.value="all"}
+}
+function addFavoriteFolder(){
+  const name=prompt("請輸入新的收藏分類名稱：");
+  if(!name||!name.trim())return;
+  const clean=name.trim().slice(0,30);
+  if(["全部分類","未分類"].includes(clean)){alert("此名稱為系統保留名稱，請使用其他名稱。");return}
+  const folders=readFolders();
+  if(folders.includes(clean)){activeFolder=clean;renderHistory();alert("此分類已存在，已切換到該分類。");return}
+  folders.push(clean);writeFolders(folders);activeFolder=clean;renderHistory();
+}
+function removeSelectedFolder(){
+  const selected=$("folderFilter").value;
+  if(selected==="all"){alert("請先在下拉式選單中選擇要取消的分類。");return}
+  if(selected==="未分類"){alert("系統預設的「未分類」不能刪除。");return}
+  if(!confirm(`確定要取消分類「${selected}」嗎？此分類中的收藏紀錄會移回「未分類」。`))return;
+  const all=readHistory();
+  all.forEach(item=>{if((item.folder||"未分類")===selected)item.folder="未分類"});
+  writeHistory(all);
+  writeFolders(readFolders().filter(x=>x!==selected));
+  activeFolder="all";renderHistory();
+}
+function exportFavoritesExcel(){
+  const favorites=readHistory().filter(x=>x.favorite);
+  if(!favorites.length){alert("目前沒有已按愛心的收藏紀錄可匯出。");return}
+  const headers=["分類","紀錄時間","棧板長(cm)","棧板寬(cm)","棧板高(cm)","總限高(cm)","最大載重(kg)","紙箱長(cm)","紙箱寬(cm)","紙箱高(cm)","每箱重量(kg)","貨物總箱數","單層最多","層數","每板總箱數","總高度(cm)","整板毛重(kg)","空間利用率(%)"];
+  const rows=favorites.map(x=>{const i=x.inputs||{},r=x.result||{};return [x.folder||"未分類",formatHistoryTime(x.createdAt),i.pL,i.pW,i.pH,i.maxH,i.maxW,i.bL,i.bW,i.bH,i.boxWeight,i.quantity,r.perLayer,r.layers,r.totalBoxes,f2(Number(r.totalHeight||0)),f2(Number(r.grossWeight||0)),f2(Number(r.spaceUtil||0))]});
+  const esc=v=>`"${String(v??"").replace(/"/g,'""')}"`;
+  const csv='\ufeff'+[headers,...rows].map(row=>row.map(esc).join(',')).join('\r\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a'),d=new Date();
+  a.href=url;a.download=`棧板收藏紀錄_${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+function currentReportHtml(factory=false){
+  if(!model)return '';
+  draw();
+  const img=canvas.toDataURL('image/png');
+  const layers=model.layerLayouts.map((l,i)=>`<tr><td>第 ${i+1} 層</td><td>${l.count} 箱</td><td>${escapeHtml(l.name||'-')}</td></tr>`).join('');
+  const title=factory?'工廠棧板堆疊作業單':'棧板堆疊 PDF 報告';
+  return `<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><title>${title}</title><style>body{font-family:"Microsoft JhengHei",sans-serif;color:#172033;margin:24px}h1{color:#0f2f5f;margin-bottom:4px}.sub{color:#637083;margin-bottom:18px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}.card{border:1px solid #ccd6e3;border-radius:8px;padding:10px}.card span{display:block;color:#637083;font-size:12px}.card b{font-size:18px}.img{width:100%;max-height:430px;object-fit:contain;border:1px solid #d9e1ec;border-radius:10px}table{width:100%;border-collapse:collapse;margin-top:14px}th,td{border:1px solid #d9e1ec;padding:8px;text-align:left}th{background:#f3f6fa}.note{margin-top:14px;border:1px dashed #9aa7b6;padding:12px;min-height:60px}.sign{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:36px}.sign div{border-top:1px solid #172033;padding-top:6px;text-align:center}@media print{button{display:none}body{margin:10mm}.img{max-height:350px}}</style></head><body><h1>${title}</h1><div class="sub">產生時間：${new Date().toLocaleString('zh-TW')}</div><div class="grid"><div class="card"><span>棧板尺寸</span><b>${f2(model.PL)}×${f2(model.PW)}×${f2(model.PH)} cm</b></div><div class="card"><span>紙箱尺寸</span><b>${f2(model.L)}×${f2(model.W)}×${f2(model.H)} cm</b></div><div class="card"><span>每板總箱數</span><b>${model.totalBoxes} 箱</b></div><div class="card"><span>總高度</span><b>${f2(model.totalHeight)} cm</b></div><div class="card"><span>整板毛重</span><b>${f2(model.usedWeight+model.palletWeight+model.packWeight)} kg</b></div><div class="card"><span>空間利用率</span><b>${f2(model.spaceUtil)}%</b></div></div><img class="img" src="${img}"><table><thead><tr><th>層次</th><th>箱數</th><th>排列方式</th></tr></thead><tbody>${layers}</tbody></table>${factory?'<div class="note"><b>現場作業注意事項：</b><br>□ 確認箱體方向　□ 確認限高　□ 確認綁帶／膜包固定　□ 確認標籤朝外</div><div class="sign"><div>作業人員</div><div>複核人員</div><div>日期</div></div>':''}</body></html>`;
+}
+function openPrintReport(factory=false){
+  if(!model){alert('請先完成計算。');return}
+  const w=window.open('','_blank');if(!w){alert('瀏覽器阻擋了新視窗，請允許彈出視窗。');return}
+  w.document.write(currentReportHtml(factory));w.document.close();w.onload=()=>{w.focus();w.print()};
+}
+function renderHistory(){
+  const list=$("historyList");if(!list)return;
+  renderFolderFilter();
+  let items=readHistory();
+  if(historyView==="favorites")items=items.filter(x=>x.favorite);
+  if(activeFolder!=="all")items=items.filter(x=>(x.folder||"未分類")===activeFolder);
+  list.innerHTML="";
+  if(!items.length){list.innerHTML=`<div class="historyEmpty">${historyView==="favorites"?"此分類尚未收藏紀錄。":"按下「重新計算並生成全景圖」後，會自動留下紀錄。"}</div>`;return}
+  const folders=getFavoriteFolders();
+  items.forEach(item=>{
+    const row=document.createElement("div");row.className="historyItem";
+    row.innerHTML=`<div class="historyMain" title="載入這筆資料"><div class="historyTitle">${item.inputs.bL}×${item.inputs.bW}×${item.inputs.bH} cm｜${item.result.totalBoxes} 箱/板</div><div class="historyMeta">${formatHistoryTime(item.createdAt)}${item.updatedAt&&item.updatedAt!==item.createdAt?"・已更新":""}・${item.result.layers} 層・高 ${f2(item.result.totalHeight)} cm・空間 ${f2(item.result.spaceUtil)}%</div>${item.favorite?`<select class="folderSelect" title="收藏分類">${folders.map(f=>`<option value="${escapeHtml(f)}" ${f===(item.folder||"未分類")?'selected':''}>${escapeHtml(f)}</option>`).join('')}<option value="__cancel__">— 取消分類 —</option></select>`:''}</div><button class="heartBtn ${item.favorite?"saved":""}" title="${item.favorite?"取消收藏":"收藏到資料夾"}">${item.favorite?"♥":"♡"}</button>`;
+    row.querySelector(".historyMain").onclick=e=>{if(e.target.tagName!=="SELECT"){activeHistoryId=item.id;restoreInputs(item.inputs);calculate(false)}};
+    const sel=row.querySelector('.folderSelect');if(sel)sel.onchange=e=>{e.stopPropagation();const all=readHistory(),t=all.find(x=>x.id===item.id);if(t){t.folder=e.target.value==="__cancel__"?"未分類":e.target.value;writeHistory(all);renderHistory()}};
+    row.querySelector(".heartBtn").onclick=()=>{const all=readHistory(),target=all.find(x=>x.id===item.id);if(target){target.favorite=!target.favorite;if(target.favorite&&!target.folder)target.folder="未分類";writeHistory(all);renderHistory()}};
+    list.appendChild(row);
+  });
+}
+
+function calculate(recordHistory=false,deepOptimize=false){
+  try{
+    const PL=n("pL"), PW=n("pW"), PH=n("pH"), maxH=n("maxH"), maxLoad=n("maxW");
+    const L=n("bL"), W=n("bW"), H=n("bH"), boxWeight=n("boxWeight");
+    const quantity=Math.floor(n("quantity"));
+    const edge=n("edgeMargin"),overhang=n("overhang"),layerPad=n("layerPad"),topPack=n("topPack"),gap=n("boxGap"),packWeight=n("packWeight"),palletWeight=n("palletWeight"),manualMaxLayers=Math.floor(n("manualMaxLayers"));
+    const compression=n("boxCompression"),minSupport=n("minSupport");
+    if([PL,PW,maxH,L,W,H,boxWeight].some(v=>v<=0)) throw new Error("長、寬、高與重量必須大於0。");
+    if(maxH<PH) throw new Error("總限高不能低於棧板本身高度。");
+    const usableL=PL-2*edge+2*overhang, usableW=PW-2*edge+2*overhang;
+    if(usableL<=0||usableW<=0)throw new Error("安全邊距過大，沒有可用面積。");
+
+    const mode=deepOptimize?"all":$("orientationMode").value, crossMode=deepOptimize?"auto":$("crossMode").value;
+    const crossModes=crossMode==="auto"?["same","alternate","pair"]:[crossMode];
+    const partial=$("partialTop").checked, shouldCenter=$("centerBoxes").checked;
+    const centerPartial=$("centerPartial").checked, enforceSupport=$("enforceSupport").checked;
+    const objective=deepOptimize?"space":$("objective").value;
+    const enforceMinSpace=$("enforceMinSpace").checked;
+    const minSpaceTarget=n("minSpaceUtil");
+    let best=null;
+    const candidates=[];
+
+    for(const o of orientations(L,W,H,mode)){
+      for(const activeCrossMode of crossModes){
+      const layerStep=o.h+layerPad;
+      const maxHeightLayers=Math.min(manualMaxLayers,floorSafe((maxH-PH-topPack+layerPad)/layerStep));
+      if(maxHeightLayers<=0)continue;
+      let A=bestLayer(usableL,usableW,o.a,o.b,false),B=bestLayer(usableL,usableW,o.a,o.b,true);
+      A.boxes=A.boxes.map(b=>({...b,x:b.x+Math.floor(b.x/o.a)*gap,y:b.y+Math.floor(b.y/o.b)*gap}));
+      B.boxes=B.boxes.map(b=>({...b,x:b.x+Math.floor(b.x/o.b)*gap,y:b.y+Math.floor(b.y/o.a)*gap}));
+      if(shouldCenter){A={...A,boxes:centerLayout(A.boxes,usableL,usableW)};B={...B,boxes:centerLayout(B.boxes,usableL,usableW)}}
+      const shift=b=>({...b,x:b.x+edge-overhang,y:b.y+edge-overhang});
+      A={...A,boxes:A.boxes.map(shift)};B={...B,boxes:B.boxes.map(shift)};
+      if(!A.count)continue;
+      const layers=[];let total=0,weight=0,full=0;
+      for(let k=0;k<maxHeightLayers;k++){
+        const lay=patternAt(k,activeCrossMode,A,B);
+        const byWeight=floorSafe((maxLoad-palletWeight-packWeight-weight)/boxWeight), byQty=quantity>0?quantity-total:Infinity;
+        let can=Math.max(0,Math.min(lay.count,byWeight,byQty));
+        const abovePerBottom=(maxHeightLayers-k-1)*boxWeight;
+        if(compression>0&&abovePerBottom>compression)break;
+        let boxes=lay.boxes.map(x=>({...x}));
+        if(k>0&&enforceSupport){boxes=boxes.filter(b=>supportRate(b,layers[k-1].boxes)>=minSupport);can=Math.min(can,boxes.length)}
+        if(can===lay.count){layers.push({boxes,count:can,full:true,name:lay.name});total+=can;weight+=can*boxWeight;full++}
+        else if(partial&&can>0){boxes=boxes.slice(0,can);if(centerPartial)boxes=centerLayout(boxes,PL,PW);layers.push({boxes,count:can,full:false,name:lay.name});total+=can;weight+=can*boxWeight;break}
+        else break;
+        if(quantity>0&&total>=quantity)break;
+      }
+      const occupied=layers.length,totalHeight=PH+occupied*o.h+Math.max(0,occupied-1)*layerPad+topPack;
+      const support=minLayerSupport(layers),cg=stackCG(layers,PL,PW);
+      const stability=Math.max(0,Math.min(100,Math.round(support*.65+Math.max(0,25-cg.d*2)+10)));
+      const util=A.boxes.reduce((s,b)=>s+b.l*b.w,0)/(PL*PW)*100;
+      const usedBoxVolume=total*o.a*o.b*o.h;
+      const availableStackVolume=PL*PW*Math.max(0,maxH-PH-topPack);
+      const spaceUtil=availableStackVolume>0?usedBoxVolume/availableStackVolume*100:0;
+      const heightFill=maxH>0?totalHeight/maxH*100:0;
+      const score=objective==='stability'?[stability,total,full,spaceUtil,util]:
+        objective==='util'?[util,total,stability,spaceUtil,full]:
+        objective==='space'?[spaceUtil,total,heightFill,stability,util,full]:
+        [total,full,stability,spaceUtil,util];
+      const candidate={score,o,A,B,layerLayouts:layers,totalBoxes:total,usedWeight:weight,occupiedLayers:occupied,fullLayers:full,maxHeightLayers,totalHeight,stability,support,cg,util,spaceUtil,heightFill,activeCrossMode,palletWeight,packWeight,gap};
+      candidates.push(candidate);
+      }
+    }
+    if(!candidates.length)throw new Error("目前限制下無法形成有效堆疊；請降低安全限制或調整紙箱方向。");
+    const eligible=enforceMinSpace?candidates.filter(x=>x.spaceUtil+1e-9>=minSpaceTarget):candidates;
+    const selectionPool=eligible.length?eligible:candidates;
+    best=selectionPool.reduce((winner,x)=>!winner||lexGreater(x.score,winner.score)?x:winner,null);
+    const targetMiss=enforceMinSpace&&!eligible.length;
+    const palletsNeeded=quantity>0?Math.ceil(quantity/best.totalBoxes):null;
+    model={PL,PW,PH,maxH,maxLoad,L,W,H,boxWeight,quantity,cross:true,partial,edge,overhang,layerPad,topPack,...best,palletsNeeded,deepVerified:deepOptimize,verifiedCandidateCount:candidates.length};
+    $("rPerLayer").textContent=`${best.A.count} 箱`;$("rLayers").textContent=`${best.fullLayers} 層`;
+    $("rTotal").textContent=`${best.totalBoxes} 箱`;$("rHeight").textContent=`${f2(best.totalHeight)} cm`;
+    $("rWeight").textContent=`${f2(best.usedWeight+best.palletWeight+best.packWeight)} kg`;$("rPallets").textContent=palletsNeeded?`${palletsNeeded} 板`:"—";
+    $("rStability").textContent=`${best.stability}/100`;
+    const utilClass=best.spaceUtil>=80?'utilGood':best.spaceUtil>=70?'utilWarn':'utilBad';
+    $("rSpaceUtil").innerHTML=`<span class="utilBadge ${utilClass}">${f2(best.spaceUtil)}%</span>`;
+    const cls=best.stability>=80?'ok':best.stability>=60?'warning':'error';
+    $("details").innerHTML=`<b>最佳方向：</b>${best.o.label} cm；<b>交叉模式：</b>${best.activeCrossMode==='alternate'?'每層交叉':best.activeCrossMode==='pair'?'每兩層交叉':'全部同向'}。<br>`+
+      `<b>單層：</b>${best.A.count}箱；<b>面積利用率：</b>${f2(best.util)}%；<b>空間利用率：</b>${f2(best.spaceUtil)}%；<b>最低支撐率：</b>${f2(best.support)}%。<br>`+
+      `<b>重心偏移：</b>${f2(best.cg.d)} cm；<b class="${cls}">穩定性 ${best.stability}/100</b>。<br>`+
+      `<span class="${best.totalHeight<=maxH?'ok':'error'}">高度 ${f2(best.totalHeight)} / ${f2(maxH)} cm</span>；`+
+      `<span class="${best.usedWeight<=maxLoad?'ok':'error'}">重量 ${f2(best.usedWeight)} / ${f2(maxLoad)} kg</span>。`+
+      (targetMiss?`<br><span class="warning"><b>未達設定目標：</b>找不到 ${f2(minSpaceTarget)}% 以上方案，目前最佳為 ${f2(best.spaceUtil)}%。</span>`:
+      enforceMinSpace?`<br><span class="ok"><b>目標達成：</b>空間利用率已達 ${f2(minSpaceTarget)}% 以上。</span>`:'');
+    const dist=quantity>0&&best.totalBoxes>0?Array.from({length:Math.ceil(quantity/best.totalBoxes)},(_,i)=>Math.floor(quantity/Math.ceil(quantity/best.totalBoxes))+(i<quantity%Math.ceil(quantity/best.totalBoxes)?1:0)):[];
+    if($("avgLastPallet").checked&&dist.length)$("details").innerHTML+=`<br><b>平均分板：</b>${dist.join("、")} 箱／板。`;
+    if(deepOptimize)$("details").innerHTML+=`<br><span class="ok"><b>深度最佳化：</b>已比較全部 6 種方向、3 種交叉模式及系統支援的混合排列，共 ${candidates.length} 個候選方案。</span>`;
+    $("statusBox").innerHTML=`<b>結果狀態</b><br>最低支撐 ${f2(best.support)}%<br>重心偏移 ${f2(best.cg.d)} cm<br>整板毛重 ${f2(best.usedWeight+best.palletWeight+best.packWeight)} kg`;
+    renderTargetSearch(candidates);
+    renderRanking(candidates,best);
+    if(recordHistory){
+      if(deepOptimize){
+        // 深度最佳化／改善方案只更新原本那筆歷史紀錄，不新增重複紀錄。
+        if(!updateActiveHistoryRecord(best,quantity,"深度最佳化改善方案"))addHistoryRecord(best,quantity);
+      }else{
+        addHistoryRecord(best,quantity);
+      }
+      show80UtilGuide(best,candidates,deepOptimize);
+    }
+    selectedLayer=-1;buildLayerTabs();resetView();resizeAndDraw();
+  }catch(err){$("details").innerHTML=`<span class="error">${err.message}</span>`;}
+}
+function candidateKey(x){
+  return [x.o.label,x.activeCrossMode,x.totalBoxes,x.occupiedLayers,f2(x.spaceUtil)].join('|');
+}
+function uniqueCandidates(items){
+  const seen=new Set();
+  return items.filter(x=>{const k=candidateKey(x);if(seen.has(k))return false;seen.add(k);return true});
+}
+function activateCandidate(candidate,updateHistory=false){
+  if(!model||!candidate)return;
+  const base={PL:model.PL,PW:model.PW,PH:model.PH,maxH:model.maxH,maxLoad:model.maxLoad,L:model.L,W:model.W,H:model.H,boxWeight:model.boxWeight,quantity:model.quantity,cross:true,partial:model.partial,edge:model.edge,overhang:model.overhang,layerPad:model.layerPad,topPack:model.topPack,palletsNeeded:model.quantity>0?Math.ceil(model.quantity/candidate.totalBoxes):null};
+  model={...base,...candidate};
+  $("rPerLayer").textContent=`${candidate.A.count} 箱`;$("rLayers").textContent=`${candidate.fullLayers} 層`;$("rTotal").textContent=`${candidate.totalBoxes} 箱`;$("rHeight").textContent=`${f2(candidate.totalHeight)} cm`;
+  $("rWeight").textContent=`${f2(candidate.usedWeight+candidate.palletWeight+candidate.packWeight)} kg`;$("rPallets").textContent=model.palletsNeeded?`${model.palletsNeeded} 板`:"—";$("rStability").textContent=`${candidate.stability}/100`;
+  const cls=candidate.spaceUtil>=80?'utilGood':candidate.spaceUtil>=70?'utilWarn':'utilBad';$("rSpaceUtil").innerHTML=`<span class="utilBadge ${cls}">${f2(candidate.spaceUtil)}%</span>`;
+  if(updateHistory)updateActiveHistoryRecord(candidate,model.quantity,"套用改善方案");
+  selectedLayer=-1;buildLayerTabs();resetView();resizeAndDraw();
+}
+function renderRanking(candidates,best){
+  const el=$("rankingList");
+  const ranked=uniqueCandidates([...candidates].sort((a,b)=>b.spaceUtil-a.spaceUtil||b.totalBoxes-a.totalBoxes||b.stability-a.stability)).slice(0,10);
+  el.innerHTML='';
+  ranked.forEach((x,i)=>{
+    const row=document.createElement('div');row.className='rankingItem';
+    const cls=x.spaceUtil>=80?'utilGood':x.spaceUtil>=70?'utilWarn':'utilBad';
+    row.innerHTML=`<div class="rankNo">#${i+1}</div><div><div class="rankTitle">${x.o.label} cm｜${x.totalBoxes} 箱・${x.occupiedLayers} 層</div><div class="rankMeta">${x.activeCrossMode==='alternate'?'每層交叉':x.activeCrossMode==='pair'?'每兩層交叉':'全部同向'}・高度 ${f2(x.totalHeight)} cm・穩定 ${x.stability}/100</div></div><span class="utilBadge ${cls}">${f2(x.spaceUtil)}%</span>`;
+    row.style.cursor='pointer';row.onclick=()=>activateCandidate(x);el.appendChild(row);
+  });
+}
+function renderTargetSearch(candidates){
+  const el=$("targetSearch");el.innerHTML='';
+  [80,85,90].forEach(target=>{
+    const matches=uniqueCandidates(candidates.filter(x=>x.spaceUtil+1e-9>=target).sort((a,b)=>b.totalBoxes-a.totalBoxes||b.spaceUtil-a.spaceUtil||b.stability-a.stability));
+    const x=matches[0];const card=document.createElement('div');card.className='targetCard';
+    if(x){card.innerHTML=`<b class="ok">✓ ${target}% 可達成</b>${x.totalBoxes} 箱／${x.occupiedLayers} 層<br>實際 ${f2(x.spaceUtil)}%<br><button class="miniBtn" style="margin-top:6px">查看方案</button>`;card.querySelector('button').onclick=()=>activateCandidate(x)}
+    else card.innerHTML=`<b class="error">✕ ${target}% 未達成</b>目前條件下沒有符合方案`;
+    el.appendChild(card);
+  });
+}
+
+function guideCrossName(mode){
+  return mode==='alternate'?'每層旋轉 90°':mode==='pair'?'每兩層交叉':'全部同向';
+}
+function close80UtilGuide(){
+  const modal=$('utilGuideModal');modal.classList.remove('open');modal.setAttribute('aria-hidden','true');
+}
+function show80UtilGuide(best,candidates,deepVerified=false){
+  const target=80;
+  const matches=uniqueCandidates(candidates.filter(x=>x.spaceUtil+1e-9>=target).sort((a,b)=>b.spaceUtil-a.spaceUtil||b.totalBoxes-a.totalBoxes||b.stability-a.stability));
+  const solution=best.spaceUtil>=target?best:matches[0];
+  const achieved=!!solution;
+  const top=$('utilGuideTop'),body=$('utilGuideBody');
+  top.classList.toggle('warn',!achieved);
+  $('utilGuideTitle').textContent=achieved?'✓ 已達到 80% 空間利用率':'尚未達到 80% 空間利用率';
+  if(achieved){
+    const layerText=solution.layerLayouts.map((x,i)=>`第 ${i+1} 層放 ${x.count} 箱（${x.name}）`).join('；');
+    const verifiedNote=deepVerified?`<div class="details ok" style="margin:0 0 12px"><b>✓ 深度最佳化驗證完成</b><br>已比較 6 種箱體方向、3 種交叉規則，以及系統支援的同向、90°旋轉與橫豎混合切割排列，共評估 ${candidates.length} 個整板候選方案。此結果是目前安全限制與本系統排列模型內的最高空間利用率。</div>`:`<div class="details warning" style="margin:0 0 12px"><b>尚未執行深度驗證</b><br>按下「重新深度最佳化」後，系統會忽略目前方向與交叉選項，全面比較所有支援方案。</div>`;
+    body.innerHTML=`${verifiedNote}<div class="utilGuideScore"><div class="utilGuidePct">${f2(solution.spaceUtil)}%</div><div class="utilGuideText"><b>此方案已達標。</b><br>請依下列方向與層數擺放，即可維持 80% 以上的空間利用率。</div></div>
+      <div class="utilGuideGrid">
+        <div class="utilGuideCard"><span>紙箱擺放方向</span><b>${solution.o.label} cm</b></div>
+        <div class="utilGuideCard"><span>交叉方式</span><b>${guideCrossName(solution.activeCrossMode)}</b></div>
+        <div class="utilGuideCard"><span>每板箱數／層數</span><b>${solution.totalBoxes} 箱／${solution.occupiedLayers} 層</b></div>
+        <div class="utilGuideCard"><span>完成高度</span><b>${f2(solution.totalHeight)} cm（限高 ${f2(model.maxH)} cm）</b></div>
+        <div class="utilGuideCard"><span>單層最多</span><b>${solution.A.count} 箱</b></div>
+        <div class="utilGuideCard"><span>穩定性／支撐率</span><b>${solution.stability}/100／${f2(solution.support)}%</b></div>
+      </div>
+      <ol class="utilGuideSteps"><li>依「${solution.o.label} cm」方向放置紙箱。</li><li>採用「${guideCrossName(solution.activeCrossMode)}」。</li><li>${layerText}</li><li>總高度不得超過 ${f2(model.maxH)} cm，整板重量不得超過 ${f2(model.maxLoad)} kg。</li><li>完成後確認箱體沒有超出允許邊界，並依現場需求加膜包、護角或綁帶。</li></ol>
+      <div class="utilGuideActions"><button class="secondary" type="button" id="utilGuideDeep">重新深度最佳化</button><button class="secondary" type="button" id="utilGuideApply">套用此 80% 方案</button><button class="primary" style="width:auto;margin-top:0" type="button" id="utilGuideDone">了解</button></div>`;
+    $('utilGuideDeep').onclick=()=>{close80UtilGuide();$("orientationMode").value="all";$("crossMode").value="auto";$("objective").value="space";calculate(true,true)};
+    $('utilGuideApply').onclick=()=>{activateCandidate(solution,true);close80UtilGuide()};
+    $('utilGuideDone').onclick=close80UtilGuide;
+  }else{
+    const closest=uniqueCandidates([...candidates].sort((a,b)=>b.spaceUtil-a.spaceUtil||b.totalBoxes-a.totalBoxes))[0];
+    const gap=Math.max(0,target-closest.spaceUtil);
+    const boxVol=model.L*model.W*model.H;
+    const avail=model.PL*model.PW*Math.max(0,model.maxH-model.PH-model.topPack);
+    const needed=Math.max(0,Math.ceil((target/100*avail-closest.totalBoxes*boxVol)/boxVol));
+    const verifiedNote=deepVerified?`<div class="details ok" style="margin:0 0 12px"><b>✓ 深度最佳化驗證完成</b><br>已全面比較 6 種箱體方向、3 種交叉規則與系統支援的橫豎混合排列，共評估 ${candidates.length} 個候選方案。${f2(closest.spaceUtil)}% 是目前限制與本系統排列模型內可找到的最高值。</div>`:`<div class="details warning" style="margin:0 0 12px"><b>建議先執行深度最佳化</b><br>系統將強制比較所有方向與交叉方式，再判斷是否真的無法達到 80%。</div>`;
+    body.innerHTML=`${verifiedNote}<div class="utilGuideScore warn"><div class="utilGuidePct">${f2(closest.spaceUtil)}%</div><div class="utilGuideText"><b>目前最佳方案仍差 ${f2(gap)} 個百分點。</b><br>系統會顯示最接近 80% 的方案，以及可嘗試的調整方式。</div></div>
+      <div class="utilGuideGrid"><div class="utilGuideCard"><span>最接近方案</span><b>${closest.totalBoxes} 箱／${closest.occupiedLayers} 層</b></div><div class="utilGuideCard"><span>紙箱方向</span><b>${closest.o.label} cm</b></div><div class="utilGuideCard"><span>交叉方式</span><b>${guideCrossName(closest.activeCrossMode)}</b></div><div class="utilGuideCard"><span>理論尚需增加</span><b>約 ${needed} 箱</b></div></div>
+      <ol class="utilGuideSteps"><li>將「紙箱方向」改為允許側放／倒放，讓系統比較 6 種方向。</li><li>將最佳化目標改為「空間利用率最高」。</li><li>確認貨物總箱數足夠；箱數不足時，即使排列最佳也可能無法達到 80%。</li><li>在安全允許下，降低箱間隙、安全邊距或包材高度。</li><li>確認限重、紙箱承壓及最低支撐率沒有提早限制可堆層數。</li><li>若仍無法達標，代表目前紙箱尺寸與棧板尺寸組合在限制內無法達到 80%，可改用其他棧板規格。</li></ol>
+      <div class="utilGuideActions"><button class="secondary" type="button" id="utilGuideDeep">重新深度最佳化</button><button class="secondary" type="button" id="utilGuideClosest">查看最接近方案</button><button class="primary" style="width:auto;margin-top:0" type="button" id="utilGuideDone">了解</button></div>`;
+    $('utilGuideDeep').onclick=()=>{close80UtilGuide();$("orientationMode").value="all";$("crossMode").value="auto";$("objective").value="space";calculate(true,true)};
+    $('utilGuideClosest').onclick=()=>{activateCandidate(closest,true);close80UtilGuide()};
+    $('utilGuideDone').onclick=close80UtilGuide;
+  }
+  const modal=$('utilGuideModal');modal.classList.add('open');modal.setAttribute('aria-hidden','false');
+}
+
+function lexGreater(a,b){
+  for(let i=0;i<a.length;i++){ if(a[i]!==b[i]) return a[i]>b[i]; }
+  return false;
+}
+function buildLayerTabs(){
+  const el=$("layerTabs"); el.innerHTML="";
+  const all=document.createElement("button"); all.textContent="完整全景"; all.className="active";
+  all.onclick=()=>{selectedLayer=-1;setActive(all);$("viewTitle").textContent="完整棧板全景圖";draw()};
+  el.appendChild(all);
+  model.layerLayouts.forEach((layer,i)=>{
+    const b=document.createElement("button"); b.textContent=`第${i+1}層（${layer.count}箱）`;
+    b.onclick=()=>{selectedLayer=i;setActive(b);$("viewTitle").textContent=`第${i+1}層俯視與3D圖`;draw()};
+    el.appendChild(b);
+  });
+}
+function setActive(btn){ [...$("layerTabs").children].forEach(x=>x.classList.remove("active")); btn.classList.add("active"); }
+
+/* ---------- 3D canvas ---------- */
+function resizeAndDraw(){
+  const rect=canvas.getBoundingClientRect(), dpr=Math.min(2,window.devicePixelRatio||1);
+  canvas.width=Math.round(rect.width*dpr); canvas.height=Math.round(rect.height*dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  draw();
+}
+function project(x,y,z){
+  const PL=model.PL,PW=model.PW,totalH=Math.max(model.totalHeight,model.PH+model.o.h);
+  x-=PL/2; y-=PW/2; z-=totalH/2;
+  const cy=Math.cos(yaw), sy=Math.sin(yaw);
+  let X=x*cy-y*sy, Y=x*sy+y*cy;
+  const cp=Math.cos(pitch), sp=Math.sin(pitch);
+  let Z=z*cp-Y*sp, D=Y*cp+z*sp;
+  const s=Math.min(canvas.clientWidth/(PL+PW),canvas.clientHeight/(totalH+Math.max(PL,PW)*.55))*1.45*zoom;
+  return {x:canvas.clientWidth/2+X*s,y:canvas.clientHeight/2-Z*s,depth:D};
+}
+function cuboid(x,y,z,l,w,h,type,label){
+  const p=[
+    [x,y,z],[x+l,y,z],[x+l,y+w,z],[x,y+w,z],
+    [x,y,z+h],[x+l,y,z+h],[x+l,y+w,z+h],[x,y+w,z+h]
+  ].map(q=>project(...q));
+  const faces=[
+    {idx:[0,1,2,3],shade:.72},{idx:[4,5,6,7],shade:1},
+    {idx:[0,1,5,4],shade:.84},{idx:[1,2,6,5],shade:.62},
+    {idx:[2,3,7,6],shade:.76},{idx:[3,0,4,7],shade:.68}
+  ].map(f=>({...f,pts:f.idx.map(i=>p[i]),depth:f.idx.reduce((s,i)=>s+p[i].depth,0)/4,type,label}));
+  return faces;
+}
+function colorFor(type,shade){
+  const base=type==="pallet"?[166,114,64]:type==="odd"?[70,137,207]:[226,142,64];
+  return `rgb(${base.map(v=>Math.round(v*shade)).join(",")})`;
+}
+function draw(){
+  if(!model) return;
+  ctx.clearRect(0,0,canvas.clientWidth,canvas.clientHeight);
+  const grad=ctx.createLinearGradient(0,0,0,canvas.clientHeight);
+  grad.addColorStop(0,"#fbfdff");grad.addColorStop(1,"#e8eef6");
+  ctx.fillStyle=grad;ctx.fillRect(0,0,canvas.clientWidth,canvas.clientHeight);
+
+  const faces=[];
+  faces.push(...cuboid(0,0,0,model.PL,model.PW,model.PH,"pallet","棧板"));
+  const layers = selectedLayer<0 ? model.layerLayouts.map((x,i)=>[x,i]) : [[model.layerLayouts[selectedLayer],selectedLayer]];
+  for(const [layer,i] of layers){
+    const z=model.PH+i*(model.o.h+model.layerPad)+(explode?i*12:0);
+    for(const b of layer.boxes){
+      faces.push(...cuboid(b.x,b.y,z,b.l,b.w,model.o.h,i%2===0?"odd":"even",`第${i+1}層`));
+    }
+  }
+  faces.sort((a,b)=>a.depth-b.depth);
+  for(const f of faces){
+    ctx.beginPath();ctx.moveTo(f.pts[0].x,f.pts[0].y);
+    for(let i=1;i<f.pts.length;i++)ctx.lineTo(f.pts[i].x,f.pts[i].y);
+    ctx.closePath();ctx.fillStyle=colorFor(f.type,f.shade);ctx.fill();
+    ctx.strokeStyle="rgba(24,37,55,.78)";ctx.lineWidth=.8;ctx.stroke();
+  }
+  if(showLimit){
+    const z=model.maxH,p=[[0,0,z],[model.PL,0,z],[model.PL,model.PW,z],[0,model.PW,z]] .map(q=>project(...q));
+    ctx.save();ctx.globalAlpha=.14;ctx.fillStyle="#d92d20";ctx.beginPath();ctx.moveTo(p[0].x,p[0].y);for(let i=1;i<p.length;i++)ctx.lineTo(p[i].x,p[i].y);ctx.closePath();ctx.fill();ctx.restore();
+  }
+  if(showLabels) drawDimensions();
+}
+function line3D(a,b,text,offsetX=0,offsetY=0){
+  const A=project(...a),B=project(...b);
+  ctx.save();ctx.strokeStyle="#172033";ctx.fillStyle="#172033";ctx.lineWidth=1.2;
+  ctx.beginPath();ctx.moveTo(A.x,A.y);ctx.lineTo(B.x,B.y);ctx.stroke();
+  const ang=Math.atan2(B.y-A.y,B.x-A.x);
+  for(const P of [A,B]){
+    ctx.beginPath();ctx.moveTo(P.x,P.y);
+    ctx.lineTo(P.x-7*Math.cos(ang-.45),P.y-7*Math.sin(ang-.45));
+    ctx.moveTo(P.x,P.y);
+    ctx.lineTo(P.x-7*Math.cos(ang+.45),P.y-7*Math.sin(ang+.45));ctx.stroke();
+  }
+  const mx=(A.x+B.x)/2+offsetX,my=(A.y+B.y)/2+offsetY;
+  ctx.font="600 12px sans-serif";ctx.textAlign="center";ctx.textBaseline="middle";
+  const w=ctx.measureText(text).width+10;ctx.fillStyle="rgba(255,255,255,.88)";ctx.fillRect(mx-w/2,my-10,w,20);
+  ctx.fillStyle="#172033";ctx.fillText(text,mx,my);ctx.restore();
+}
+function drawDimensions(){
+  const h=model.totalHeight;
+  line3D([0,-7,0],[model.PL,-7,0],`棧板長 ${f2(model.PL)} cm`,0,12);
+  line3D([-7,0,0],[-7,model.PW,0],`棧板寬 ${f2(model.PW)} cm`,-5,0);
+  line3D([model.PL+7,model.PW,0],[model.PL+7,model.PW,h],`總高 ${f2(h)} cm`,42,0);
+  if(model.layerLayouts.length){
+    const b=model.layerLayouts[0].boxes[0];
+    line3D([b.x,b.y,model.PH],[b.x+b.l,b.y,model.PH],`${f2(b.l)} cm`,0,-12);
+    line3D([b.x,b.y,model.PH],[b.x,b.y+b.w,model.PH],`${f2(b.w)} cm`,-22,0);
+    line3D([b.x+b.l,b.y+b.w,model.PH],[b.x+b.l,b.y+b.w,model.PH+model.o.h],`${f2(model.o.h)} cm`,32,0);
+  }
+}
+
+canvas.addEventListener("mousedown",e=>{drag=true;lastX=e.clientX;lastY=e.clientY});
+window.addEventListener("mouseup",()=>drag=false);
+window.addEventListener("mousemove",e=>{
+  if(!drag)return;
+  yaw+=(e.clientX-lastX)*.008; pitch=Math.max(-1.15,Math.min(1.15,pitch+(e.clientY-lastY)*.006));
+  lastX=e.clientX;lastY=e.clientY;draw();
+});
+canvas.addEventListener("wheel",e=>{e.preventDefault();zoom=Math.max(.45,Math.min(3,zoom*(e.deltaY>0?.9:1.1)));draw()},{passive:false});
+canvas.addEventListener("touchstart",e=>{if(e.touches.length===1){drag=true;lastX=e.touches[0].clientX;lastY=e.touches[0].clientY}},{passive:true});
+canvas.addEventListener("touchmove",e=>{if(drag&&e.touches.length===1){yaw+=(e.touches[0].clientX-lastX)*.008;pitch=Math.max(-1.15,Math.min(1.15,pitch+(e.touches[0].clientY-lastY)*.006));lastX=e.touches[0].clientX;lastY=e.touches[0].clientY;draw()}},{passive:true});
+canvas.addEventListener("touchend",()=>drag=false);
+
+function resetView(){yaw=-.72;pitch=.56;zoom=1;draw()}
+
+const PALLET_PRESETS={
+  eu:{name:"歐規",pL:120,pW:80,pH:15,maxH:155,maxW:1500},
+  us:{name:"美規",pL:121.92,pW:101.6,pH:15,maxH:160,maxW:1500},
+  au:{name:"澳規",pL:116.5,pW:116.5,pH:15,maxH:180,maxW:1500}
+};
+function applyPalletPreset(key){
+  const preset=PALLET_PRESETS[key];
+  if(!preset)return;
+  $("pL").value=preset.pL;
+  $("pW").value=preset.pW;
+  $("pH").value=preset.pH;
+  $("maxH").value=preset.maxH;
+  $("maxW").value=preset.maxW;
+  document.querySelectorAll("[data-pallet-preset]").forEach(btn=>btn.classList.toggle("active",btn.dataset.palletPreset===key));
+  calculate(false);
+}
+document.querySelectorAll("[data-pallet-preset]").forEach(btn=>btn.onclick=()=>applyPalletPreset(btn.dataset.palletPreset));
+["pL","pW","pH","maxH","maxW"].forEach(id=>$(id).addEventListener("input",()=>{document.querySelectorAll("[data-pallet-preset]").forEach(btn=>btn.classList.remove("active"));$("customPresetBtn").classList.remove("active")}));
+
+
+const CUSTOM_PALLET_TEMPLATE_KEY="palletProCustomTemplatesV1";
+function readCustomTemplates(){
+  try{return JSON.parse(localStorage.getItem(CUSTOM_PALLET_TEMPLATE_KEY)||"[]")}catch{return []}
+}
+function writeCustomTemplates(items){localStorage.setItem(CUSTOM_PALLET_TEMPLATE_KEY,JSON.stringify(items))}
+function refreshCustomTemplateSelect(selectedId=""){
+  const select=$("savedTemplateSelect");
+  const items=readCustomTemplates();
+  select.innerHTML='<option value="">選擇模板</option>'+items.map(x=>`<option value="${x.id}">${escapeHtml(x.name)}｜${x.pL}×${x.pW}×${x.pH} cm</option>`).join("");
+  if(selectedId)select.value=selectedId;
+}
+function fillCustomTemplateForm(preset){
+  $("customTemplateName").value=preset.name||"";
+  $("customPL").value=preset.pL??"";$("customPW").value=preset.pW??"";$("customPH").value=preset.pH??"";
+  $("customMaxH").value=preset.maxH??"";$("customMaxW").value=preset.maxW??"";
+}
+function currentPalletValues(){return {pL:Number($("pL").value),pW:Number($("pW").value),pH:Number($("pH").value),maxH:Number($("maxH").value),maxW:Number($("maxW").value)}}
+function applyCustomTemplate(preset){
+  if(!preset)return;
+  $("pL").value=preset.pL;$("pW").value=preset.pW;$("pH").value=preset.pH;$("maxH").value=preset.maxH;$("maxW").value=preset.maxW;
+  document.querySelectorAll("[data-pallet-preset]").forEach(btn=>btn.classList.remove("active"));
+  $("customPresetBtn").classList.add("active");
+  calculate(false);
+}
+$("customPresetBtn").onclick=()=>{fillCustomTemplateForm({...currentPalletValues(),name:""});refreshCustomTemplateSelect();$("templateDialog").showModal()};
+$("closeTemplateDialog").onclick=()=>$("templateDialog").close();
+$("templateDialog").addEventListener("click",e=>{if(e.target===$("templateDialog"))$("templateDialog").close()});
+$("fillCurrentPallet").onclick=()=>fillCustomTemplateForm({...currentPalletValues(),name:$("customTemplateName").value});
+$("savedTemplateSelect").onchange=()=>{const x=readCustomTemplates().find(t=>t.id===$("savedTemplateSelect").value);if(x)fillCustomTemplateForm(x)};
+$("applySavedTemplate").onclick=()=>{const x=readCustomTemplates().find(t=>t.id===$("savedTemplateSelect").value);if(!x){alert("請先選擇一個自訂模板。");return}applyCustomTemplate(x);$("templateDialog").close()};
+$("deleteSavedTemplate").onclick=()=>{const id=$("savedTemplateSelect").value;if(!id){alert("請先選擇要刪除的模板。");return}const items=readCustomTemplates();const target=items.find(x=>x.id===id);if(!confirm(`確定刪除「${target?.name||"此模板"}」嗎？`))return;writeCustomTemplates(items.filter(x=>x.id!==id));refreshCustomTemplateSelect();fillCustomTemplateForm({...currentPalletValues(),name:""})};
+$("saveCustomTemplate").onclick=()=>{
+  const name=$("customTemplateName").value.trim();
+  const preset={name,pL:Number($("customPL").value),pW:Number($("customPW").value),pH:Number($("customPH").value),maxH:Number($("customMaxH").value),maxW:Number($("customMaxW").value)};
+  if(!name){alert("請輸入模板名稱。");return}
+  if([preset.pL,preset.pW,preset.maxH,preset.maxW].some(v=>!Number.isFinite(v)||v<=0)||!Number.isFinite(preset.pH)||preset.pH<0){alert("請確認模板尺寸、總限高與載重皆為有效數值。");return}
+  let items=readCustomTemplates();
+  const selectedId=$("savedTemplateSelect").value;
+  const sameName=items.find(x=>x.name===name);
+  const id=selectedId||(sameName&&sameName.id)||`${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  const saved={id,...preset,updatedAt:new Date().toISOString()};
+  const idx=items.findIndex(x=>x.id===id);if(idx>=0)items[idx]=saved;else items.push(saved);
+  writeCustomTemplates(items);refreshCustomTemplateSelect(id);applyCustomTemplate(saved);$("templateDialog").close();
+};
+
+$("calculateBtn").onclick=()=>{activeHistoryId=null;calculate(true)};
+$("apply80Target").onclick=()=>{$("minSpaceUtil").value=80;$("enforceMinSpace").checked=true;calculate(false)};
+$("resetView").onclick=resetView;
+$("toggleLabels").onclick=()=>{
+  showLabels=!showLabels;
+  $("toggleLabels").textContent=`尺寸標記：${showLabels?"開":"關"}`;draw();
+};
+$("downloadPNG").onclick=()=>{
+  draw();
+  const a=document.createElement("a");
+  a.download="pallet-stacking-3d.png";
+  a.href=canvas.toDataURL("image/png");
+  a.click();
+};
+document.querySelectorAll("[data-view]").forEach(b=>b.onclick=()=>{const v=b.dataset.view;if(v==="iso"){yaw=-.72;pitch=.56}else if(v==="front"){yaw=0;pitch=0}else if(v==="side"){yaw=-Math.PI/2;pitch=0}else{yaw=0;pitch=Math.PI/2-.01}zoom=1;draw()});
+$("toggleExplode").onclick=()=>{explode=!explode;$("toggleExplode").textContent=`爆炸圖：${explode?"開":"關"}`;draw()};
+$("toggleLimit").onclick=()=>{showLimit=!showLimit;$("toggleLimit").textContent=`限高面：${showLimit?"開":"關"}`;draw()};
+window.addEventListener("resize",resizeAndDraw);
+
+document.querySelectorAll("[data-history-tab]").forEach(btn=>btn.onclick=()=>{
+  historyView=btn.dataset.historyTab;
+  document.querySelectorAll("[data-history-tab]").forEach(x=>x.classList.toggle("active",x===btn));
+  renderHistory();
+});
+$("exportFavorites").onclick=exportAllFavoriteRecords;
+$("exportExcel").onclick=exportFavoritesExcel;
+$("exportPDF").onclick=()=>openPrintReport(false);
+$("printWorkOrder").onclick=()=>openPrintReport(true);
+$("folderFilter").onchange=e=>{activeFolder=e.target.value;renderHistory()};
+$("addFolder").onclick=addFavoriteFolder;
+$("removeFolder").onclick=removeSelectedFolder;
+$("clearHistory").onclick=()=>{
+  const kept=readHistory().filter(x=>x.favorite);
+  writeHistory(kept);renderHistory();
+};
+
+/* ---------- 中文 / English / ไทย 介面切換 ---------- */
+const UI_LANG_KEY="palletProLanguageV1";
+let currentUILang=localStorage.getItem(UI_LANG_KEY)||"zh";
+const originalTextNodes=new WeakMap();
+const originalAttributes=new WeakMap();
+const LANG_MAP={
+  en:{
+    "棧板堆疊規劃系統 Pro":"Pallet Stacking Planning System Pro","操作手冊":"User Manual","關閉":"Close","搜尋功能或操作步驟":"Search features or steps","列印手冊":"Print Manual",
+    "整合高度、重量、承壓、支撐率、重心、安全邊距、突出與3D全景檢查。":"Integrated height, weight, compression, support, center of gravity, safety margin, overhang and 3D inspection.",
+    "輸入條件":"Input Conditions","棧板資料（cm / kg）":"Pallet Data (cm / kg)","歐規":"EU","美規":"US","澳規":"AU","自訂模板":"Custom Template",
+    "長":"Length","寬":"Width","高":"Height","總限高（含棧板）":"Total Height Limit (incl. pallet)","棧板最大載重":"Maximum Pallet Load",
+    "紙箱資料（cm / kg）":"Carton Data (cm / kg)","每箱重量":"Weight per Carton","貨物總箱數（選填）":"Total Cartons (optional)","棧板自重（kg）":"Pallet Tare Weight (kg)","最大手動層數":"Maximum Manual Layers",
+    "安全與包材設定":"Safety and Packaging","四周安全邊距（cm）":"Safety Margin (cm)","允許突出量（cm）":"Allowed Overhang (cm)","每層隔板厚度（cm）":"Layer Pad Thickness (cm)","頂板／包材高度（cm）":"Top Board / Packaging Height (cm)","箱與箱間隙（cm）":"Carton Gap (cm)","包材總重量（kg）":"Total Packaging Weight (kg)","單箱可承受上方重量（kg）":"Carton Top-load Capacity (kg)","最低支撐率（%）":"Minimum Support Rate (%)",
+    "堆疊設定":"Stacking Settings","紙箱方向":"Carton Orientation","保持正放（只旋轉底面90°）":"Keep Upright (base rotation only)","允許側放／倒放（比較6種方向）":"Allow Side / Upside-down (compare 6 orientations)","交叉模式":"Cross-layer Pattern","自動比較最佳交叉方式":"Automatically compare patterns","每層旋轉90°":"Rotate every layer 90°","每兩層交叉":"Cross every two layers","全部同向":"Same direction for all layers",
+    "最佳化目標":"Optimization Goal","箱數最大":"Maximum Cartons","穩定性最高":"Maximum Stability","面積利用率最高":"Maximum Floor Utilization","空間利用率最高（限高內最多箱）":"Maximum Space Utilization (most cartons within height limit)","強制達到最低空間利用率":"Enforce minimum space utilization","最低空間利用率（%）":"Minimum Space Utilization (%)","套用 80%":"Apply 80%",
+    "允許最上層只放部分箱子":"Allow a partial top layer","將每層箱子置中於棧板":"Center each layer on pallet","最後部分層重新置中":"Recenter the final partial layer","啟用層間支撐率檢查":"Enable inter-layer support check","最後一板過少時平均分配":"Balance cartons when the last pallet is too sparse","重新計算並生成全景圖":"Recalculate and Generate 3D View",
+    "歷史紀錄":"History","匯出HTML":"Export HTML","匯出Excel":"Export Excel","清除未收藏":"Clear Unfavorited","全部紀錄":"All Records","❤ 收藏資料夾":"❤ Favorites","全部分類":"All Categories","新增分類":"Add Category","取消分類":"Remove Category",
+    "等角視圖":"Isometric","正視圖":"Front","側視圖":"Side","俯視圖":"Top","爆炸圖：關":"Exploded View: Off","爆炸圖：開":"Exploded View: On","限高面：開":"Height Limit Plane: On","限高面：關":"Height Limit Plane: Off","重設視角":"Reset View","尺寸標記：開":"Dimensions: On","尺寸標記：關":"Dimensions: Off","下載示意圖 PNG":"Download PNG",
+    "完整棧板全景圖":"Full Pallet 3D View","等待計算":"Waiting for calculation","操作：":"Controls:","拖曳旋轉、滾輪縮放":"Drag to rotate, scroll to zoom","棕色：棧板　藍色：奇數層　橘色：偶數層":"Brown: pallet · Blue: odd layers · Orange: even layers","全景圖依輸入尺寸按比例繪製；箱子不會超出棧板邊界。":"The 3D view is drawn to scale; cartons stay within pallet boundaries.",
+    "單層最多":"Max per Layer","可堆完整層":"Full Layers","每板總箱數":"Total per Pallet","含棧板總高度":"Total Height incl. Pallet","貨物總重量":"Cargo Weight","需要棧板數":"Pallets Required","穩定性":"Stability","空間利用率":"Space Utilization","請輸入條件後計算。":"Enter the conditions and calculate.","PDF 堆疊報告":"PDF Stacking Report","一鍵列印工廠作業單":"Print Factory Work Order","空間利用率排行榜 Top 10":"Top 10 Space Utilization","點選方案可切換全景圖":"Select a solution to update the 3D view","等待計算。":"Waiting for calculation.",
+    "自訂棧板模板":"Custom Pallet Templates","已儲存模板":"Saved Templates","選擇模板":"Select Template","套用":"Apply","刪除":"Delete","模板名稱":"Template Name","長（cm）":"Length (cm)","寬（cm）":"Width (cm)","高（cm）":"Height (cm)","總限高（cm）":"Total Height Limit (cm)","最大載重（kg）":"Maximum Load (kg)","可儲存多筆自訂模板。資料會保留在目前瀏覽器中，下次開啟仍可使用。":"Save multiple custom templates. They remain available in this browser.","帶入目前欄位":"Use Current Values","儲存並套用":"Save and Apply",
+    "完整全景":"Full View","第":"Layer ","層":" layer(s)","箱":" carton(s)","板":" pallet(s)","關":"Off","開":"On","結果狀態":"Status","最低支撐":"Minimum support","重心偏移":"CG offset","整板毛重":"Gross pallet weight","最佳方向：":"Best orientation:","交叉模式：":"Cross pattern:","單層：":"Per layer:","面積利用率：":"Floor utilization:","空間利用率：":"Space utilization:","最低支撐率：":"Minimum support:","高度":"Height","重量":"Weight","平均分板：":"Balanced pallets:","箱／板":"cartons / pallet","目標達成：":"Target achieved:","未達設定目標：":"Target not reached:","目前最佳為":"Current best is","找不到":"No solution at or above","以上方案":"",
+    "尚未收藏紀錄，點選愛心即可存入資料夾。":"No favorites yet. Select a heart to save a record.","按下「重新計算並生成全景圖」後，會自動留下紀錄。":"A record is saved automatically after recalculation.","未分類":"Uncategorized","選擇分類":"Select category","查看方案":"View Solution","可達成":"Achievable","未達成":"Not Achievable","目前條件下沒有符合方案":"No matching solution under the current conditions"
+  },
+  th:{
+    "棧板堆疊規劃系統 Pro":"ระบบวางแผนการจัดเรียงพาเลท Pro","操作手冊":"คู่มือการใช้งาน","關閉":"ปิด","搜尋功能或操作步驟":"ค้นหาฟังก์ชันหรือขั้นตอน","列印手冊":"พิมพ์คู่มือ",
+    "整合高度、重量、承壓、支撐率、重心、安全邊距、突出與3D全景檢查。":"รวมการตรวจสอบความสูง น้ำหนัก แรงกด อัตราการรองรับ จุดศูนย์ถ่วง ระยะปลอดภัย ส่วนยื่น และภาพ 3 มิติ",
+    "輸入條件":"ข้อมูลนำเข้า","棧板資料（cm / kg）":"ข้อมูลพาเลท (ซม. / กก.)","歐規":"ยุโรป","美規":"อเมริกา","澳規":"ออสเตรเลีย","自訂模板":"เทมเพลตกำหนดเอง",
+    "長":"ยาว","寬":"กว้าง","高":"สูง","總限高（含棧板）":"ความสูงรวมสูงสุด (รวมพาเลท)","棧板最大載重":"น้ำหนักบรรทุกสูงสุดของพาเลท",
+    "紙箱資料（cm / kg）":"ข้อมูลกล่อง (ซม. / กก.)","每箱重量":"น้ำหนักต่อกล่อง","貨物總箱數（選填）":"จำนวนกล่องทั้งหมด (ไม่บังคับ)","棧板自重（kg）":"น้ำหนักพาเลทเปล่า (กก.)","最大手動層數":"จำนวนชั้นสูงสุดที่กำหนดเอง",
+    "安全與包材設定":"ความปลอดภัยและบรรจุภัณฑ์","四周安全邊距（cm）":"ระยะปลอดภัยรอบขอบ (ซม.)","允許突出量（cm）":"ส่วนยื่นที่อนุญาต (ซม.)","每層隔板厚度（cm）":"ความหนาแผ่นคั่นต่อชั้น (ซม.)","頂板／包材高度（cm）":"ความสูงแผ่นบน / บรรจุภัณฑ์ (ซม.)","箱與箱間隙（cm）":"ช่องว่างระหว่างกล่อง (ซม.)","包材總重量（kg）":"น้ำหนักบรรจุภัณฑ์รวม (กก.)","單箱可承受上方重量（kg）":"น้ำหนักกดทับที่กล่องรับได้ (กก.)","最低支撐率（%）":"อัตรารองรับขั้นต่ำ (%)",
+    "堆疊設定":"การตั้งค่าการซ้อน","紙箱方向":"ทิศทางกล่อง","保持正放（只旋轉底面90°）":"วางตั้งตรง (หมุนฐานได้ 90°)","允許側放／倒放（比較6種方向）":"อนุญาตวางตะแคง / คว่ำ (เปรียบเทียบ 6 ทิศทาง)","交叉模式":"รูปแบบสลับชั้น","自動比較最佳交叉方式":"เปรียบเทียบรูปแบบที่ดีที่สุดอัตโนมัติ","每層旋轉90°":"หมุนทุกชั้น 90°","每兩層交叉":"สลับทุกสองชั้น","全部同向":"ทุกชั้นทิศทางเดียวกัน",
+    "最佳化目標":"เป้าหมายการปรับให้เหมาะสม","箱數最大":"จำนวนกล่องสูงสุด","穩定性最高":"ความมั่นคงสูงสุด","面積利用率最高":"ใช้พื้นที่ฐานสูงสุด","空間利用率最高（限高內最多箱）":"ใช้ปริมาตรสูงสุด (กล่องมากที่สุดภายในความสูงจำกัด)","強制達到最低空間利用率":"บังคับอัตราใช้พื้นที่ขั้นต่ำ","最低空間利用率（%）":"อัตราใช้พื้นที่ขั้นต่ำ (%)","套用 80%":"ใช้ 80%",
+    "允許最上層只放部分箱子":"อนุญาตให้ชั้นบนสุดวางไม่เต็ม","將每層箱子置中於棧板":"จัดกล่องแต่ละชั้นให้อยู่กึ่งกลางพาเลท","最後部分層重新置中":"จัดชั้นสุดท้ายที่ไม่เต็มให้อยู่กึ่งกลาง","啟用層間支撐率檢查":"เปิดตรวจสอบการรองรับระหว่างชั้น","最後一板過少時平均分配":"กระจายจำนวนเมื่อพาเลทสุดท้ายมีน้อยเกินไป","重新計算並生成全景圖":"คำนวณใหม่และสร้างภาพ 3 มิติ",
+    "歷史紀錄":"ประวัติ","匯出HTML":"ส่งออก HTML","匯出Excel":"ส่งออก Excel","清除未收藏":"ล้างรายการที่ไม่ได้บันทึก","全部紀錄":"รายการทั้งหมด","❤ 收藏資料夾":"❤ รายการโปรด","全部分類":"ทุกหมวดหมู่","新增分類":"เพิ่มหมวดหมู่","取消分類":"ยกเลิกหมวดหมู่",
+    "等角視圖":"มุมไอโซเมตริก","正視圖":"ด้านหน้า","側視圖":"ด้านข้าง","俯視圖":"ด้านบน","爆炸圖：關":"ภาพแยกชั้น: ปิด","爆炸圖：開":"ภาพแยกชั้น: เปิด","限高面：開":"ระนาบจำกัดความสูง: เปิด","限高面：關":"ระนาบจำกัดความสูง: ปิด","重設視角":"รีเซ็ตมุมมอง","尺寸標記：開":"ป้ายขนาด: เปิด","尺寸標記：關":"ป้ายขนาด: ปิด","下載示意圖 PNG":"ดาวน์โหลด PNG",
+    "完整棧板全景圖":"ภาพพาเลท 3 มิติทั้งหมด","等待計算":"รอการคำนวณ","操作：":"การควบคุม:","拖曳旋轉、滾輪縮放":"ลากเพื่อหมุน เลื่อนล้อเพื่อซูม","棕色：棧板　藍色：奇數層　橘色：偶數層":"น้ำตาล: พาเลท · น้ำเงิน: ชั้นคี่ · ส้ม: ชั้นคู่","全景圖依輸入尺寸按比例繪製；箱子不會超出棧板邊界。":"ภาพ 3 มิติแสดงตามสัดส่วน และกล่องจะไม่เกินขอบพาเลท",
+    "單層最多":"สูงสุดต่อชั้น","可堆完整層":"จำนวนชั้นเต็ม","每板總箱數":"จำนวนกล่องต่อพาเลท","含棧板總高度":"ความสูงรวมพาเลท","貨物總重量":"น้ำหนักสินค้า","需要棧板數":"จำนวนพาเลทที่ต้องใช้","穩定性":"ความมั่นคง","空間利用率":"อัตราใช้พื้นที่","請輸入條件後計算。":"กรอกข้อมูลแล้วกดคำนวณ","PDF 堆疊報告":"รายงานการซ้อน PDF","一鍵列印工廠作業單":"พิมพ์ใบงานโรงงาน","空間利用率排行榜 Top 10":"10 อันดับการใช้พื้นที่","點選方案可切換全景圖":"เลือก方案เพื่อเปลี่ยนภาพ 3 มิติ","等待計算。":"รอการคำนวณ",
+    "自訂棧板模板":"เทมเพลตพาเลทกำหนดเอง","已儲存模板":"เทมเพลตที่บันทึกไว้","選擇模板":"เลือกเทมเพลต","套用":"นำไปใช้","刪除":"ลบ","模板名稱":"ชื่อเทมเพลต","長（cm）":"ยาว (ซม.)","寬（cm）":"กว้าง (ซม.)","高（cm）":"สูง (ซม.)","總限高（cm）":"ความสูงรวมสูงสุด (ซม.)","最大載重（kg）":"น้ำหนักสูงสุด (กก.)","可儲存多筆自訂模板。資料會保留在目前瀏覽器中，下次開啟仍可使用。":"บันทึกเทมเพลตได้หลายรายการ และยังคงอยู่ในเบราว์เซอร์นี้","帶入目前欄位":"ใช้ค่าปัจจุบัน","儲存並套用":"บันทึกและนำไปใช้",
+    "完整全景":"ภาพทั้งหมด","第":"ชั้นที่ ","層":" ชั้น","箱":" กล่อง","板":" พาเลท","關":"ปิด","開":"เปิด","結果狀態":"สถานะผลลัพธ์","最低支撐":"การรองรับขั้นต่ำ","重心偏移":"ระยะเยื้องจุดศูนย์ถ่วง","整板毛重":"น้ำหนักรวมพาเลท","最佳方向：":"ทิศทางที่ดีที่สุด:","交叉模式：":"รูปแบบสลับชั้น:","單層：":"ต่อชั้น:","面積利用率：":"อัตราใช้พื้นที่ฐาน:","空間利用率：":"อัตราใช้ปริมาตร:","最低支撐率：":"อัตรารองรับขั้นต่ำ:","高度":"ความสูง","重量":"น้ำหนัก","平均分板：":"กระจายพาเลท:","箱／板":"กล่อง / พาเลท","目標達成：":"บรรลุเป้าหมาย:","未達設定目標：":"ไม่ถึงเป้าหมาย:","目前最佳為":"ค่าที่ดีที่สุดขณะนี้","找不到":"ไม่พบ方案ตั้งแต่","以上方案":"ขึ้นไป",
+    "尚未收藏紀錄，點選愛心即可存入資料夾。":"ยังไม่มีรายการโปรด กดหัวใจเพื่อบันทึก","按下「重新計算並生成全景圖」後，會自動留下紀錄。":"ระบบจะบันทึกประวัติอัตโนมัติหลังคำนวณใหม่","未分類":"ไม่จัดหมวดหมู่","選擇分類":"เลือกหมวดหมู่","查看方案":"ดู方案","可達成":"ทำได้","未達成":"ทำไม่ได้","目前條件下沒有符合方案":"ไม่มี方案ที่ตรงตามเงื่อนไขปัจจุบัน"
+  }
+};
+function translateString(value,lang){
+  if(!value||lang==="zh")return value;
+  const map=LANG_MAP[lang]||{};
+  let out=value;
+  Object.keys(map).sort((a,b)=>b.length-a.length).forEach(k=>{out=out.split(k).join(map[k])});
+  return out;
+}
+function translateNode(node,lang){
+  if(node.nodeType===Node.TEXT_NODE){
+    if(!originalTextNodes.has(node))originalTextNodes.set(node,node.nodeValue);
+    node.nodeValue=translateString(originalTextNodes.get(node),lang);
+    return;
+  }
+  if(node.nodeType!==Node.ELEMENT_NODE)return;
+  if(node.closest&&node.closest("script,style"))return;
+  ["title","placeholder","aria-label"].forEach(attr=>{
+    if(!node.hasAttribute||!node.hasAttribute(attr))return;
+    let originals=originalAttributes.get(node);if(!originals){originals={};originalAttributes.set(node,originals)}
+    if(!(attr in originals))originals[attr]=node.getAttribute(attr);
+    node.setAttribute(attr,translateString(originals[attr],lang));
+  });
+  [...node.childNodes].forEach(child=>translateNode(child,lang));
+}
+function applyUILanguage(lang){
+  currentUILang=["zh","en","th"].includes(lang)?lang:"zh";
+  localStorage.setItem(UI_LANG_KEY,currentUILang);
+  document.documentElement.lang=currentUILang==="zh"?"zh-Hant":currentUILang;
+  translateNode(document.body,currentUILang);
+  document.querySelectorAll(".langBtn").forEach(btn=>btn.classList.toggle("active",btn.dataset.lang===currentUILang));
+}
+document.querySelectorAll(".langBtn").forEach(btn=>btn.addEventListener("click",()=>applyUILanguage(btn.dataset.lang)));
+const languageObserver=new MutationObserver(mutations=>{
+  if(currentUILang==="zh")return;
+  languageObserver.disconnect();
+  mutations.forEach(m=>m.addedNodes.forEach(node=>translateNode(node,currentUILang)));
+  languageObserver.observe(document.body,{childList:true,subtree:true,characterData:true});
+});
+languageObserver.observe(document.body,{childList:true,subtree:true,characterData:true});
+const nativeAlert=window.alert.bind(window),nativePrompt=window.prompt.bind(window),nativeConfirm=window.confirm.bind(window);
+window.alert=msg=>nativeAlert(translateString(String(msg),currentUILang));
+window.prompt=(msg,def)=>nativePrompt(translateString(String(msg),currentUILang),def);
+window.confirm=msg=>nativeConfirm(translateString(String(msg),currentUILang));
+
+
+/* ---------- 新手教學操作手冊 ---------- */
+let manualStep=0;
+const GUIDE_STEPS=[
+  {
+    icon:'1',
+    title:{zh:'選擇或輸入棧板資料',en:'Choose or Enter Pallet Data',th:'เลือกหรือกรอกข้อมูลพาเลท'},
+    intro:{zh:'先決定要使用哪一種棧板。可直接按歐規、美規、澳規，或使用自訂模板。',en:'Start by choosing the pallet. Use EU, US, AU presets or a custom template.',th:'เริ่มจากเลือกพาเลท ใช้ค่ามาตรฐานยุโรป อเมริกา ออสเตรเลีย หรือเทมเพลตกำหนดเอง'},
+    items:{zh:['按「歐規／美規／澳規」可自動帶入長、寬、高、總限高與載重。','使用特殊棧板時，按「自訂模板」建立並儲存常用規格。','確認總限高符合航空公司、貨櫃、倉庫或客戶要求。'],en:['Use EU / US / AU buttons to fill dimensions, total height and load automatically.','Use Custom Template to save special pallet specifications.','Confirm that total height matches airline, container, warehouse or customer limits.'],th:['กดปุ่มยุโรป / อเมริกา / ออสเตรเลีย เพื่อกรอกขนาด ความสูงรวม และน้ำหนักอัตโนมัติ','ใช้เทมเพลตกำหนดเองเพื่อบันทึกพาเลทพิเศษ','ตรวจสอบความสูงรวมให้ตรงตามข้อกำหนดของสายการบิน ตู้สินค้า คลัง หรือผู้รับสินค้า']},
+    tip:{zh:'第一次使用可先按「歐規」，再依實際需求修改。',en:'For a first test, choose the EU preset and adjust as needed.',th:'ครั้งแรกแนะนำให้เลือกค่ามาตรฐานยุโรปแล้วปรับตามงานจริง'}
+  },
+  {
+    icon:'2',title:{zh:'輸入紙箱與貨物資料',en:'Enter Carton and Cargo Data',th:'กรอกข้อมูลกล่องและสินค้า'},
+    intro:{zh:'填入單箱尺寸、單箱重量與總箱數，系統才能計算每層與每板可放數量。',en:'Enter carton dimensions, unit weight and total quantity so the system can calculate each layer and pallet.',th:'กรอกขนาดกล่อง น้ำหนักต่อกล่อง และจำนวนรวม เพื่อให้ระบบคำนวณต่อชั้นและต่อพาเลท'},
+    items:{zh:['長、寬、高請使用公分；重量使用公斤。','貨物總箱數可填 0，代表只計算單一棧板最大容量。','棧板自重與包材重量會一起計入總重量。'],en:['Use centimeters for dimensions and kilograms for weight.','Set quantity to 0 to calculate only the maximum capacity of one pallet.','Pallet and packaging weights are included in gross weight.'],th:['ใช้เซนติเมตรสำหรับขนาด และกิโลกรัมสำหรับน้ำหนัก','กรอกจำนวนเป็น 0 หากต้องการคำนวณความจุสูงสุดของพาเลทเดียว','น้ำหนักพาเลทและบรรจุภัณฑ์จะรวมในน้ำหนักรวม']},
+    tip:{zh:'尺寸請依照實際外箱尺寸輸入，不要只輸入產品尺寸。',en:'Use the actual outer carton dimensions, not the product dimensions.',th:'ใช้ขนาดภายนอกจริงของกล่อง ไม่ใช่ขนาดสินค้า'}
+  },
+  {
+    icon:'3',title:{zh:'設定安全與堆疊條件',en:'Set Safety and Stacking Rules',th:'ตั้งค่าความปลอดภัยและการซ้อน'},
+    intro:{zh:'依產品特性設定間隙、突出、支撐率、承壓與紙箱方向。',en:'Configure gaps, overhang, support, compression and carton orientation based on the product.',th:'ตั้งค่าระยะห่าง การยื่นออก การรองรับ การรับแรงกด และทิศทางกล่องตามลักษณะสินค้า'},
+    items:{zh:['易碎品建議保持正放，並提高最低支撐率。','需要交叉堆疊時，可選自動、每層交叉或每兩層交叉。','啟用最低空間利用率後，系統會優先找符合目標的方案。','若最上層箱數不足，可勾選允許部分頂層。'],en:['Keep fragile cartons upright and use a higher support threshold.','Choose automatic, alternating every layer, or alternating every two layers.','When minimum utilization is enabled, the system prioritizes qualifying solutions.','Allow a partial top layer when the last layer is not full.'],th:['สินค้าที่แตกง่ายควรวางตั้งตรงและเพิ่มค่าการรองรับขั้นต่ำ','เลือกอัตโนมัติ สลับทุกชั้น หรือสลับทุกสองชั้น','เมื่อกำหนดการใช้พื้นที่ขั้นต่ำ ระบบจะเลือกแบบที่ผ่านเป้าหมายก่อน','อนุญาตชั้นบนไม่เต็มเมื่อจำนวนกล่องไม่พอดี']},
+    tip:{zh:'安全優先時，最佳化目標選「穩定性最高」；容量優先則選「空間利用率最高」。',en:'Choose Maximum Stability for safety, or Maximum Space Utilization for capacity.',th:'เลือกความมั่นคงสูงสุดเมื่อต้องการความปลอดภัย หรือการใช้พื้นที่สูงสุดเมื่อต้องการความจุ'}
+  },
+  {
+    icon:'4',title:{zh:'重新計算並檢查結果',en:'Calculate and Review Results',th:'คำนวณและตรวจสอบผลลัพธ์'},
+    intro:{zh:'按下「重新計算並生成全景圖」，系統會自動比較可行方案。',en:'Click Recalculate and Generate 3D View to compare feasible solutions automatically.',th:'กดคำนวณใหม่และสร้างภาพ 3 มิติ ระบบจะเปรียบเทียบแบบที่เป็นไปได้อัตโนมัติ'},
+    items:{zh:['查看單層最多、總層數、每板箱數、總高度與總重量。','確認高度與重量沒有超過限制。','空間利用率：80%以上為綠色，70–80%為黃色，70%以下為紅色。','查看80%、85%、90%目標與Top 10排行榜，點擊方案可切換。'],en:['Review cartons per layer, layers, cartons per pallet, total height and weight.','Confirm height and weight are within limits.','Utilization: green ≥80%, yellow 70–80%, red <70%.','Review 80%, 85%, 90% targets and Top 10; click a solution to switch.'],th:['ตรวจสอบจำนวนต่อชั้น จำนวนชั้น จำนวนต่อพาเลท ความสูง และน้ำหนักรวม','ยืนยันว่าความสูงและน้ำหนักไม่เกินกำหนด','การใช้พื้นที่: เขียว ≥80%, เหลือง 70–80%, แดง <70%','ดูเป้าหมาย 80%, 85%, 90% และ 10 อันดับแรก แล้วคลิกเพื่อเปลี่ยนแบบ']},
+    tip:{zh:'若顯示未達目標，可嘗試允許側放、減少安全邊距或調整總限高，但仍要符合實際運輸規範。',en:'If the target is missed, try allowing other orientations, reducing margins or adjusting height—while respecting real shipping rules.',th:'หากไม่ถึงเป้าหมาย ลองอนุญาตทิศทางอื่น ลดระยะขอบ หรือปรับความสูง โดยยังต้องตรงตามกฎขนส่งจริง'}
+  },
+  {
+    icon:'5',title:{zh:'操作3D全景圖',en:'Use the 3D View',th:'ใช้งานภาพ 3 มิติ'},
+    intro:{zh:'利用3D圖確認實際堆疊外觀、每層位置與限高。',en:'Use the 3D view to verify the stack appearance, layer positions and height limit.',th:'ใช้ภาพ 3 มิติเพื่อตรวจสอบลักษณะการซ้อน ตำแหน่งแต่ละชั้น และความสูง'},
+    items:{zh:['滑鼠拖曳：旋轉視角；滾輪：放大或縮小。','可切換等角、正視、側視與俯視圖。','爆炸圖可將各層拉開，方便逐層檢查。','點選左側的「第1層、第2層…」可單獨查看該層。','需要圖片時按「下載示意圖 PNG」。'],en:['Drag to rotate; use the mouse wheel to zoom.','Switch between isometric, front, side and top views.','Exploded view separates layers for inspection.','Select Layer 1, Layer 2, etc. to inspect one layer.','Use Download PNG when an image is needed.'],th:['ลากเมาส์เพื่อหมุน และใช้ล้อเมาส์เพื่อซูม','สลับมุมมองไอโซเมตริก ด้านหน้า ด้านข้าง และด้านบน','ภาพแยกชั้นช่วยตรวจสอบแต่ละชั้น','เลือกชั้น 1 ชั้น 2 ฯลฯ เพื่อดูเฉพาะชั้น','กดดาวน์โหลด PNG เมื่อต้องการรูปภาพ']},
+    tip:{zh:'出貨前建議至少查看俯視圖、正視圖與爆炸圖。',en:'Before shipping, review at least the top, front and exploded views.',th:'ก่อนส่งสินค้า ควรตรวจสอบมุมมองด้านบน ด้านหน้า และภาพแยกชั้น'}
+  },
+  {
+    icon:'6',title:{zh:'保存、收藏與輸出',en:'Save, Favorite and Export',th:'บันทึก รายการโปรด และส่งออก'},
+    intro:{zh:'每次重新計算都會留下歷史紀錄，可收藏、分類、匯出或製作作業單。',en:'Every recalculation creates a history record that can be favorited, categorized and exported.',th:'ทุกครั้งที่คำนวณใหม่จะบันทึกประวัติ สามารถกดหัวใจ จัดหมวดหมู่ และส่งออกได้'},
+    items:{zh:['點愛心將重要方案加入收藏資料夾。','收藏可分類，之後能快速載入同一組設定。','可匯出所有收藏紀錄與Excel資料。','PDF堆疊報告適合保存或寄給客戶。','工廠作業單會列出層數、箱數與現場確認項目。'],en:['Click the heart to add an important solution to Favorites.','Categorize favorites and reload the same settings later.','Export all favorites and Excel data.','Use the PDF stacking report for records or customers.','The factory work order lists layers, cartons and site checks.'],th:['กดหัวใจเพื่อเพิ่มแบบสำคัญในรายการโปรด','จัดหมวดหมู่และโหลดการตั้งค่าเดิมภายหลัง','ส่งออกรายการโปรดทั้งหมดและข้อมูล Excel','ใช้รายงาน PDF สำหรับเก็บหรือส่งลูกค้า','ใบงานโรงงานจะแสดงจำนวนชั้น จำนวนกล่อง และรายการตรวจสอบ']},
+    tip:{zh:'正式出貨前，建議收藏最終方案並列印工廠作業單。',en:'Before final shipping, favorite the approved solution and print the factory work order.',th:'ก่อนส่งสินค้าจริง ควรบันทึกแบบสุดท้ายและพิมพ์ใบงานโรงงาน'}
+  }
+];
+function guideText(obj){return obj?.[currentUILang]||obj?.zh||''}
+function renderManual(){
+  const step=GUIDE_STEPS[manualStep];
+  const labels={zh:['棧板','紙箱','安全','計算','3D檢查','保存'],en:['Pallet','Cartons','Safety','Calculate','3D Check','Save'],th:['พาเลท','กล่อง','ความปลอดภัย','คำนวณ','ภาพ 3 มิติ','บันทึก']}[currentUILang]||[];
+  const welcome={zh:{title:'第一次使用？照著 6 個步驟就能完成',desc:'這不是單純的功能清單，而是一套從輸入到輸出的完整操作流程。'},en:{title:'New here? Complete a plan in 6 steps',desc:'This is a complete guided workflow from data entry to export—not just a feature list.'},th:{title:'เพิ่งใช้งานครั้งแรก? ทำตาม 6 ขั้นตอน',desc:'นี่คือขั้นตอนใช้งานครบตั้งแต่กรอกข้อมูลจนถึงส่งออก ไม่ใช่เพียงรายการฟังก์ชัน'}}[currentUILang];
+  $('manualContent').innerHTML=`
+    <div class="guideHero"><div class="guideHeroIcon">?</div><div><h3>${welcome.title}</h3><p>${welcome.desc}</p></div></div>
+    <div class="guideProgress">${GUIDE_STEPS.map((x,i)=>`<button class="guideStepBtn ${i===manualStep?'active':''}" data-guide-step="${i}">${i+1}. ${labels[i]}</button>`).join('')}</div>
+    <section class="guidePanel">
+      <div class="guidePanelHead"><div class="guideNo">${step.icon}</div><div><h3>${guideText(step.title)}</h3><p>${guideText(step.intro)}</p></div></div>
+      <div class="guideBody"><ul class="guideChecklist">${guideText(step.items).map((x,i)=>`<li><span class="guideCheck">${i+1}</span><span>${x}</span></li>`).join('')}</ul><div class="guideTip"><b>${currentUILang==='en'?'Tip':currentUILang==='th'?'คำแนะนำ':'小提醒'}：</b>${guideText(step.tip)}</div>
+      <div class="guideNav"><button class="secondary" id="guidePrev" ${manualStep===0?'disabled':''}>${currentUILang==='en'?'Previous':currentUILang==='th'?'ก่อนหน้า':'上一步'}</button><button class="primary" style="width:auto;margin-top:0" id="guideNext">${manualStep===GUIDE_STEPS.length-1?(currentUILang==='en'?'Finish':currentUILang==='th'?'เสร็จสิ้น':'完成'):(currentUILang==='en'?'Next':currentUILang==='th'?'ถัดไป':'下一步')}</button></div></div>
+    </section>`;
+  document.querySelectorAll('[data-guide-step]').forEach(b=>b.onclick=()=>{manualStep=Number(b.dataset.guideStep);renderManual()});
+  $('guidePrev').onclick=()=>{if(manualStep>0){manualStep--;renderManual()}};
+  $('guideNext').onclick=()=>{if(manualStep<GUIDE_STEPS.length-1){manualStep++;renderManual()}else closeManual()};
+}
+function openManual(){manualStep=0;$('manualModal').classList.add('open');$('manualModal').setAttribute('aria-hidden','false');renderManual()}
+function closeManual(){$('manualModal').classList.remove('open');$('manualModal').setAttribute('aria-hidden','true')}
+$('manualBtn').onclick=openManual;$('manualClose').onclick=closeManual;
+$('manualSearch').style.display='none';
+$('manualModal').addEventListener('click',e=>{if(e.target===$('manualModal'))closeManual()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('manualModal').classList.contains('open'))closeManual()});
+$('manualPrint').onclick=()=>{const old=manualStep;let all='';GUIDE_STEPS.forEach((x,i)=>{manualStep=i;renderManual();all+=$('manualContent').innerHTML});manualStep=old;renderManual();const w=window.open('','_blank');w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${$('manualTitle').textContent}</title><style>body{font-family:Arial,"Microsoft JhengHei",sans-serif;margin:24px;color:#172033}.guideHero,.guideProgress,.guideNav{display:none}.guidePanel{border:1px solid #ccd6e3;margin:0 0 18px;border-radius:10px;overflow:hidden}.guidePanelHead{padding:12px;background:#f3f6fa}.guideBody{padding:12px}.guideChecklist{line-height:1.7}.guideTip{padding:10px;background:#fff8e8}</style></head><body><h1>${$('manualTitle').textContent}</h1>${all}</body></html>`);w.document.close();w.focus();w.print()};
+
+renderHistory();
+calculate(false);
+applyUILanguage(currentUILang);
+$('utilGuideClose').onclick=close80UtilGuide;
+$('utilGuideModal').addEventListener('click',e=>{if(e.target===$('utilGuideModal'))close80UtilGuide()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('utilGuideModal').classList.contains('open'))close80UtilGuide()});
+
+</script>
+</body>
+</html>
