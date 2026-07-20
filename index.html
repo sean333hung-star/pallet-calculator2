@@ -173,6 +173,13 @@
   .utilGuideSteps{margin:10px 0 0;padding-left:22px;line-height:1.75}.utilGuideActions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px;flex-wrap:wrap}
   @media(max-width:640px){.utilGuideGrid{grid-template-columns:1fr}.utilGuideDialog{width:100%}}
 
+  .cloudAccount{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+  .cloudAccount button{padding:7px 11px;font-size:12px}
+  .cloudLoginBtn{background:#fff;color:#0f2f5f;border:1px solid rgba(255,255,255,.45)}
+  .cloudLogoutBtn{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.35)}
+  .cloudStatus{font-size:11px;color:#fff;opacity:.9;max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  @media(max-width:640px){.cloudAccount{justify-content:flex-start}.cloudStatus{max-width:100%}}
+
 </style>
 </head>
 <body>
@@ -185,6 +192,11 @@
     <button type="button" class="langBtn" data-lang="zh">中文</button>
     <button type="button" class="langBtn" data-lang="en">English</button>
     <button type="button" class="langBtn" data-lang="th">ไทย</button>
+    <div class="cloudAccount" aria-label="雲端同步帳號">
+      <button type="button" class="cloudLoginBtn" id="cloudLoginBtn">Google 登入同步</button>
+      <button type="button" class="cloudLogoutBtn" id="cloudLogoutBtn" hidden>登出</button>
+      <span class="cloudStatus" id="cloudStatus">未登入：資料只存在此裝置</span>
+    </div>
     <button type="button" class="manualBtn" id="manualBtn">操作手冊</button>
   </div>
 </header>
@@ -383,7 +395,7 @@
       <label>總限高（cm）<input id="customMaxH" type="number" min="0.01" step="0.01"></label>
       <label>最大載重（kg）<input id="customMaxW" type="number" min="0.01" step="0.01"></label>
     </div>
-    <div class="templateHelp">可儲存多筆自訂模板。資料會保留在目前瀏覽器中，下次開啟仍可使用。</div>
+    <div class="templateHelp">可儲存多筆自訂模板。登入 Google 後可在手機與電腦同步；未登入時仍保留在目前瀏覽器。</div>
     <div class="templateDialogActions">
       <button type="button" class="secondary" id="fillCurrentPallet">帶入目前欄位</button>
       <button type="button" class="primary" id="saveCustomTemplate" style="width:auto;margin-top:0">儲存並套用</button>
@@ -391,12 +403,89 @@
   </div>
 </dialog>
 
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+
 <script>
 "use strict";
 
 const $ = id => document.getElementById(id);
 const canvas = $("scene");
 const ctx = canvas.getContext("2d");
+
+/* Firebase 雲端同步：手機與電腦登入同一個 Google 帳號即可共用資料 */
+const firebaseConfig = {
+  apiKey: "AIzaSyAgH79141Pue_qd4VgQTzzOvbc1GP-qF7o",
+  authDomain: "pallet-calculator2.firebaseapp.com",
+  projectId: "pallet-calculator2",
+  storageBucket: "pallet-calculator2.firebasestorage.app",
+  messagingSenderId: "493124309230",
+  appId: "1:493124309230:web:c70f45095a199173f1a3ff"
+};
+let cloudUser=null, cloudReady=false, cloudWriteTimer=null, cloudLoading=false;
+let cloudAuth=null, cloudDb=null;
+try{
+  firebase.initializeApp(firebaseConfig);
+  cloudAuth=firebase.auth();
+  cloudDb=firebase.firestore();
+  cloudAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(console.error);
+}catch(error){console.error("Firebase 初始化失敗",error)}
+
+function cloudUserDoc(){return cloudDb&&cloudUser?cloudDb.collection("users").doc(cloudUser.uid):null}
+function collectCloudData(){
+  let history=[],folders=[],templates=[];
+  try{history=JSON.parse(localStorage.getItem("palletProHistoryV1")||"[]")}catch{}
+  try{folders=JSON.parse(localStorage.getItem("palletProFavoriteFoldersV1")||"[]")}catch{}
+  try{templates=JSON.parse(localStorage.getItem("palletProCustomTemplatesV1")||"[]")}catch{}
+  return {history:Array.isArray(history)?history.slice(0,100):[],folders:Array.isArray(folders)?folders:[],templates:Array.isArray(templates)?templates:[],updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
+}
+function scheduleCloudWrite(){
+  if(!cloudReady||!cloudUser||cloudLoading)return;
+  clearTimeout(cloudWriteTimer);
+  cloudWriteTimer=setTimeout(async()=>{
+    try{await cloudUserDoc().set(collectCloudData(),{merge:true});setCloudStatus(`已同步：${cloudUser.displayName||cloudUser.email||"Google 帳號"}`)}
+    catch(error){console.error("雲端同步失敗",error);setCloudStatus("同步失敗，請檢查網路或資料庫規則")}
+  },350);
+}
+function setCloudStatus(text){const el=$("cloudStatus");if(el)el.textContent=text}
+async function loadCloudData(){
+  const ref=cloudUserDoc();if(!ref)return;
+  cloudLoading=true;setCloudStatus("正在讀取雲端資料…");
+  try{
+    const snap=await ref.get();
+    if(snap.exists){
+      const d=snap.data()||{};
+      if(Array.isArray(d.history))localStorage.setItem("palletProHistoryV1",JSON.stringify(d.history.slice(0,100)));
+      if(Array.isArray(d.folders))localStorage.setItem("palletProFavoriteFoldersV1",JSON.stringify(d.folders));
+      if(Array.isArray(d.templates))localStorage.setItem("palletProCustomTemplatesV1",JSON.stringify(d.templates));
+    }else{
+      await ref.set(collectCloudData(),{merge:true});
+    }
+    cloudReady=true;
+    renderHistory();
+    if(typeof renderTemplateOptions==="function")renderTemplateOptions();
+    setCloudStatus(`已同步：${cloudUser.displayName||cloudUser.email||"Google 帳號"}`);
+  }catch(error){console.error("讀取雲端資料失敗",error);setCloudStatus("讀取失敗，請檢查 Firestore 規則")}
+  finally{cloudLoading=false}
+}
+if(cloudAuth){
+  cloudAuth.onAuthStateChanged(async user=>{
+    cloudUser=user||null;cloudReady=false;
+    $("cloudLoginBtn").hidden=!!user;$("cloudLogoutBtn").hidden=!user;
+    if(user)await loadCloudData();else setCloudStatus("未登入：資料只存在此裝置");
+  });
+}
+window.addEventListener("DOMContentLoaded",()=>{
+  $("cloudLoginBtn").onclick=async()=>{
+    try{await cloudAuth.signInWithPopup(new firebase.auth.GoogleAuthProvider())}
+    catch(error){
+      if(["auth/popup-blocked","auth/cancelled-popup-request","auth/operation-not-supported-in-this-environment"].includes(error.code)){await cloudAuth.signInWithRedirect(new firebase.auth.GoogleAuthProvider());return}
+      console.error(error);alert("Google 登入失敗："+(error.message||error.code));
+    }
+  };
+  $("cloudLogoutBtn").onclick=()=>cloudAuth.signOut();
+});
 
 let model = null;
 let yaw = -0.72, pitch = 0.56, zoom = 1;
@@ -518,7 +607,7 @@ const historyInputIds=["pL","pW","pH","maxH","maxW","bL","bW","bH","boxWeight","
 function readHistory(){
   try{return JSON.parse(localStorage.getItem(HISTORY_KEY)||"[]")}catch{return []}
 }
-function writeHistory(items){localStorage.setItem(HISTORY_KEY,JSON.stringify(items.slice(0,100)))}
+function writeHistory(items){localStorage.setItem(HISTORY_KEY,JSON.stringify(items.slice(0,100)));scheduleCloudWrite()}
 function collectInputs(){
   const data={};
   historyInputIds.forEach(id=>{const el=$(id);data[id]=el.type==="checkbox"?el.checked:el.value});
@@ -661,7 +750,7 @@ function readFolders(){
 }
 function writeFolders(items){
   const clean=[...new Set(items.map(x=>String(x).trim()).filter(Boolean))].filter(x=>x!=="未分類"&&x!=="全部分類");
-  localStorage.setItem(FOLDER_KEY,JSON.stringify(clean));
+  localStorage.setItem(FOLDER_KEY,JSON.stringify(clean));scheduleCloudWrite();
 }
 function getFavoriteFolders(){
   const folders=new Set(["未分類",...readFolders()]);
@@ -1073,7 +1162,7 @@ const CUSTOM_PALLET_TEMPLATE_KEY="palletProCustomTemplatesV1";
 function readCustomTemplates(){
   try{return JSON.parse(localStorage.getItem(CUSTOM_PALLET_TEMPLATE_KEY)||"[]")}catch{return []}
 }
-function writeCustomTemplates(items){localStorage.setItem(CUSTOM_PALLET_TEMPLATE_KEY,JSON.stringify(items))}
+function writeCustomTemplates(items){localStorage.setItem(CUSTOM_PALLET_TEMPLATE_KEY,JSON.stringify(items));scheduleCloudWrite()}
 function refreshCustomTemplateSelect(selectedId=""){
   const select=$("savedTemplateSelect");
   const items=readCustomTemplates();
