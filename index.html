@@ -202,6 +202,15 @@
   @media(max-width:640px){.teamGrid{grid-template-columns:1fr}.syncBadge{max-width:100%}}
   @media(max-width:640px){.cloudAccount{justify-content:flex-start}.cloudStatus{max-width:100%}.cloudActions{grid-template-columns:1fr}}
 
+
+/* AI 空間最佳化正式版 */
+.aiBtn{background:linear-gradient(135deg,#6d28d9,#2563eb);color:#fff;border:0;font-weight:800;box-shadow:0 6px 18px rgba(67,56,202,.22)}
+.aiBtn:hover{filter:brightness(1.04)}
+.aiModal{position:fixed;inset:0;background:rgba(15,23,42,.56);display:none;align-items:center;justify-content:center;padding:18px;z-index:9999}
+.aiModal.open{display:flex}.aiBox{width:min(920px,96vw);max-height:90vh;overflow:auto;background:#fff;border-radius:18px;box-shadow:0 24px 80px rgba(0,0,0,.28)}
+.aiHead{display:flex;justify-content:space-between;align-items:center;padding:18px 20px;border-bottom:1px solid var(--line);position:sticky;top:0;background:#fff;z-index:2}.aiHead h2{margin:0;font-size:20px}.aiBody{padding:18px 20px}
+.aiIntro{background:linear-gradient(135deg,#eef2ff,#eff6ff);border:1px solid #c7d2fe;border-radius:14px;padding:14px;margin-bottom:14px;line-height:1.65}
+.aiGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.aiPlan{border:1px solid var(--line);border-radius:14px;padding:14px;background:#fff}.aiPlan.best{border:2px solid #6d28d9;background:#faf7ff}.aiPlan h3{margin:0 0 8px}.aiMetric{display:grid;grid-template-columns:1fr auto;gap:6px;font-size:13px;padding:5px 0;border-bottom:1px dashed #e5e7eb}.aiMetric:last-child{border:0}.aiReason{margin-top:10px;padding:10px;border-radius:10px;background:#f8fafc;font-size:12px;line-height:1.55}.aiActions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.aiNotice{font-size:12px;color:var(--muted);margin-top:14px;line-height:1.6}.aiClose{border:0;background:#eef2f7;border-radius:9px;width:34px;height:34px;font-size:20px;cursor:pointer}@media(max-width:760px){.aiGrid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -380,6 +389,7 @@
   <label class="check"><input id="avgLastPallet" type="checkbox" checked>最後一板過少時平均分配</label>
 
   <button class="primary" id="calculateBtn">重新計算並生成全景圖</button>
+  <button class="primary aiBtn" id="aiOptimizeBtn" type="button">🤖 AI 一鍵空間最佳化</button>
   <div class="layerTabs" id="layerTabs"></div>
 
   <div class="historyPanel">
@@ -473,6 +483,13 @@
   </div>
 </dialog>
 
+
+<div class="aiModal" id="aiOptimizeModal" aria-hidden="true">
+  <div class="aiBox">
+    <div class="aiHead"><h2>🤖 AI 空間最佳化分析 <small style="font-size:12px;color:#0b7a4b">正式版</small></h2><button class="aiClose" id="aiOptimizeClose" aria-label="關閉">×</button></div>
+    <div class="aiBody" id="aiOptimizeBody"><div class="historyEmpty">等待分析。</div></div>
+  </div>
+</div>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
@@ -600,6 +617,8 @@ window.addEventListener("DOMContentLoaded",()=>{
 });
 
 let model = null;
+let lastOptimizationCandidates=[];
+let lastOptimizationBest=null;
 let yaw = -0.72, pitch = 0.56, zoom = 1;
 let drag = false, lastX = 0, lastY = 0;
 let showLabels = true;
@@ -1006,6 +1025,8 @@ function calculate(recordHistory=false,deepOptimize=false){
     const selectionPool=eligible.length?eligible:candidates;
     best=selectionPool.reduce((winner,x)=>!winner||lexGreater(x.score,winner.score)?x:winner,null);
     const targetMiss=enforceMinSpace&&!eligible.length;
+    lastOptimizationCandidates=[...candidates];
+    lastOptimizationBest=best;
     const palletsNeeded=quantity>0?Math.ceil(quantity/best.totalBoxes):null;
     model={PL,PW,PH,maxH,maxLoad,L,W,H,boxWeight,quantity,cross:true,partial,edge,overhang,layerPad,topPack,...best,palletsNeeded,deepVerified:deepOptimize,verifiedCandidateCount:candidates.length};
     $("rPerLayer").textContent=`${best.A.count} 箱`;$("rLayers").textContent=`${best.fullLayers} 層`;
@@ -1503,6 +1524,63 @@ $('manualSearch').style.display='none';
 $('manualModal').addEventListener('click',e=>{if(e.target===$('manualModal'))closeManual()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('manualModal').classList.contains('open'))closeManual()});
 $('manualPrint').onclick=()=>{const old=manualStep;let all='';GUIDE_STEPS.forEach((x,i)=>{manualStep=i;renderManual();all+=$('manualContent').innerHTML});manualStep=old;renderManual();const w=window.open('','_blank');w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${$('manualTitle').textContent}</title><style>body{font-family:Arial,"Microsoft JhengHei",sans-serif;margin:24px;color:#172033}.guideHero,.guideProgress,.guideNav{display:none}.guidePanel{border:1px solid #ccd6e3;margin:0 0 18px;border-radius:10px;overflow:hidden}.guidePanelHead{padding:12px;background:#f3f6fa}.guideBody{padding:12px}.guideChecklist{line-height:1.7}.guideTip{padding:10px;background:#fff8e8}</style></head><body><h1>${$('manualTitle').textContent}</h1>${all}</body></html>`);w.document.close();w.focus();w.print()};
+
+
+/* ---------- AI 空間最佳化正式版 ---------- */
+function aiCompositeScore(x){
+  const utilization=Math.min(100,Math.max(0,x.spaceUtil));
+  const stability=Math.min(100,Math.max(0,x.stability));
+  const support=Math.min(100,Math.max(0,x.support));
+  const cgScore=Math.max(0,100-x.cg.d*8);
+  return utilization*.48+stability*.25+support*.17+cgScore*.10;
+}
+function aiPlanReason(x,index){
+  const reasons=[];
+  if(index===0)reasons.push('綜合空間利用率、穩定性、支撐率與重心後的首選');
+  if(x.spaceUtil>=80)reasons.push('空間利用率已達 80% 以上');
+  else reasons.push(`目前尺寸限制下，最佳空間利用率約為 ${f2(x.spaceUtil)}%`);
+  if(x.stability>=85)reasons.push('穩定性表現佳');
+  else if(x.stability<70)reasons.push('穩定性較低，現場需加強膜包、護角或綁帶');
+  if(x.cg.d<=2)reasons.push('重心接近棧板中心');
+  if(x.support<80)reasons.push('層間支撐率偏低，不建議用於易碎或長途運輸');
+  return reasons.join('；')+'。';
+}
+function openAIOptimizer(){
+  const modal=$('aiOptimizeModal'),body=$('aiOptimizeBody');
+  modal.classList.add('open');modal.setAttribute('aria-hidden','false');
+  body.innerHTML='<div class="aiIntro"><b>正在執行深度最佳化…</b><br>系統將比較 6 種箱體方向、3 種交叉方式及可用混合排列。</div>';
+  setTimeout(()=>{
+    calculate(false,true);
+    const ranked=uniqueCandidates([...lastOptimizationCandidates])
+      .map(x=>({...x,aiScore:aiCompositeScore(x)}))
+      .sort((a,b)=>b.aiScore-a.aiScore||b.spaceUtil-a.spaceUtil||b.stability-a.stability)
+      .slice(0,3);
+    if(!ranked.length){body.innerHTML='<div class="historyEmpty">目前限制下找不到可行方案。</div>';return}
+    const cards=ranked.map((x,i)=>`<article class="aiPlan ${i===0?'best':''}">
+      <h3>${i===0?'🥇 最佳首選':i===1?'🥈 高穩定方案':'🥉 替代方案'}</h3>
+      <div class="aiMetric"><span>智慧綜合評分</span><b>${f2(x.aiScore)}/100</b></div>
+      <div class="aiMetric"><span>每板箱數</span><b>${x.totalBoxes} 箱</b></div>
+      <div class="aiMetric"><span>空間利用率</span><b>${f2(x.spaceUtil)}%</b></div>
+      <div class="aiMetric"><span>穩定性</span><b>${x.stability}/100</b></div>
+      <div class="aiMetric"><span>最低支撐率</span><b>${f2(x.support)}%</b></div>
+      <div class="aiMetric"><span>重心偏移</span><b>${f2(x.cg.d)} cm</b></div>
+      <div class="aiMetric"><span>紙箱方向</span><b>${x.o.label} cm</b></div>
+      <div class="aiMetric"><span>交叉方式</span><b>${guideCrossName(x.activeCrossMode)}</b></div>
+      <div class="aiReason">${aiPlanReason(x,i)}</div>
+      <div class="aiActions"><button class="secondary aiApply" data-ai-index="${i}">套用並查看 3D</button></div>
+    </article>`).join('');
+    const best=ranked[0];
+    const improvement=model&&model.spaceUtil?best.spaceUtil-model.spaceUtil:0;
+    body.innerHTML=`<div class="aiIntro"><b>分析完成：共比較 ${lastOptimizationCandidates.length} 個候選方案。</b><br>
+      最佳首選為每板 ${best.totalBoxes} 箱、${best.occupiedLayers} 層，空間利用率 ${f2(best.spaceUtil)}%，穩定性 ${best.stability}/100。</div>
+      <div class="aiGrid">${cards}</div>
+      <div class="aiNotice"><b>說明：</b>此功能採用多目標智慧最佳化演算法，會依空間利用率、穩定性、支撐率及重心偏移進行排序。結果屬於本系統排列模型與目前輸入限制下的最佳建議，正式出貨前仍須依紙箱耐壓、易碎性、運輸規範及現場固定方式確認。</div>`;
+    body.querySelectorAll('.aiApply').forEach(btn=>btn.onclick=()=>{const x=ranked[Number(btn.dataset.aiIndex)];activateCandidate(x,true);modal.classList.remove('open');modal.setAttribute('aria-hidden','true')});
+  },80);
+}
+$('aiOptimizeBtn').onclick=openAIOptimizer;
+$('aiOptimizeClose').onclick=()=>{$('aiOptimizeModal').classList.remove('open');$('aiOptimizeModal').setAttribute('aria-hidden','true')};
+$('aiOptimizeModal').addEventListener('click',e=>{if(e.target===$('aiOptimizeModal'))$('aiOptimizeClose').click()});
 
 renderHistory();
 calculate(false);
