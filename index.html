@@ -190,6 +190,16 @@
   .cloudHelpActions{display:flex;justify-content:center;margin-top:10px}.cloudLinkBtn{background:transparent;color:#175cd3;padding:6px 8px;font-size:12px}
   .cloudMessage{min-height:20px;margin:12px 0 0;font-size:12px;line-height:1.5;color:var(--muted)}
   .cloudMessage.error{color:var(--bad)}.cloudMessage.success{color:var(--good)}
+  .syncBadge{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:#fff;max-width:330px;white-space:nowrap}
+  .syncDot{width:9px;height:9px;border-radius:50%;background:#94a3b8;box-shadow:0 0 0 2px rgba(255,255,255,.16)}
+  .syncDot.synced{background:#22c55e}.syncDot.syncing{background:#fbbf24;animation:syncPulse 1s infinite}.syncDot.offline{background:#ef4444}.syncDot.conflict{background:#f97316}
+  @keyframes syncPulse{50%{opacity:.45}}
+  .teamBtn{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.35)}
+  .teamGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.teamCard{padding:12px;border:1px solid var(--line);border-radius:10px;background:#f8fafc}
+  .teamCard h3{margin:0 0 8px;padding:0;border:0}.teamCard input{width:100%;padding:10px;border:1px solid #c8d2df;border-radius:8px;margin:6px 0}
+  .workspaceLine{margin-top:10px;padding:10px;border-radius:9px;background:#eef4ff;font-size:12px;line-height:1.55}.workspaceCode{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-weight:800;word-break:break-all}
+  .conflictActions{display:grid;gap:8px;margin-top:14px}.conflictActions button{width:100%}
+  @media(max-width:640px){.teamGrid{grid-template-columns:1fr}.syncBadge{max-width:100%}}
   @media(max-width:640px){.cloudAccount{justify-content:flex-start}.cloudStatus{max-width:100%}.cloudActions{grid-template-columns:1fr}}
 
 </style>
@@ -206,8 +216,9 @@
     <button type="button" class="langBtn" data-lang="th">ไทย</button>
     <div class="cloudAccount" aria-label="雲端同步帳號">
       <button type="button" class="cloudLoginBtn" id="cloudLoginBtn">☁ 雲端同步</button>
+      <button type="button" class="teamBtn" id="teamWorkspaceBtn" hidden>團隊空間</button>
       <button type="button" class="cloudLogoutBtn" id="cloudLogoutBtn" hidden>登出</button>
-      <span class="cloudStatus" id="cloudStatus">未登入：資料只存在此裝置</span>
+      <span class="syncBadge"><span class="syncDot" id="syncDot"></span><span class="cloudStatus" id="cloudStatus">未登入：資料只存在此裝置</span></span>
     </div>
     <button type="button" class="manualBtn" id="manualBtn">操作手冊</button>
   </div>
@@ -227,6 +238,36 @@
       </div>
       <div class="cloudHelpActions"><button type="button" class="cloudLinkBtn" id="cloudResetPassword">忘記密碼</button></div>
       <p class="cloudMessage" id="cloudMessage"></p>
+    </div>
+  </div>
+</div>
+
+<div class="cloudModal" id="teamModal" aria-hidden="true">
+  <div class="cloudDialog" role="dialog" aria-modal="true" aria-labelledby="teamTitle">
+    <div class="cloudDialogTop"><h2 id="teamTitle">團隊共享空間</h2><button class="cloudDialogClose" id="teamClose" type="button">關閉</button></div>
+    <div class="cloudDialogBody">
+      <p class="cloudIntro">建立或加入團隊空間後，成員可使用各自 Email 登入，卻共用同一份歷史紀錄、分類與模板。團隊代碼等同存取密鑰，請只分享給可信任的人。</p>
+      <div class="workspaceLine">目前空間：<b id="workspaceName">個人空間</b><br>代碼：<span class="workspaceCode" id="workspaceCode">—</span></div>
+      <div class="teamGrid">
+        <div class="teamCard"><h3>建立團隊</h3><input id="newTeamName" maxlength="40" placeholder="例如：台北倉儲部"><button class="primary" id="createTeamBtn" type="button" style="margin-top:4px">建立並切換</button></div>
+        <div class="teamCard"><h3>加入團隊</h3><input id="joinTeamCode" autocomplete="off" placeholder="貼上團隊代碼"><button class="secondary" id="joinTeamBtn" type="button">加入並切換</button></div>
+      </div>
+      <div class="cloudActions"><button class="secondary" id="switchPersonalBtn" type="button">切回個人空間</button><button class="secondary" id="copyWorkspaceCode" type="button">複製目前代碼</button></div>
+      <p class="cloudMessage" id="teamMessage"></p>
+    </div>
+  </div>
+</div>
+
+<div class="cloudModal" id="conflictModal" aria-hidden="true">
+  <div class="cloudDialog" role="dialog" aria-modal="true" aria-labelledby="conflictTitle">
+    <div class="cloudDialogTop"><h2 id="conflictTitle">偵測到同步衝突</h2></div>
+    <div class="cloudDialogBody">
+      <p class="cloudIntro">另一台裝置在你編輯期間更新了同一個空間。請選擇處理方式；「合併」會以每筆紀錄或模板較新的版本為準，分類則合併保留。</p>
+      <div class="conflictActions">
+        <button class="primary" id="mergeConflictBtn" type="button" style="margin-top:0">合併本機與雲端（建議）</button>
+        <button class="secondary" id="useCloudBtn" type="button">使用雲端版本</button>
+        <button class="danger" id="keepLocalBtn" type="button">以本機版本覆蓋雲端</button>
+      </div>
     </div>
   </div>
 </div>
@@ -443,7 +484,7 @@ const $ = id => document.getElementById(id);
 const canvas = $("scene");
 const ctx = canvas.getContext("2d");
 
-/* Firebase 雲端同步：使用電子郵件與密碼，跨手機與電腦共用資料 */
+/* Firebase V2.1：自動同步、同步狀態、衝突處理與團隊共享 */
 const firebaseConfig = {
   apiKey: "AIzaSyCCfVkjHYic8wFIXzmJ-LPQN0vVIv7CNOY",
   authDomain: "pallet-calculator2-b5157.firebaseapp.com",
@@ -452,110 +493,110 @@ const firebaseConfig = {
   messagingSenderId: "431590586998",
   appId: "1:431590586998:web:39ea39079858c8dce0fd57"
 };
-let cloudUser=null, cloudReady=false, cloudWriteTimer=null, cloudLoading=false;
-let cloudAuth=null, cloudDb=null;
+const CLIENT_ID_KEY="palletProClientIdV1", ACTIVE_WORKSPACE_KEY="palletProWorkspaceV1";
+const clientId=localStorage.getItem(CLIENT_ID_KEY)||(`device-${Date.now()}-${Math.random().toString(36).slice(2,10)}`);
+localStorage.setItem(CLIENT_ID_KEY,clientId);
+let cloudUser=null,cloudAuth=null,cloudDb=null,cloudReady=false,cloudLoading=false,cloudWriteTimer=null;
+let activeWorkspaceId=null,activeWorkspaceName="個人空間",cloudBaseRevision=0,cloudUnsubscribe=null,cloudDirty=false,pendingConflict=null;
 try{
-  firebase.initializeApp(firebaseConfig);
-  cloudAuth=firebase.auth();
-  cloudDb=firebase.firestore();
+  firebase.initializeApp(firebaseConfig);cloudAuth=firebase.auth();cloudDb=firebase.firestore();
   cloudAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(console.error);
+  cloudDb.enablePersistence({synchronizeTabs:true}).catch(e=>{if(e.code!=="failed-precondition"&&e.code!=="unimplemented")console.warn(e)});
 }catch(error){console.error("Firebase 初始化失敗",error)}
 
-function cloudUserDoc(){return cloudDb&&cloudUser?cloudDb.collection("users").doc(cloudUser.uid):null}
-function collectCloudData(){
-  let history=[],folders=[],templates=[];
-  try{history=JSON.parse(localStorage.getItem("palletProHistoryV1")||"[]")}catch{}
-  try{folders=JSON.parse(localStorage.getItem("palletProFavoriteFoldersV1")||"[]")}catch{}
-  try{templates=JSON.parse(localStorage.getItem("palletProCustomTemplatesV1")||"[]")}catch{}
-  return {history:Array.isArray(history)?history.slice(0,100):[],folders:Array.isArray(folders)?folders:[],templates:Array.isArray(templates)?templates:[],updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
+function setSyncState(state,text){
+  const dot=$("syncDot"),el=$("cloudStatus");if(dot)dot.className=`syncDot ${state||""}`.trim();if(el)el.textContent=text;
 }
-function scheduleCloudWrite(){
-  if(!cloudReady||!cloudUser||cloudLoading)return;
-  clearTimeout(cloudWriteTimer);
-  setCloudStatus("正在同步…");
-  cloudWriteTimer=setTimeout(async()=>{
-    try{
-      await cloudUserDoc().set(collectCloudData(),{merge:true});
-      setCloudStatus(`已同步：${cloudUser.email||"雲端帳號"}｜${new Date().toLocaleTimeString("zh-TW",{hour:"2-digit",minute:"2-digit"})}`);
-    }catch(error){console.error("雲端同步失敗",error);setCloudStatus("同步失敗，請檢查網路或資料庫規則")}
-  },350);
-}
-function setCloudStatus(text){const el=$("cloudStatus");if(el)el.textContent=text}
-function setCloudMessage(text,type=""){
-  const el=$("cloudMessage");if(!el)return;
-  el.textContent=text;el.className=`cloudMessage ${type}`.trim();
-}
-function firebaseErrorText(error){
-  const map={
-    "auth/email-already-in-use":"這個電子郵件已經建立過帳號。",
-    "auth/invalid-email":"電子郵件格式不正確。",
-    "auth/weak-password":"密碼至少需要 6 個字元。",
-    "auth/invalid-credential":"電子郵件或密碼錯誤。",
-    "auth/user-disabled":"這個帳號已被停用。",
-    "auth/too-many-requests":"嘗試次數過多，請稍後再試。",
-    "auth/network-request-failed":"網路連線失敗，請檢查網路。",
-    "auth/missing-password":"請輸入密碼。"
-  };
+function setCloudStatus(text){setSyncState("synced",text)}
+function setCloudMessage(text,type=""){const el=$("cloudMessage");if(!el)return;el.textContent=text;el.className=`cloudMessage ${type}`.trim()}
+function setTeamMessage(text,type=""){const el=$("teamMessage");if(!el)return;el.textContent=text;el.className=`cloudMessage ${type}`.trim()}
+function firebaseErrorText(error){const map={
+  "auth/email-already-in-use":"這個電子郵件已經建立過帳號。","auth/invalid-email":"電子郵件格式不正確。","auth/weak-password":"密碼至少需要 6 個字元。","auth/invalid-credential":"電子郵件或密碼錯誤。","auth/user-disabled":"這個帳號已被停用。","auth/too-many-requests":"嘗試次數過多，請稍後再試。","auth/network-request-failed":"網路連線失敗，請檢查網路。","auth/missing-password":"請輸入密碼。","permission-denied":"Firestore 權限不足，請更新安全規則。"};
   return map[error?.code]||`操作失敗：${error?.message||error?.code||"未知錯誤"}`;
 }
-async function loadCloudData(){
-  const ref=cloudUserDoc();if(!ref)return;
-  cloudLoading=true;setCloudStatus("正在讀取雲端資料…");
+function parseLocal(key){try{const x=JSON.parse(localStorage.getItem(key)||"[]");return Array.isArray(x)?x:[]}catch{return []}}
+function collectCloudData(){return {history:parseLocal("palletProHistoryV1").slice(0,100),folders:parseLocal("palletProFavoriteFoldersV1"),templates:parseLocal("palletProCustomTemplatesV1")}}
+function workspaceRef(id=activeWorkspaceId){return cloudDb&&id?cloudDb.collection("workspaces").doc(id):null}
+function profileRef(){return cloudDb&&cloudUser?cloudDb.collection("users").doc(cloudUser.uid):null}
+function applyCloudData(d){
+  cloudLoading=true;
   try{
-    const snap=await ref.get();
-    if(snap.exists){
-      const d=snap.data()||{};
-      if(Array.isArray(d.history))localStorage.setItem("palletProHistoryV1",JSON.stringify(d.history.slice(0,100)));
-      if(Array.isArray(d.folders))localStorage.setItem("palletProFavoriteFoldersV1",JSON.stringify(d.folders));
-      if(Array.isArray(d.templates))localStorage.setItem("palletProCustomTemplatesV1",JSON.stringify(d.templates));
-    }else{
-      await ref.set(collectCloudData(),{merge:true});
-    }
-    cloudReady=true;
-    renderHistory();
-    if(typeof renderTemplateOptions==="function")renderTemplateOptions();
-    setCloudStatus(`已同步：${cloudUser.email||"雲端帳號"}`);
-  }catch(error){console.error("讀取雲端資料失敗",error);setCloudStatus("讀取失敗，請檢查 Firestore 規則")}
-  finally{cloudLoading=false}
+    if(Array.isArray(d.history))localStorage.setItem("palletProHistoryV1",JSON.stringify(d.history.slice(0,100)));
+    if(Array.isArray(d.folders))localStorage.setItem("palletProFavoriteFoldersV1",JSON.stringify(d.folders));
+    if(Array.isArray(d.templates))localStorage.setItem("palletProCustomTemplatesV1",JSON.stringify(d.templates));
+    renderHistory();if(typeof refreshCustomTemplateSelect==="function")refreshCustomTemplateSelect();else if(typeof renderTemplateOptions==="function")renderTemplateOptions();
+  }finally{cloudLoading=false;cloudDirty=false}
 }
-if(cloudAuth){
-  cloudAuth.onAuthStateChanged(async user=>{
-    cloudUser=user||null;cloudReady=false;
-    $("cloudLoginBtn").hidden=!!user;$("cloudLogoutBtn").hidden=!user;
-    if(user){
-      $("cloudModal").classList.remove("open");$("cloudModal").setAttribute("aria-hidden","true");
-      await loadCloudData();
-    }else setCloudStatus("未登入：資料只存在此裝置");
+function mergeById(local,remote){
+  const map=new Map();for(const x of [...remote,...local]){if(!x||!x.id)continue;const old=map.get(x.id);const a=Date.parse(x.updatedAt||x.createdAt||0)||0,b=Date.parse(old?.updatedAt||old?.createdAt||0)||0;if(!old||a>=b)map.set(x.id,x)}return [...map.values()].sort((a,b)=>(Date.parse(b.updatedAt||b.createdAt||0)||0)-(Date.parse(a.updatedAt||a.createdAt||0)||0));
+}
+function mergedData(local,remote){return {history:mergeById(local.history||[],remote.history||[]).slice(0,100),folders:[...new Set([...(remote.folders||[]),...(local.folders||[])])],templates:mergeById(local.templates||[],remote.templates||[])}}
+function updateWorkspaceUI(){if($("workspaceName"))$("workspaceName").textContent=activeWorkspaceName;if($("workspaceCode"))$("workspaceCode").textContent=activeWorkspaceId||"—"}
+function openConflict(remote){pendingConflict={local:collectCloudData(),remote,remoteRevision:Number(remote.revision||0)};setSyncState("conflict","同步衝突：等待選擇");$("conflictModal").classList.add("open");$("conflictModal").setAttribute("aria-hidden","false")}
+function closeConflict(){pendingConflict=null;$("conflictModal").classList.remove("open");$("conflictModal").setAttribute("aria-hidden","true")}
+async function forceWrite(data,expectedRevision=null){
+  const ref=workspaceRef();if(!ref)return;
+  setSyncState("syncing","正在同步…");
+  await cloudDb.runTransaction(async tx=>{
+    const snap=await tx.get(ref),remote=snap.exists?snap.data():{},rev=Number(remote.revision||0);
+    if(expectedRevision!==null&&rev!==expectedRevision)throw Object.assign(new Error("revision-conflict"),{code:"revision-conflict",remote});
+    tx.set(ref,{...data,name:activeWorkspaceName,revision:rev+1,updatedAt:firebase.firestore.FieldValue.serverTimestamp(),updatedBy:cloudUser.uid,updatedByClient:clientId,members:firebase.firestore.FieldValue.arrayUnion(cloudUser.uid)},{merge:true});cloudBaseRevision=rev+1;
   });
+  cloudDirty=false;setSyncState("synced",`已同步｜${activeWorkspaceName}｜${new Date().toLocaleTimeString("zh-TW",{hour:"2-digit",minute:"2-digit"})}`);
 }
+function scheduleCloudWrite(){
+  if(cloudLoading)return;cloudDirty=true;
+  if(!cloudReady||!cloudUser||!activeWorkspaceId)return;
+  clearTimeout(cloudWriteTimer);setSyncState(navigator.onLine?"syncing":"offline",navigator.onLine?"等待自動同步…":"離線：變更已保留在本機");
+  cloudWriteTimer=setTimeout(async()=>{
+    if(!navigator.onLine){setSyncState("offline","離線：恢復網路後自動同步");return}
+    try{await forceWrite(collectCloudData(),cloudBaseRevision)}catch(error){
+      if(error.code==="revision-conflict"){openConflict(error.remote||{})}else{console.error(error);setSyncState("offline","同步失敗：稍後自動重試")}
+    }
+  },700);
+}
+async function ensurePersonalWorkspace(){
+  const personalId=`personal-${cloudUser.uid}`,profile=profileRef();const p=await profile.get();let id=p.exists&&p.data().activeWorkspaceId||localStorage.getItem(ACTIVE_WORKSPACE_KEY)||personalId;
+  const target=workspaceRef(id),snap=await target.get();
+  if(!snap.exists){
+    let seed=collectCloudData();const legacy=await profile.get();if(legacy.exists){const d=legacy.data();seed={history:Array.isArray(d.history)?d.history:seed.history,folders:Array.isArray(d.folders)?d.folders:seed.folders,templates:Array.isArray(d.templates)?d.templates:seed.templates}}
+    await workspaceRef(personalId).set({...seed,name:"個人空間",type:"personal",ownerUid:cloudUser.uid,members:[cloudUser.uid],revision:1,updatedAt:firebase.firestore.FieldValue.serverTimestamp(),updatedBy:cloudUser.uid,updatedByClient:clientId},{merge:true});id=personalId;
+  }
+  await profile.set({email:cloudUser.email||"",activeWorkspaceId:id,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});return id;
+}
+async function switchWorkspace(id){
+  if(cloudUnsubscribe){cloudUnsubscribe();cloudUnsubscribe=null}cloudReady=false;activeWorkspaceId=id;localStorage.setItem(ACTIVE_WORKSPACE_KEY,id);setSyncState("syncing","正在切換空間…");
+  const snap=await workspaceRef(id).get();if(!snap.exists)throw new Error("找不到此團隊空間");const d=snap.data()||{};activeWorkspaceName=d.name||(id.startsWith("personal-")?"個人空間":"團隊空間");cloudBaseRevision=Number(d.revision||0);applyCloudData(d);await profileRef().set({activeWorkspaceId:id,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});cloudReady=true;updateWorkspaceUI();
+  cloudUnsubscribe=workspaceRef(id).onSnapshot(s=>{
+    if(!s.exists||cloudLoading)return;const remote=s.data()||{},rev=Number(remote.revision||0);if(rev<=cloudBaseRevision)return;
+    if(remote.updatedByClient===clientId){cloudBaseRevision=rev;return}
+    if(cloudDirty)openConflict(remote);else{cloudBaseRevision=rev;applyCloudData(remote);setSyncState("synced",`已接收更新｜${activeWorkspaceName}`)}
+  },e=>{console.error(e);setSyncState("offline","即時同步中斷，將自動重連")});
+  setSyncState("synced",`已同步｜${activeWorkspaceName}｜${cloudUser.email||""}`);
+}
+async function initializeCloud(){try{const id=await ensurePersonalWorkspace();await switchWorkspace(id)}catch(e){console.error(e);setSyncState("offline",firebaseErrorText(e))}}
+if(cloudAuth)cloudAuth.onAuthStateChanged(async user=>{
+  cloudUser=user||null;cloudReady=false;$("cloudLoginBtn").hidden=!!user;$("cloudLogoutBtn").hidden=!user;$("teamWorkspaceBtn").hidden=!user;
+  if(user){$("cloudModal").classList.remove("open");await initializeCloud()}else{if(cloudUnsubscribe)cloudUnsubscribe();activeWorkspaceId=null;setSyncState("","未登入：資料只存在此裝置")}
+});
+window.addEventListener("online",()=>{if(cloudDirty)scheduleCloudWrite();else if(cloudUser)setSyncState("synced",`已連線｜${activeWorkspaceName}`)});
+window.addEventListener("offline",()=>setSyncState("offline","離線：資料暫存本機"));
+window.addEventListener("storage",e=>{if(["palletProHistoryV1","palletProFavoriteFoldersV1","palletProCustomTemplatesV1"].includes(e.key))scheduleCloudWrite()});
 window.addEventListener("DOMContentLoaded",()=>{
-  const modal=$("cloudModal");
-  const openModal=()=>{modal.classList.add("open");modal.setAttribute("aria-hidden","false");setCloudMessage("");setTimeout(()=>$("cloudEmail").focus(),50)};
-  const closeModal=()=>{modal.classList.remove("open");modal.setAttribute("aria-hidden","true")};
-  $("cloudLoginBtn").onclick=openModal;
-  $("cloudDialogClose").onclick=closeModal;
-  modal.onclick=e=>{if(e.target===modal)closeModal()};
-  $("cloudEmailLogin").onclick=async()=>{
-    const email=$("cloudEmail").value.trim(),password=$("cloudPassword").value;
-    if(!email||!password){setCloudMessage("請輸入電子郵件和密碼。","error");return}
-    try{setCloudMessage("正在登入…");await cloudAuth.signInWithEmailAndPassword(email,password);setCloudMessage("登入成功。","success")}
-    catch(error){console.error(error);setCloudMessage(firebaseErrorText(error),"error")}
-  };
-  $("cloudEmailRegister").onclick=async()=>{
-    const email=$("cloudEmail").value.trim(),password=$("cloudPassword").value;
-    if(!email){setCloudMessage("請輸入電子郵件。","error");return}
-    if(password.length<6){setCloudMessage("密碼至少需要 6 個字元。","error");return}
-    try{setCloudMessage("正在建立帳號…");await cloudAuth.createUserWithEmailAndPassword(email,password);setCloudMessage("帳號建立成功，正在同步本機資料。","success")}
-    catch(error){console.error(error);setCloudMessage(firebaseErrorText(error),"error")}
-  };
-  $("cloudResetPassword").onclick=async()=>{
-    const email=$("cloudEmail").value.trim();
-    if(!email){setCloudMessage("請先輸入要重設密碼的電子郵件。","error");return}
-    try{await cloudAuth.sendPasswordResetEmail(email);setCloudMessage("密碼重設信已寄出，請查看信箱。","success")}
-    catch(error){console.error(error);setCloudMessage(firebaseErrorText(error),"error")}
-  };
-  $("cloudPassword").addEventListener("keydown",e=>{if(e.key==="Enter")$("cloudEmailLogin").click()});
-  $("cloudLogoutBtn").onclick=async()=>{try{await cloudAuth.signOut()}catch(error){console.error(error);alert("登出失敗："+firebaseErrorText(error))}};
+  const modal=$("cloudModal"),team=$("teamModal");const openModal=()=>{modal.classList.add("open");modal.setAttribute("aria-hidden","false");setCloudMessage("");setTimeout(()=>$("cloudEmail").focus(),50)},closeModal=()=>{modal.classList.remove("open");modal.setAttribute("aria-hidden","true")};
+  $("cloudLoginBtn").onclick=openModal;$("cloudDialogClose").onclick=closeModal;modal.onclick=e=>{if(e.target===modal)closeModal()};
+  $("cloudEmailLogin").onclick=async()=>{const email=$("cloudEmail").value.trim(),password=$("cloudPassword").value;if(!email||!password){setCloudMessage("請輸入電子郵件和密碼。","error");return}try{setCloudMessage("正在登入…");await cloudAuth.signInWithEmailAndPassword(email,password)}catch(e){setCloudMessage(firebaseErrorText(e),"error")}};
+  $("cloudEmailRegister").onclick=async()=>{const email=$("cloudEmail").value.trim(),password=$("cloudPassword").value;if(!email||password.length<6){setCloudMessage("請輸入有效 Email，密碼至少 6 個字元。","error");return}try{setCloudMessage("正在建立帳號…");await cloudAuth.createUserWithEmailAndPassword(email,password)}catch(e){setCloudMessage(firebaseErrorText(e),"error")}};
+  $("cloudResetPassword").onclick=async()=>{const email=$("cloudEmail").value.trim();if(!email){setCloudMessage("請先輸入電子郵件。","error");return}try{await cloudAuth.sendPasswordResetEmail(email);setCloudMessage("重設信已寄出。","success")}catch(e){setCloudMessage(firebaseErrorText(e),"error")}};
+  $("cloudPassword").addEventListener("keydown",e=>{if(e.key==="Enter")$("cloudEmailLogin").click()});$("cloudLogoutBtn").onclick=()=>cloudAuth.signOut();
+  $("teamWorkspaceBtn").onclick=()=>{updateWorkspaceUI();setTeamMessage("");team.classList.add("open");team.setAttribute("aria-hidden","false")};$("teamClose").onclick=()=>{team.classList.remove("open");team.setAttribute("aria-hidden","true")};team.onclick=e=>{if(e.target===team)$("teamClose").click()};
+  $("createTeamBtn").onclick=async()=>{const name=$("newTeamName").value.trim();if(!name){setTeamMessage("請輸入團隊名稱。","error");return}const code=`team-${crypto.getRandomValues(new Uint32Array(3)).join("").slice(0,18)}`;try{setTeamMessage("正在建立…");await workspaceRef(code).set({...collectCloudData(),name,type:"team",ownerUid:cloudUser.uid,members:[cloudUser.uid],revision:1,createdAt:firebase.firestore.FieldValue.serverTimestamp(),updatedAt:firebase.firestore.FieldValue.serverTimestamp(),updatedBy:cloudUser.uid,updatedByClient:clientId});await switchWorkspace(code);setTeamMessage("團隊建立成功，請複製代碼分享給成員。","success")}catch(e){setTeamMessage(firebaseErrorText(e),"error")}};
+  $("joinTeamBtn").onclick=async()=>{const code=$("joinTeamCode").value.trim();if(!code){setTeamMessage("請輸入團隊代碼。","error");return}try{const snap=await workspaceRef(code).get();if(!snap.exists)throw new Error("找不到此團隊代碼");await workspaceRef(code).update({members:firebase.firestore.FieldValue.arrayUnion(cloudUser.uid)});await switchWorkspace(code);setTeamMessage("已加入團隊空間。","success")}catch(e){setTeamMessage(e.message||firebaseErrorText(e),"error")}};
+  $("switchPersonalBtn").onclick=async()=>{try{await switchWorkspace(`personal-${cloudUser.uid}`);setTeamMessage("已切回個人空間。","success")}catch(e){setTeamMessage(firebaseErrorText(e),"error")}};
+  $("copyWorkspaceCode").onclick=async()=>{if(!activeWorkspaceId)return;await navigator.clipboard.writeText(activeWorkspaceId);setTeamMessage("代碼已複製。","success")};
+  $("mergeConflictBtn").onclick=async()=>{if(!pendingConflict)return;const merged=mergedData(pendingConflict.local,pendingConflict.remote),rev=pendingConflict.remoteRevision;applyCloudData(merged);closeConflict();try{await forceWrite(merged,rev)}catch(e){openConflict(e.remote||pendingConflict.remote)}};
+  $("useCloudBtn").onclick=()=>{if(!pendingConflict)return;cloudBaseRevision=pendingConflict.remoteRevision;applyCloudData(pendingConflict.remote);closeConflict();setSyncState("synced","已採用雲端版本")};
+  $("keepLocalBtn").onclick=async()=>{if(!pendingConflict)return;const local=pendingConflict.local,rev=pendingConflict.remoteRevision;closeConflict();try{await forceWrite(local,rev)}catch(e){openConflict(e.remote||{})}};
 });
 
 let model = null;
