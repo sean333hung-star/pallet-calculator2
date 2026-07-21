@@ -177,8 +177,20 @@
   .cloudAccount button{padding:7px 11px;font-size:12px}
   .cloudLoginBtn{background:#fff;color:#0f2f5f;border:1px solid rgba(255,255,255,.45)}
   .cloudLogoutBtn{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.35)}
-  .cloudStatus{font-size:11px;color:#fff;opacity:.9;max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  @media(max-width:640px){.cloudAccount{justify-content:flex-start}.cloudStatus{max-width:100%}}
+  .cloudStatus{font-size:11px;color:#fff;opacity:.9;max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cloudModal{position:fixed;inset:0;z-index:5000;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(15,31,50,.64)}
+  .cloudModal.open{display:flex}
+  .cloudDialog{width:min(430px,96vw);background:#fff;border-radius:16px;box-shadow:0 24px 80px rgba(0,0,0,.3);overflow:hidden}
+  .cloudDialogTop{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 18px;background:#0f2f5f;color:#fff}
+  .cloudDialogTop h2{margin:0;font-size:19px}.cloudDialogClose{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.35);padding:7px 10px}
+  .cloudDialogBody{padding:18px}.cloudIntro{margin:0 0 14px;color:var(--muted);font-size:13px;line-height:1.6}
+  .cloudField{display:block;margin-top:11px;font-size:12px;color:var(--muted)}
+  .cloudField input{width:100%;margin-top:5px;padding:11px 12px;border:1px solid #c8d2df;border-radius:9px;font-size:15px}
+  .cloudActions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}.cloudActions button{padding:11px}
+  .cloudHelpActions{display:flex;justify-content:center;margin-top:10px}.cloudLinkBtn{background:transparent;color:#175cd3;padding:6px 8px;font-size:12px}
+  .cloudMessage{min-height:20px;margin:12px 0 0;font-size:12px;line-height:1.5;color:var(--muted)}
+  .cloudMessage.error{color:var(--bad)}.cloudMessage.success{color:var(--good)}
+  @media(max-width:640px){.cloudAccount{justify-content:flex-start}.cloudStatus{max-width:100%}.cloudActions{grid-template-columns:1fr}}
 
 </style>
 </head>
@@ -193,7 +205,7 @@
     <button type="button" class="langBtn" data-lang="en">English</button>
     <button type="button" class="langBtn" data-lang="th">ไทย</button>
     <div class="cloudAccount" aria-label="雲端同步帳號">
-      <button type="button" class="cloudLoginBtn" id="cloudLoginBtn">Google 登入同步</button>
+      <button type="button" class="cloudLoginBtn" id="cloudLoginBtn">☁ 雲端同步</button>
       <button type="button" class="cloudLogoutBtn" id="cloudLogoutBtn" hidden>登出</button>
       <span class="cloudStatus" id="cloudStatus">未登入：資料只存在此裝置</span>
     </div>
@@ -201,6 +213,23 @@
   </div>
 </header>
 
+
+<div class="cloudModal" id="cloudModal" aria-hidden="true">
+  <div class="cloudDialog" role="dialog" aria-modal="true" aria-labelledby="cloudDialogTitle">
+    <div class="cloudDialogTop"><h2 id="cloudDialogTitle">雲端同步</h2><button class="cloudDialogClose" id="cloudDialogClose" type="button">關閉</button></div>
+    <div class="cloudDialogBody">
+      <p class="cloudIntro">使用同一組電子郵件與密碼，即可在不同手機、電腦和平板同步歷史紀錄、收藏分類與自訂模板。</p>
+      <label class="cloudField">電子郵件<input id="cloudEmail" type="email" autocomplete="email" placeholder="name@example.com"></label>
+      <label class="cloudField">密碼<input id="cloudPassword" type="password" autocomplete="current-password" minlength="6" placeholder="至少 6 個字元"></label>
+      <div class="cloudActions">
+        <button type="button" class="primary" id="cloudEmailLogin" style="margin-top:0">登入</button>
+        <button type="button" class="secondary" id="cloudEmailRegister">建立帳號</button>
+      </div>
+      <div class="cloudHelpActions"><button type="button" class="cloudLinkBtn" id="cloudResetPassword">忘記密碼</button></div>
+      <p class="cloudMessage" id="cloudMessage"></p>
+    </div>
+  </div>
+</div>
 
 <div class="manualModal" id="manualModal" aria-hidden="true">
   <div class="manualDialog" role="dialog" aria-modal="true" aria-labelledby="manualTitle">
@@ -395,7 +424,7 @@
       <label>總限高（cm）<input id="customMaxH" type="number" min="0.01" step="0.01"></label>
       <label>最大載重（kg）<input id="customMaxW" type="number" min="0.01" step="0.01"></label>
     </div>
-    <div class="templateHelp">可儲存多筆自訂模板。登入 Google 後可在手機與電腦同步；未登入時仍保留在目前瀏覽器。</div>
+    <div class="templateHelp">可儲存多筆自訂模板。登入雲端帳號後可在手機與電腦同步；未登入時仍保留在目前瀏覽器。</div>
     <div class="templateDialogActions">
       <button type="button" class="secondary" id="fillCurrentPallet">帶入目前欄位</button>
       <button type="button" class="primary" id="saveCustomTemplate" style="width:auto;margin-top:0">儲存並套用</button>
@@ -414,14 +443,14 @@ const $ = id => document.getElementById(id);
 const canvas = $("scene");
 const ctx = canvas.getContext("2d");
 
-/* Firebase 雲端同步：手機與電腦登入同一個 Google 帳號即可共用資料 */
+/* Firebase 雲端同步：使用電子郵件與密碼，跨手機與電腦共用資料 */
 const firebaseConfig = {
-  apiKey: "AIzaSyAgH79141Pue_qd4VgQTzzOvbc1GP-qF7o",
-  authDomain: "pallet-calculator2.firebaseapp.com",
-  projectId: "pallet-calculator2",
-  storageBucket: "pallet-calculator2.firebasestorage.app",
-  messagingSenderId: "493124309230",
-  appId: "1:493124309230:web:c70f45095a199173f1a3ff"
+  apiKey: "AIzaSyCCfVkjHYic8wFIXzmJ-LPQN0vVIv7CNOY",
+  authDomain: "pallet-calculator2-b5157.firebaseapp.com",
+  projectId: "pallet-calculator2-b5157",
+  storageBucket: "pallet-calculator2-b5157.firebasestorage.app",
+  messagingSenderId: "431590586998",
+  appId: "1:431590586998:web:39ea39079858c8dce0fd57"
 };
 let cloudUser=null, cloudReady=false, cloudWriteTimer=null, cloudLoading=false;
 let cloudAuth=null, cloudDb=null;
@@ -443,12 +472,32 @@ function collectCloudData(){
 function scheduleCloudWrite(){
   if(!cloudReady||!cloudUser||cloudLoading)return;
   clearTimeout(cloudWriteTimer);
+  setCloudStatus("正在同步…");
   cloudWriteTimer=setTimeout(async()=>{
-    try{await cloudUserDoc().set(collectCloudData(),{merge:true});setCloudStatus(`已同步：${cloudUser.displayName||cloudUser.email||"Google 帳號"}`)}
-    catch(error){console.error("雲端同步失敗",error);setCloudStatus("同步失敗，請檢查網路或資料庫規則")}
+    try{
+      await cloudUserDoc().set(collectCloudData(),{merge:true});
+      setCloudStatus(`已同步：${cloudUser.email||"雲端帳號"}｜${new Date().toLocaleTimeString("zh-TW",{hour:"2-digit",minute:"2-digit"})}`);
+    }catch(error){console.error("雲端同步失敗",error);setCloudStatus("同步失敗，請檢查網路或資料庫規則")}
   },350);
 }
 function setCloudStatus(text){const el=$("cloudStatus");if(el)el.textContent=text}
+function setCloudMessage(text,type=""){
+  const el=$("cloudMessage");if(!el)return;
+  el.textContent=text;el.className=`cloudMessage ${type}`.trim();
+}
+function firebaseErrorText(error){
+  const map={
+    "auth/email-already-in-use":"這個電子郵件已經建立過帳號。",
+    "auth/invalid-email":"電子郵件格式不正確。",
+    "auth/weak-password":"密碼至少需要 6 個字元。",
+    "auth/invalid-credential":"電子郵件或密碼錯誤。",
+    "auth/user-disabled":"這個帳號已被停用。",
+    "auth/too-many-requests":"嘗試次數過多，請稍後再試。",
+    "auth/network-request-failed":"網路連線失敗，請檢查網路。",
+    "auth/missing-password":"請輸入密碼。"
+  };
+  return map[error?.code]||`操作失敗：${error?.message||error?.code||"未知錯誤"}`;
+}
 async function loadCloudData(){
   const ref=cloudUserDoc();if(!ref)return;
   cloudLoading=true;setCloudStatus("正在讀取雲端資料…");
@@ -465,7 +514,7 @@ async function loadCloudData(){
     cloudReady=true;
     renderHistory();
     if(typeof renderTemplateOptions==="function")renderTemplateOptions();
-    setCloudStatus(`已同步：${cloudUser.displayName||cloudUser.email||"Google 帳號"}`);
+    setCloudStatus(`已同步：${cloudUser.email||"雲端帳號"}`);
   }catch(error){console.error("讀取雲端資料失敗",error);setCloudStatus("讀取失敗，請檢查 Firestore 規則")}
   finally{cloudLoading=false}
 }
@@ -473,18 +522,40 @@ if(cloudAuth){
   cloudAuth.onAuthStateChanged(async user=>{
     cloudUser=user||null;cloudReady=false;
     $("cloudLoginBtn").hidden=!!user;$("cloudLogoutBtn").hidden=!user;
-    if(user)await loadCloudData();else setCloudStatus("未登入：資料只存在此裝置");
+    if(user){
+      $("cloudModal").classList.remove("open");$("cloudModal").setAttribute("aria-hidden","true");
+      await loadCloudData();
+    }else setCloudStatus("未登入：資料只存在此裝置");
   });
 }
 window.addEventListener("DOMContentLoaded",()=>{
-  $("cloudLoginBtn").onclick=async()=>{
-    try{await cloudAuth.signInWithPopup(new firebase.auth.GoogleAuthProvider())}
-    catch(error){
-      if(["auth/popup-blocked","auth/cancelled-popup-request","auth/operation-not-supported-in-this-environment"].includes(error.code)){await cloudAuth.signInWithRedirect(new firebase.auth.GoogleAuthProvider());return}
-      console.error(error);alert("Google 登入失敗："+(error.message||error.code));
-    }
+  const modal=$("cloudModal");
+  const openModal=()=>{modal.classList.add("open");modal.setAttribute("aria-hidden","false");setCloudMessage("");setTimeout(()=>$("cloudEmail").focus(),50)};
+  const closeModal=()=>{modal.classList.remove("open");modal.setAttribute("aria-hidden","true")};
+  $("cloudLoginBtn").onclick=openModal;
+  $("cloudDialogClose").onclick=closeModal;
+  modal.onclick=e=>{if(e.target===modal)closeModal()};
+  $("cloudEmailLogin").onclick=async()=>{
+    const email=$("cloudEmail").value.trim(),password=$("cloudPassword").value;
+    if(!email||!password){setCloudMessage("請輸入電子郵件和密碼。","error");return}
+    try{setCloudMessage("正在登入…");await cloudAuth.signInWithEmailAndPassword(email,password);setCloudMessage("登入成功。","success")}
+    catch(error){console.error(error);setCloudMessage(firebaseErrorText(error),"error")}
   };
-  $("cloudLogoutBtn").onclick=()=>cloudAuth.signOut();
+  $("cloudEmailRegister").onclick=async()=>{
+    const email=$("cloudEmail").value.trim(),password=$("cloudPassword").value;
+    if(!email){setCloudMessage("請輸入電子郵件。","error");return}
+    if(password.length<6){setCloudMessage("密碼至少需要 6 個字元。","error");return}
+    try{setCloudMessage("正在建立帳號…");await cloudAuth.createUserWithEmailAndPassword(email,password);setCloudMessage("帳號建立成功，正在同步本機資料。","success")}
+    catch(error){console.error(error);setCloudMessage(firebaseErrorText(error),"error")}
+  };
+  $("cloudResetPassword").onclick=async()=>{
+    const email=$("cloudEmail").value.trim();
+    if(!email){setCloudMessage("請先輸入要重設密碼的電子郵件。","error");return}
+    try{await cloudAuth.sendPasswordResetEmail(email);setCloudMessage("密碼重設信已寄出，請查看信箱。","success")}
+    catch(error){console.error(error);setCloudMessage(firebaseErrorText(error),"error")}
+  };
+  $("cloudPassword").addEventListener("keydown",e=>{if(e.key==="Enter")$("cloudEmailLogin").click()});
+  $("cloudLogoutBtn").onclick=async()=>{try{await cloudAuth.signOut()}catch(error){console.error(error);alert("登出失敗："+firebaseErrorText(error))}};
 });
 
 let model = null;
