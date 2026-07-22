@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>棧板堆疊規劃系統 Pro</title>
+<title>Pallet AI Pro V4 Enterprise</title>
 <style>
   :root{
     --bg:#f4f7fb; --panel:#fff; --text:#172033; --muted:#637083;
@@ -211,30 +211,1131 @@
 .aiHead{display:flex;justify-content:space-between;align-items:center;padding:18px 20px;border-bottom:1px solid var(--line);position:sticky;top:0;background:#fff;z-index:2}.aiHead h2{margin:0;font-size:20px}.aiBody{padding:18px 20px}
 .aiIntro{background:linear-gradient(135deg,#eef2ff,#eff6ff);border:1px solid #c7d2fe;border-radius:14px;padding:14px;margin-bottom:14px;line-height:1.65}
 .aiGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.aiPlan{border:1px solid var(--line);border-radius:14px;padding:14px;background:#fff}.aiPlan.best{border:2px solid #6d28d9;background:#faf7ff}.aiPlan h3{margin:0 0 8px}.aiMetric{display:grid;grid-template-columns:1fr auto;gap:6px;font-size:13px;padding:5px 0;border-bottom:1px dashed #e5e7eb}.aiMetric:last-child{border:0}.aiReason{margin-top:10px;padding:10px;border-radius:10px;background:#f8fafc;font-size:12px;line-height:1.55}.aiActions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.aiNotice{font-size:12px;color:var(--muted);margin-top:14px;line-height:1.6}.aiClose{border:0;background:#eef2f7;border-radius:9px;width:34px;height:34px;font-size:20px;cursor:pointer}@media(max-width:760px){.aiGrid{grid-template-columns:1fr}}
+/* =========================================================
+   Pallet AI Pro V4 Enterprise UI
+   保留原有功能，只重整介面與操作流程
+   ========================================================= */
+:root{
+  --v4-bg:#eef3f8;
+  --v4-surface:#ffffff;
+  --v4-surface-soft:#f7f9fc;
+  --v4-navy:#102a43;
+  --v4-navy-2:#173f6c;
+  --v4-blue:#2563eb;
+  --v4-blue-2:#175cd3;
+  --v4-purple:#6d28d9;
+  --v4-border:#dce5ef;
+  --v4-shadow:0 12px 34px rgba(15,42,67,.10);
+  --v4-shadow-lg:0 26px 70px rgba(15,42,67,.22);
+}
+html,body{height:100%}
+body{background:var(--v4-bg);overflow:hidden}
+header{
+  min-height:70px;padding:10px 18px;position:sticky;top:0;z-index:1300;
+  background:linear-gradient(120deg,var(--v4-navy),var(--v4-navy-2));
+  box-shadow:0 3px 16px rgba(15,42,67,.22)
+}
+header h1{font-size:20px;letter-spacing:.2px}
+header p{font-size:12px;margin-top:3px}
+.languageSwitch{align-items:center}
+.cloudAccount{padding-left:8px;border-left:1px solid rgba(255,255,255,.2)}
+main{
+  display:grid!important;
+  grid-template-columns:400px minmax(0,1fr)!important;
+  gap:12px!important;
+  padding:12px!important;
+  height:calc(100vh - 70px)!important;
+  min-height:0!important;
+}
+.panel{
+  border:1px solid var(--v4-border)!important;
+  border-radius:16px!important;
+  box-shadow:var(--v4-shadow)!important;
+}
+.controls{
+  height:100%!important;max-height:none!important;min-width:0!important;max-width:none!important;
+  resize:none!important;position:relative!important;top:auto!important;
+  padding:14px 14px 92px!important;scrollbar-width:thin
+}
+.controls>h2{display:none}
+.controls h3,.sectionTitleRow{margin-top:14px;padding-top:12px}
+.controls h3{font-size:13px;color:#29445f;letter-spacing:.2px}
+.sectionTitleRow h3{font-size:13px}
+.grid2,.grid3{gap:7px}
+input[type=number],select{
+  min-height:39px;border-color:#ccd8e5;background:#fbfdff;
+  transition:border-color .15s,box-shadow .15s,background .15s
+}
+input[type=number]:hover,select:hover{background:#fff;border-color:#9fb4ca}
+input[type=number]:focus,select:focus{
+  outline:none!important;box-shadow:0 0 0 3px rgba(37,99,235,.14)!important
+}
+.check{
+  background:#f8fafc;border:1px solid #e3eaf2;border-radius:9px;padding:8px 9px;margin-top:7px
+}
+.primary{min-height:44px;border-radius:11px;font-size:14px}
+#calculateBtn{background:#eaf1fb;color:#244b76;border:1px solid #c8d9ed}
+#calculateBtn:hover{background:#dce9f8}
+#aiOptimizeBtn{
+  min-height:56px;font-size:16px;margin-top:8px;
+  background:linear-gradient(135deg,var(--v4-purple),var(--v4-blue));
+  box-shadow:0 10px 26px rgba(67,56,202,.25)
+}
+
+/* 右側主工作區：中間 3D + 右側 KPI */
+.view{
+  height:100%!important;min-height:0!important;
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) 340px!important;
+  grid-template-rows:auto minmax(0,1fr)!important;
+  overflow:hidden!important;
+}
+.quickViews{
+  grid-column:1 / -1;
+  min-height:49px;padding:7px 9px;background:#fff;gap:6px;
+  border-bottom:1px solid var(--v4-border)
+}
+.quickViews button{border:1px solid #dbe5ef;background:#f7f9fc}
+#canvasWrap{
+  grid-column:1;grid-row:2;
+  min-height:0!important;height:100%!important;
+  background:linear-gradient(180deg,#fbfdff,#edf3f9)!important;
+  border-right:1px solid var(--v4-border)
+}
+.results{
+  grid-column:2;grid-row:2;
+  padding:12px!important;background:#fff;
+  border-top:0!important;overflow:auto!important;max-height:none!important
+}
+.cards{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+.card{
+  min-height:78px;padding:10px 11px!important;
+  background:linear-gradient(180deg,#fff,#f8fbff)!important;
+  border-color:#dfe8f1!important;border-radius:12px!important
+}
+.card .k{font-size:11px}
+.card .v{font-size:21px!important}
+.details{margin-top:8px;background:#f6f9fc}
+.targetSearch{grid-template-columns:1fr!important}
+.rankingPanel{margin-top:10px}
+.rankingList{max-height:270px!important}
+.printActions{margin-top:8px}
+.printActions button{min-width:120px}
+.statusBox{left:10px!important;top:10px!important}
+.legend{top:10px!important;right:10px!important}
+.hint{left:10px!important;bottom:10px!important}
+
+/* 歷史紀錄改為右側抽屜 */
+.historyPanel{
+  position:fixed!important;z-index:2600;top:82px;right:16px;bottom:16px;
+  width:min(440px,calc(100vw - 24px));margin:0!important;padding:16px!important;
+  background:#fff;border:1px solid var(--v4-border)!important;border-radius:16px!important;
+  box-shadow:var(--v4-shadow-lg);
+  transform:translateX(calc(100% + 30px));opacity:0;pointer-events:none;
+  transition:transform .25s ease,opacity .2s ease
+}
+.historyPanel.v4-open{transform:translateX(0);opacity:1;pointer-events:auto}
+.historyList{max-height:calc(100vh - 290px)!important}
+.v4-history-close{
+  position:absolute;right:12px;top:10px;width:32px;height:32px;border-radius:9px;
+  background:#edf2f7;color:#40556f;font-size:18px;padding:0
+}
+
+/* 流程提示 */
+.v4-workflow{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:0 0 12px;
+  padding:8px;background:#eef4fa;border:1px solid #dbe6f0;border-radius:12px
+}
+.v4-step{
+  display:flex;align-items:center;justify-content:center;gap:5px;min-height:36px;
+  border-radius:9px;font-size:10px;font-weight:750;color:#4f6478;background:#fff
+}
+.v4-step.active{background:var(--v4-blue-2);color:#fff}
+.v4-step-num{
+  width:19px;height:19px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;
+  background:rgba(23,92,211,.12);font-size:10px
+}
+.v4-step.active .v4-step-num{background:rgba(255,255,255,.2)}
+
+/* 浮動工具 */
+.v4-floating-tools{
+  position:fixed;right:20px;bottom:20px;z-index:2500;display:flex;gap:8px
+}
+.v4-fab{
+  min-height:44px;padding:0 15px;border-radius:999px;background:var(--v4-navy);color:#fff;
+  box-shadow:0 10px 28px rgba(15,42,67,.25);border:1px solid rgba(255,255,255,.18)
+}
+.v4-fab.primary-fab{background:var(--v4-blue)}
+.v4-mode-badge{
+  display:inline-flex;align-items:center;gap:6px;margin-left:8px;padding:4px 8px;
+  border-radius:999px;background:rgba(255,255,255,.14);font-size:11px;color:#fff
+}
+
+/* 手機與平板 */
+@media(max-width:1280px){
+  main{grid-template-columns:370px minmax(0,1fr)!important}
+  .view{grid-template-columns:minmax(0,1fr) 310px!important}
+}
+@media(max-width:1050px){
+  body{overflow:auto}
+  main{display:block!important;height:auto!important;padding:8px!important}
+  .controls{height:auto!important;max-height:none!important;padding-bottom:90px!important}
+  .view{
+    margin-top:8px;
+    height:auto!important;
+    grid-template-columns:1fr!important;
+    grid-template-rows:auto 52vh auto!important
+  }
+  .quickViews{grid-column:1}
+  #canvasWrap{grid-column:1;grid-row:2;min-height:380px!important;border-right:0;border-bottom:1px solid var(--v4-border)}
+  .results{grid-column:1;grid-row:3}
+  .cards{grid-template-columns:repeat(4,1fr)!important}
+  .targetSearch{grid-template-columns:repeat(3,1fr)!important}
+}
+@media(max-width:640px){
+  header{padding:10px 12px}
+  header p{display:none}
+  .languageSwitch{width:100%;overflow-x:auto;flex-wrap:nowrap;padding-bottom:2px}
+  .cloudStatus{max-width:150px}
+  main{padding:6px!important}
+  .controls{padding:10px 10px 92px!important}
+  .grid3{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+  .grid2{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  label{font-size:11px}
+  input[type=number],select{font-size:13px;padding:8px}
+  .view{grid-template-rows:auto 46vh auto!important}
+  #canvasWrap{min-height:310px!important}
+  .quickViews{overflow-x:auto;flex-wrap:nowrap}
+  .quickViews button{white-space:nowrap}
+  .cards{grid-template-columns:repeat(2,1fr)!important}
+  .targetSearch{grid-template-columns:1fr!important}
+  .v4-workflow{grid-template-columns:repeat(2,1fr)}
+  .v4-floating-tools{left:10px;right:10px;bottom:10px;justify-content:center}
+  .v4-fab{flex:1}
+  .historyPanel{top:70px;right:6px;bottom:6px;width:calc(100vw - 12px)}
+}
+
+
+/* ================= V4.1 Dark Mode ================= */
+.themeToggle{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(255,255,255,.14);color:#fff;
+  border:1px solid rgba(255,255,255,.35);
+  padding:7px 11px;font-size:12px;border-radius:9px
+}
+.themeToggle:hover{background:rgba(255,255,255,.24)}
+html[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0f172a;
+  --panel:#1e293b;
+  --text:#e5edf7;
+  --muted:#9fb0c3;
+  --line:#334155;
+  --primary:#3b82f6;
+  --primary2:#2563eb;
+  --good:#34d399;
+  --warn:#f59e0b;
+  --bad:#f87171;
+  --v4-bg:#0f172a;
+  --v4-surface:#1e293b;
+  --v4-surface-soft:#111827;
+  --v4-navy:#020617;
+  --v4-navy-2:#111827;
+  --v4-blue:#3b82f6;
+  --v4-blue-2:#2563eb;
+  --v4-purple:#7c3aed;
+  --v4-border:#334155;
+  --v4-shadow:0 12px 34px rgba(0,0,0,.34);
+  --v4-shadow-lg:0 26px 70px rgba(0,0,0,.48);
+}
+html[data-theme="dark"] body{background:#0f172a;color:#e5edf7}
+html[data-theme="dark"] header{
+  background:linear-gradient(120deg,#020617,#111827);
+  box-shadow:0 3px 16px rgba(0,0,0,.45)
+}
+html[data-theme="dark"] .panel,
+html[data-theme="dark"] .results,
+html[data-theme="dark"] .historyPanel,
+html[data-theme="dark"] .manualDialog,
+html[data-theme="dark"] .cloudDialog,
+html[data-theme="dark"] .utilGuideDialog,
+html[data-theme="dark"] .aiBox,
+html[data-theme="dark"] .templateDialog{
+  background:#1e293b!important;color:#e5edf7!important;border-color:#334155!important
+}
+html[data-theme="dark"] .controls,
+html[data-theme="dark"] .results{scrollbar-color:#475569 #111827}
+html[data-theme="dark"] .quickViews,
+html[data-theme="dark"] .rankingHeader,
+html[data-theme="dark"] .manualToolbar,
+html[data-theme="dark"] .guidePanelHead,
+html[data-theme="dark"] .templateDialogBody{
+  background:#111827!important;border-color:#334155!important
+}
+html[data-theme="dark"] input,
+html[data-theme="dark"] select,
+html[data-theme="dark"] textarea{
+  background:#0f172a!important;color:#f8fafc!important;border-color:#475569!important
+}
+html[data-theme="dark"] input::placeholder,
+html[data-theme="dark"] textarea::placeholder{color:#718096}
+html[data-theme="dark"] .check,
+html[data-theme="dark"] .utilTargetBox,
+html[data-theme="dark"] .details,
+html[data-theme="dark"] .targetCard,
+html[data-theme="dark"] .historyItem,
+html[data-theme="dark"] .aiPlan,
+html[data-theme="dark"] .aiReason,
+html[data-theme="dark"] .teamCard,
+html[data-theme="dark"] .workspaceLine,
+html[data-theme="dark"] .guideChecklist li,
+html[data-theme="dark"] .guidePanel,
+html[data-theme="dark"] .guideHero,
+html[data-theme="dark"] .card{
+  background:#111827!important;color:#e5edf7!important;border-color:#334155!important
+}
+html[data-theme="dark"] .card{
+  background:linear-gradient(180deg,#1e293b,#111827)!important
+}
+html[data-theme="dark"] .card .v{color:#93c5fd}
+html[data-theme="dark"] .card .k,
+html[data-theme="dark"] label,
+html[data-theme="dark"] .rankMeta,
+html[data-theme="dark"] .historyMeta,
+html[data-theme="dark"] .aiNotice,
+html[data-theme="dark"] .templateHelp,
+html[data-theme="dark"] .cloudIntro,
+html[data-theme="dark"] .guideHero p,
+html[data-theme="dark"] .guidePanelHead p{color:#9fb0c3!important}
+html[data-theme="dark"] .secondary,
+html[data-theme="dark"] .miniBtn,
+html[data-theme="dark"] .presetBtn,
+html[data-theme="dark"] .guideStepBtn{
+  background:#1e293b!important;color:#bfdbfe!important;border-color:#475569!important
+}
+html[data-theme="dark"] .guideStepBtn.active,
+html[data-theme="dark"] .presetBtn.active{
+  background:#2563eb!important;color:#fff!important;border-color:#2563eb!important
+}
+html[data-theme="dark"] #calculateBtn{
+  background:#1e293b!important;color:#bfdbfe!important;border-color:#475569!important
+}
+html[data-theme="dark"] #canvasWrap{
+  background:linear-gradient(180deg,#020617,#0f172a)!important
+}
+html[data-theme="dark"] .statusBox,
+html[data-theme="dark"] .legend,
+html[data-theme="dark"] .hint{
+  background:rgba(15,23,42,.92)!important;color:#cbd5e1!important;border-color:#475569!important
+}
+html[data-theme="dark"] .historyEmpty{
+  color:#9fb0c3!important;border-color:#475569!important
+}
+html[data-theme="dark"] .manualTop,
+html[data-theme="dark"] .cloudDialogTop{
+  background:#020617!important
+}
+html[data-theme="dark"] .aiHead{
+  background:#1e293b!important;border-color:#334155!important
+}
+html[data-theme="dark"] .aiPlan.best{
+  background:#22163f!important;border-color:#8b5cf6!important
+}
+html[data-theme="dark"] .guideTip{
+  background:#3a2b12!important;color:#fde68a!important;border-left-color:#f59e0b!important
+}
+html[data-theme="dark"] .v4-workflow{
+  background:#111827!important;border-color:#334155!important
+}
+html[data-theme="dark"] .v4-step{
+  background:#1e293b!important;color:#cbd5e1!important
+}
+html[data-theme="dark"] .v4-step.active{background:#2563eb!important;color:#fff!important}
+html[data-theme="dark"] .v4-history-close{
+  background:#334155!important;color:#fff!important
+}
+
+
+/* ================= V4.2 放箱動畫 ================= */
+.boxAnimationControls{
+  display:flex;align-items:center;gap:5px;flex-wrap:wrap;
+  padding-left:7px;margin-left:2px;border-left:1px solid var(--line)
+}
+.boxAnimationControls select{
+  width:auto;min-height:34px;margin:0;padding:6px 8px;font-size:12px
+}
+.boxAnimBtn{padding:7px 9px!important;font-size:12px!important}
+.boxAnimBtn:disabled{opacity:.45;cursor:not-allowed}
+.boxAnimStatus{
+  position:absolute;left:50%;bottom:12px;transform:translateX(-50%);
+  width:min(390px,calc(100% - 24px));padding:10px 12px;
+  background:rgba(255,255,255,.94);border:1px solid var(--line);
+  border-radius:11px;box-shadow:0 8px 24px rgba(15,42,67,.15);
+  font-size:12px;color:var(--text);z-index:5
+}
+.boxAnimStatusTop{display:flex;justify-content:space-between;gap:10px;margin-bottom:7px}
+.boxAnimProgress{
+  height:7px;background:#dbe5ef;border-radius:999px;overflow:hidden;margin-bottom:7px
+}
+.boxAnimProgress span{
+  display:block;width:0;height:100%;background:linear-gradient(90deg,#6d28d9,#2563eb);
+  border-radius:inherit;transition:width .18s ease
+}
+html[data-theme="dark"] .boxAnimStatus{
+  background:rgba(15,23,42,.94)!important;color:#e5edf7!important;border-color:#475569!important
+}
+html[data-theme="dark"] .boxAnimProgress{background:#334155}
+html[data-theme="dark"] .boxAnimationControls{border-color:#475569}
+@media(max-width:640px){
+  .boxAnimationControls{flex-wrap:nowrap;min-width:max-content}
+  .boxAnimStatus{bottom:8px}
+}
+
+
+/* ================= V4.3 工廠放箱指導 ================= */
+.boxAnimationControls{max-width:100%}
+.boxAnimationControls select{max-width:120px}
+.boxAnimDetail{
+  margin-top:5px;padding-top:6px;border-top:1px dashed var(--line);
+  color:var(--muted);font-size:11px;line-height:1.45
+}
+.boxAnimCurrentBadge{
+  display:inline-flex;align-items:center;gap:5px;padding:3px 7px;border-radius:999px;
+  background:#fff3cd;color:#8a5a00;border:1px solid #f3d37a;font-weight:750
+}
+html[data-theme="dark"] .boxAnimDetail{border-color:#475569;color:#9fb0c3}
+html[data-theme="dark"] .boxAnimCurrentBadge{
+  background:#3a2b12;color:#fde68a;border-color:#8a641f
+}
+@media(max-width:850px){
+  .boxAnimationControls{overflow-x:auto;flex-wrap:nowrap}
+  .boxAnimationControls>*{flex:0 0 auto}
+}
+
+
+/* ================= V5.0 Air Cargo / ULD ================= */
+.airCargoModePanel{
+  margin-bottom:12px;padding:12px;border:1px solid #bfd5f2;border-radius:14px;
+  background:linear-gradient(135deg,#eef6ff,#f7fbff)
+}
+.airCargoModeHead{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.airCargoModeHead strong{display:block;color:#154c8a}
+.airCargoModeHead small{display:block;margin-top:4px;color:var(--muted);line-height:1.45}
+.airCargoSwitch{display:flex;align-items:center;gap:7px;color:var(--text);font-weight:750}
+.airCargoSwitch input{width:18px;height:18px}
+.airCargoFields{margin-top:12px;padding-top:12px;border-top:1px solid #cfe0f5}
+.uldPresetSummary{
+  margin-top:9px;padding:10px;border-radius:10px;background:#fff;border:1px solid var(--line);
+  font-size:12px;line-height:1.65
+}
+.uldActions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.uldDisclaimer{
+  margin-top:9px;padding:9px 10px;border-left:4px solid #f59e0b;
+  border-radius:8px;background:#fff8e8;color:#7a4b00;font-size:11px;line-height:1.55
+}
+.uldCompareGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.uldCompareCard{
+  border:1px solid var(--line);border-radius:13px;padding:13px;background:#fff
+}
+.uldCompareCard.best{border:2px solid #2563eb;background:#f4f8ff}
+.uldCompareCard h3{margin:0 0 8px;padding:0;border:0}
+.uldCompareMetric{display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px dashed var(--line);font-size:12px}
+.uldCompareMetric:last-child{border-bottom:0}
+.uldCompareReason{margin-top:9px;padding:8px;border-radius:8px;background:#f7f9fc;font-size:11px;line-height:1.5}
+.uldApplyBtn{width:100%;margin-top:10px}
+html[data-theme="dark"] .airCargoModePanel{
+  background:linear-gradient(135deg,#0f2440,#111827)!important;border-color:#365472!important
+}
+html[data-theme="dark"] .airCargoModeHead strong{color:#93c5fd}
+html[data-theme="dark"] .airCargoFields{border-color:#334155}
+html[data-theme="dark"] .uldPresetSummary,
+html[data-theme="dark"] .uldCompareCard{
+  background:#111827!important;color:#e5edf7!important;border-color:#334155!important
+}
+html[data-theme="dark"] .uldCompareCard.best{background:#13233f!important;border-color:#3b82f6!important}
+html[data-theme="dark"] .uldCompareReason{background:#1e293b!important}
+html[data-theme="dark"] .uldDisclaimer{background:#3a2b12!important;color:#fde68a!important}
+@media(max-width:800px){.uldCompareGrid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.uldActions,.uldCompareGrid{grid-template-columns:1fr}}
+
+
+/* ================= V5.1 UI 重構預覽 ================= */
+.modeSelector{
+  display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px
+}
+.modeBtn{
+  display:flex;align-items:center;gap:10px;text-align:left;padding:11px 12px;
+  border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--text)
+}
+.modeBtn:hover{border-color:#9fb4ca;background:#f8fbff}
+.modeBtn.active{
+  border-color:#2563eb;background:linear-gradient(135deg,#eff6ff,#eef2ff);
+  box-shadow:0 0 0 3px rgba(37,99,235,.1)
+}
+.modeBtn .modeIcon{font-size:23px}
+.modeBtn b{display:block;font-size:13px}
+.modeBtn small{display:block;margin-top:2px;color:var(--muted);font-size:10px;line-height:1.35}
+.airCargoModePanel.mode-hidden{display:none!important}
+.airCargoModePanel .airCargoModeHead{display:none}
+.airCargoModePanel{margin-top:0!important}
+.airCargoFields{margin-top:0!important;padding-top:0!important;border-top:0!important}
+#palletUldDataTitle{transition:color .2s}
+
+.topKpiBar{
+  grid-column:1/-1;display:grid;
+  grid-template-columns:repeat(4,minmax(110px,1fr));
+  gap:8px;padding:9px;background:#f8fafc;border-bottom:1px solid var(--v4-border)
+}
+.topKpiCard{
+  min-height:62px;padding:9px 11px;border:1px solid var(--line);border-radius:11px;
+  background:#fff;display:flex;flex-direction:column;justify-content:center
+}
+.topKpiCard span{font-size:10px;color:var(--muted)}
+.topKpiCard strong{font-size:20px;margin-top:3px;color:#163d73}
+.topKpiCard.primaryKpi{
+  background:linear-gradient(135deg,#eff6ff,#eef2ff);border-color:#bcd3f8
+}
+.topKpiCard.primaryKpi strong{color:#175cd3;font-size:24px}
+
+.view{
+  grid-template-rows:auto auto minmax(0,1fr)!important;
+  grid-template-columns:minmax(0,1fr) 300px!important
+}
+.quickViews{grid-row:2!important}
+#canvasWrap{grid-row:3!important}
+.results{grid-row:3!important}
+.cards{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+.results .cards{display:none!important}
+.results .details{margin-top:0}
+.rankingPanel{margin-top:9px}
+
+.uiCollapsible{
+  border:1px solid var(--line);border-radius:11px;margin-top:10px;background:#f8fafc;overflow:hidden
+}
+.uiCollapsible summary{
+  cursor:pointer;padding:11px 12px;font-size:13px;font-weight:750;color:#29445f;
+  list-style:none;display:flex;align-items:center;justify-content:space-between
+}
+.uiCollapsible summary::-webkit-details-marker{display:none}
+.uiCollapsible summary::after{content:"＋";font-size:17px;color:#64748b}
+.uiCollapsible[open] summary::after{content:"－"}
+.uiCollapsibleBody{padding:0 11px 11px}
+.uiCollapsibleBody>h3:first-child{display:none}
+.quickStartHint{
+  margin:0 0 10px;padding:9px 11px;border-radius:10px;background:#ecfdf3;
+  border:1px solid #abefc6;color:#067647;font-size:11px;line-height:1.5
+}
+html[data-theme="dark"] .modeBtn,
+html[data-theme="dark"] .topKpiCard,
+html[data-theme="dark"] .uiCollapsible{
+  background:#111827!important;border-color:#334155!important;color:#e5edf7!important
+}
+html[data-theme="dark"] .modeBtn.active{
+  background:linear-gradient(135deg,#13233f,#22163f)!important;border-color:#3b82f6!important
+}
+html[data-theme="dark"] .topKpiBar{background:#0f172a!important}
+html[data-theme="dark"] .topKpiCard strong{color:#93c5fd}
+html[data-theme="dark"] .topKpiCard.primaryKpi{
+  background:linear-gradient(135deg,#13233f,#1d2140)!important;border-color:#365f98!important
+}
+html[data-theme="dark"] .uiCollapsible summary{color:#cbd5e1}
+html[data-theme="dark"] .quickStartHint{background:#123326!important;border-color:#166534!important;color:#86efac!important}
+
+@media(max-width:1280px){
+  .view{grid-template-columns:minmax(0,1fr) 280px!important}
+}
+@media(max-width:1050px){
+  .view{grid-template-columns:1fr!important;grid-template-rows:auto auto 52vh auto!important}
+  .topKpiBar{grid-row:1}
+  .quickViews{grid-row:2!important}
+  #canvasWrap{grid-row:3!important}
+  .results{grid-row:4!important}
+  .topKpiBar{grid-template-columns:repeat(4,1fr)}
+}
+@media(max-width:640px){
+  .modeSelector{grid-template-columns:1fr}
+  .topKpiBar{grid-template-columns:repeat(2,1fr);padding:7px}
+  .topKpiCard{min-height:57px}
+  .topKpiCard strong{font-size:18px}
+}
+
+
+/* ================= V5.1.1 3D Focus Layout ================= */
+main{
+  grid-template-columns:330px minmax(0,1fr)!important;
+}
+.controls{
+  padding-left:12px!important;
+  padding-right:12px!important;
+}
+.view{
+  grid-template-columns:minmax(0,1fr) 245px!important;
+}
+#canvasWrap{
+  min-height:0!important;
+}
+.results{
+  width:245px!important;
+}
+.topKpiBar{
+  grid-template-columns:repeat(4,minmax(100px,1fr))!important;
+}
+.topKpiCard{
+  min-height:58px!important;
+}
+.topKpiCard strong{
+  font-size:19px!important;
+}
+.quickViews{
+  min-height:46px!important;
+  padding:6px 8px!important;
+}
+.quickViews button{
+  padding:6px 8px!important;
+  font-size:11px!important;
+}
+.boxAnimationControls{
+  gap:4px!important;
+}
+.boxAnimBtn{
+  padding:6px 8px!important;
+}
+.results .details{
+  font-size:12px!important;
+  line-height:1.5!important;
+}
+.rankingList{
+  max-height:220px!important;
+}
+.rankingHeader{
+  padding:8px 10px!important;
+}
+.targetSearch{
+  gap:6px!important;
+}
+.targetCard{
+  padding:8px!important;
+}
+
+/* desktop: maximize 3D work area */
+@media(min-width:1281px){
+  main{
+    grid-template-columns:320px minmax(0,1fr)!important;
+  }
+  .view{
+    grid-template-columns:minmax(0,1fr) 230px!important;
+  }
+  .results{
+    width:230px!important;
+  }
+}
+
+/* large monitor: nearly full-width 3D */
+@media(min-width:1600px){
+  main{
+    grid-template-columns:300px minmax(0,1fr)!important;
+  }
+  .view{
+    grid-template-columns:minmax(0,1fr) 220px!important;
+  }
+  .results{
+    width:220px!important;
+  }
+}
+
+/* keep tablet usable */
+@media(max-width:1280px) and (min-width:1051px){
+  main{
+    grid-template-columns:340px minmax(0,1fr)!important;
+  }
+  .view{
+    grid-template-columns:minmax(0,1fr) 260px!important;
+  }
+  .results{
+    width:260px!important;
+  }
+}
+
+/* floating full-screen style button for 3D */
+.focus3DBtn{
+  margin-left:auto;
+  background:#111827;
+  color:#fff;
+  border:1px solid rgba(255,255,255,.18);
+}
+.focus3DBtn.active{
+  background:#2563eb;
+}
+body.v51-focus3d header,
+body.v51-focus3d .controls,
+body.v51-focus3d .results,
+body.v51-focus3d .topKpiBar{
+  display:none!important;
+}
+body.v51-focus3d{
+  overflow:hidden!important;
+}
+body.v51-focus3d main{
+  display:block!important;
+  height:100vh!important;
+  padding:0!important;
+}
+body.v51-focus3d .view{
+  height:100vh!important;
+  border-radius:0!important;
+  border:0!important;
+  display:grid!important;
+  grid-template-columns:1fr!important;
+  grid-template-rows:auto minmax(0,1fr)!important;
+}
+body.v51-focus3d .quickViews{
+  grid-column:1!important;
+  grid-row:1!important;
+  position:relative!important;
+  z-index:10;
+}
+body.v51-focus3d #canvasWrap{
+  grid-column:1!important;
+  grid-row:2!important;
+  height:100%!important;
+  min-height:0!important;
+  border:0!important;
+}
+html[data-theme="dark"] .focus3DBtn{
+  background:#334155!important;
+  color:#fff!important;
+  border-color:#475569!important;
+}
+html[data-theme="dark"] .focus3DBtn.active{
+  background:#2563eb!important;
+}
+
+
+/* ================= V5.1.2 Mac / Android 響應式修正 ================= */
+html,body{
+  width:100%;
+  max-width:100%;
+  overflow-x:hidden;
+}
+body{min-width:0!important}
+header,main,.panel,.controls,.view,.quickViews,#canvasWrap,.results{
+  min-width:0!important;
+  max-width:100%!important;
+}
+main{
+  width:100%!important;
+  box-sizing:border-box!important;
+}
+.view,#canvasWrap,canvas{
+  width:100%!important;
+  max-width:100%!important;
+}
+.quickViews{
+  width:100%!important;
+  display:flex!important;
+  flex-wrap:wrap!important;
+  overflow:visible!important;
+  align-content:flex-start;
+}
+.quickViews .viewActions{
+  margin-left:0!important;
+  display:flex!important;
+  flex-wrap:wrap!important;
+  max-width:100%!important;
+}
+.quickViews button,.boxAnimationControls button{
+  flex:0 0 auto;
+  max-width:100%;
+}
+.boxAnimationControls{
+  flex:1 1 100%;
+  width:100%;
+  max-width:100%!important;
+  overflow-x:auto!important;
+  overflow-y:hidden;
+  padding-bottom:3px;
+  scrollbar-width:thin;
+}
+.boxAnimationControls select{flex:0 0 auto}
+
+@media(min-width:1181px){
+  main{grid-template-columns:300px minmax(0,1fr)!important}
+  .view{grid-template-columns:minmax(0,1fr) 220px!important}
+  .results{
+    width:auto!important;
+    min-width:0!important;
+  }
+}
+
+@media(max-width:1180px){
+  body{
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+  }
+  header{position:relative!important}
+  main{
+    display:block!important;
+    width:100%!important;
+    height:auto!important;
+    padding:8px!important;
+  }
+  .controls{
+    width:100%!important;
+    height:auto!important;
+    max-height:none!important;
+    position:relative!important;
+    padding-bottom:84px!important;
+  }
+  .view{
+    width:100%!important;
+    height:auto!important;
+    margin-top:8px!important;
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr)!important;
+    grid-template-rows:auto auto minmax(420px,68vh) auto!important;
+  }
+  .topKpiBar{
+    grid-column:1!important;
+    grid-row:1!important;
+  }
+  .quickViews{
+    grid-column:1!important;
+    grid-row:2!important;
+  }
+  #canvasWrap{
+    grid-column:1!important;
+    grid-row:3!important;
+    width:100%!important;
+    height:68vh!important;
+    min-height:420px!important;
+    border-right:0!important;
+    border-bottom:1px solid var(--v4-border)!important;
+  }
+  .results{
+    grid-column:1!important;
+    grid-row:4!important;
+    width:100%!important;
+    max-width:100%!important;
+    overflow:visible!important;
+  }
+  .results .cards{
+    display:grid!important;
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  }
+  .targetSearch{
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  }
+}
+
+@media(max-width:760px){
+  header{padding:10px!important}
+  .languageSwitch{
+    width:100%!important;
+    display:flex!important;
+    flex-wrap:wrap!important;
+    overflow:visible!important;
+  }
+  main{padding:6px!important}
+  .topKpiBar{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+  .quickViews{
+    gap:5px!important;
+    padding:7px!important;
+  }
+  .quickViews button{
+    flex:1 1 calc(50% - 5px);
+    min-width:120px;
+    white-space:normal!important;
+  }
+  .quickViews .viewActions{width:100%}
+  .boxAnimationControls{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:5px!important;
+    overflow:visible!important;
+    padding-left:0!important;
+    border-left:0!important;
+  }
+  .boxAnimationControls button,
+  .boxAnimationControls select{
+    width:100%!important;
+    max-width:none!important;
+    min-width:0!important;
+  }
+  .view{
+    grid-template-rows:auto auto minmax(360px,62vh) auto!important;
+  }
+  #canvasWrap{
+    height:62vh!important;
+    min-height:360px!important;
+  }
+  .results .cards{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+  .targetSearch{grid-template-columns:1fr!important}
+}
+
+@media(max-width:420px){
+  .quickViews button{
+    flex:1 1 100%;
+    min-width:0;
+  }
+  .boxAnimationControls{grid-template-columns:1fr!important}
+  #canvasWrap{
+    height:58vh!important;
+    min-height:330px!important;
+  }
+}
+
+@supports(height:100dvh){
+  @media(max-width:1180px){
+    #canvasWrap{height:68dvh!important}
+  }
+  @media(max-width:760px){
+    #canvasWrap{height:62dvh!important}
+  }
+  body.v51-focus3d main,
+  body.v51-focus3d .view{
+    height:100dvh!important;
+  }
+}
+
+
+/* ================= V5.2 三語互動式新手導覽 ================= */
+.tutorialLaunchBtn{background:#dff7ea;color:#075c3d;border:1px solid rgba(255,255,255,.5);padding:7px 11px;font-size:12px}
+.tutorialLaunchBtn:hover{background:#c7efda}
+.tutorialOverlay{position:fixed;inset:0;z-index:12000;display:none;pointer-events:none}
+.tutorialOverlay.open{display:block}
+.tutorialDim{position:absolute;inset:0;background:rgba(2,6,23,.58);pointer-events:auto}
+.tutorialSpotlight{position:fixed;border:3px solid #60a5fa;border-radius:14px;box-shadow:0 0 0 9999px rgba(2,6,23,.58),0 0 0 6px rgba(96,165,250,.22);transition:none!important;pointer-events:none;z-index:12002}
+.tutorialCard{position:fixed;z-index:12003;width:min(380px,calc(100vw - 24px));background:#fff;color:#172033;border:1px solid #d9e1ec;border-radius:16px;box-shadow:0 24px 70px rgba(0,0,0,.32);padding:16px;pointer-events:auto}
+.tutorialCardTop{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.tutorialBadge{display:inline-flex;align-items:center;padding:4px 8px;border-radius:999px;background:#eaf2ff;color:#175cd3;font-size:11px;font-weight:800}
+.tutorialClose{background:#eef2f7;color:#40556f;width:32px;height:32px;padding:0;font-size:18px}
+.tutorialCard h3{margin:12px 0 7px;padding:0;border:0;font-size:18px}
+.tutorialCard p{margin:0;color:#52657a;font-size:13px;line-height:1.65}
+.tutorialHint{margin-top:10px;padding:9px 10px;border-radius:10px;background:#f7f9fc;border:1px solid #e2e8f0;color:#52657a;font-size:12px;line-height:1.5}
+.tutorialProgress{height:7px;background:#e2e8f0;border-radius:999px;overflow:hidden;margin-top:14px}
+.tutorialProgress span{display:block;height:100%;width:0;background:linear-gradient(90deg,#6d28d9,#2563eb);transition:width .25s ease}
+.tutorialActions{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:14px}
+.tutorialActionsLeft,.tutorialActionsRight{display:flex;gap:7px}
+.tutorialActions button{padding:8px 11px;font-size:12px}
+.tutorialSkip{background:transparent;color:#64748b}
+.tutorialPrev{background:#eef4ff;color:#164ca3}
+.tutorialNext{background:#175cd3;color:#fff}
+.tutorialTargetPulse{outline:3px solid rgba(96,165,250,.35);outline-offset:3px}
+50%{filter:brightness(1.08)}}
+html[data-theme="dark"] .tutorialCard{background:#111827!important;color:#e5edf7!important;border-color:#334155!important}
+html[data-theme="dark"] .tutorialCard p,html[data-theme="dark"] .tutorialHint{color:#cbd5e1!important}
+html[data-theme="dark"] .tutorialHint{background:#1e293b!important;border-color:#334155!important}
+html[data-theme="dark"] .tutorialClose{background:#334155!important;color:#fff!important}
+html[data-theme="dark"] .tutorialProgress{background:#334155!important}
+@media(max-width:760px){
+  .tutorialCard{left:10px!important;right:10px!important;bottom:10px!important;top:auto!important;width:auto!important;max-height:44vh;overflow:auto}
+  .tutorialSpotlight{border-radius:10px}
+}
+
+
+/* V5.3 教學動畫：使用介面示意，不載入影片檔 */
+.tutorialDemo{
+  margin-top:12px;min-height:122px;padding:11px;border-radius:12px;
+  background:#f8fafc;border:1px solid #dbe4ef;overflow:hidden
+}
+.tutorialDemoStage{
+  position:relative;min-height:98px;padding:8px;border-radius:9px;
+  background:#fff;border:1px solid #e2e8f0
+}
+.tutorialDemoTitle{
+  font-size:11px;color:#64748b;margin-bottom:7px;font-weight:700
+}
+.tutorialDemoFields{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px
+}
+.tutorialFakeField{
+  min-height:42px;padding:5px 7px;border:1px solid #cbd5e1;border-radius:7px;
+  background:#fff;font-size:10px;color:#64748b
+}
+.tutorialFakeField b{
+  display:block;margin-top:3px;font-size:13px;color:#172033;min-height:16px
+}
+.tutorialFakeButton{
+  display:inline-flex;align-items:center;justify-content:center;min-height:34px;
+  padding:7px 12px;border-radius:8px;background:#175cd3;color:#fff;
+  font-size:11px;font-weight:750
+}
+.tutorialFakeButton.ai{background:linear-gradient(135deg,#6d28d9,#2563eb)}
+.tutorialFakeCursor{
+  position:absolute;width:20px;height:26px;z-index:3;opacity:0;
+  transform:translate(-2px,-2px);
+}
+.tutorialFakeCursor::before{
+  content:"";display:block;width:0;height:0;border-top:16px solid #172033;
+  border-right:9px solid transparent;transform:rotate(-22deg)
+}
+.tutorialFakeClick{
+  position:absolute;width:24px;height:24px;border-radius:50%;
+  border:3px solid #60a5fa;opacity:0
+}
+.tutorialDemoStepText{
+  margin-top:7px;font-size:11px;color:#52657a;line-height:1.4;text-align:center
+}
+.tutorialDemo.play .tutorialFakeCursor{animation:tutorialCursorMove 3.6s 1 forwards}
+.tutorialDemo.play .tutorialFakeClick{animation:tutorialClickRing 3.6s 1 forwards}
+.tutorialDemo.play .tutorialType1{animation:tutorialTypeOne 3.6s 1 forwards}
+.tutorialDemo.play .tutorialType2{animation:tutorialTypeTwo 3.6s 1 forwards}
+.tutorialDemo.play .tutorialType3{animation:tutorialTypeThree 3.6s 1 forwards}
+.tutorialDemo.play .tutorialFakeButton{animation:tutorialButtonPress 3.6s 1 forwards}
+.tutorialDemo.play .tutorialDemoStage.demo-highlight{animation:tutorialStageGlow 3.6s 1 forwards}
+
+@keyframes tutorialCursorMove{
+  0%,8%{left:8%;top:66%;opacity:0}
+  15%{left:17%;top:52%;opacity:1}
+  36%{left:49%;top:52%;opacity:1}
+  58%{left:80%;top:52%;opacity:1}
+  78%{left:50%;top:80%;opacity:1}
+  88%,100%{left:50%;top:80%;opacity:0}
+}
+@keyframes tutorialClickRing{
+  0%,72%{left:50%;top:76%;opacity:0;transform:scale(.5)}
+  78%{opacity:1;transform:scale(.5)}
+  88%{opacity:0;transform:scale(1.8)}
+  100%{opacity:0}
+}
+@keyframes tutorialTypeOne{
+  0%,18%{color:transparent}
+  23%,100%{color:#172033}
+}
+@keyframes tutorialTypeTwo{
+  0%,38%{color:transparent}
+  43%,100%{color:#172033}
+}
+@keyframes tutorialTypeThree{
+  0%,58%{color:transparent}
+  63%,100%{color:#172033}
+}
+@keyframes tutorialButtonPress{
+  0%,74%{transform:scale(1);filter:none}
+  80%{transform:scale(.94);filter:brightness(.9)}
+  88%,100%{transform:scale(1);filter:none}
+}
+@keyframes tutorialStageGlow{
+  0%,100%{box-shadow:none}
+  35%,70%{box-shadow:0 0 0 3px rgba(37,99,235,.15)}
+}
+html[data-theme="dark"] .tutorialDemo{background:#0f172a!important;border-color:#334155!important}
+html[data-theme="dark"] .tutorialDemoStage{background:#111827!important;border-color:#334155!important}
+html[data-theme="dark"] .tutorialFakeField{background:#0f172a!important;border-color:#475569!important;color:#9fb0c3!important}
+html[data-theme="dark"] .tutorialFakeField b{color:#e5edf7!important}
+html[data-theme="dark"] .tutorialDemoStepText,html[data-theme="dark"] .tutorialDemoTitle{color:#cbd5e1!important}
+@media(prefers-reduced-motion:reduce){
+  .tutorialDemo.play *{animation:none!important}
+  .tutorialFakeCursor,.tutorialFakeClick{display:none!important}
+}
+
+
+/* ================= V5.5 完全不閃頻導覽修正 ================= */
+
+/* 不再使用大面積陰影遮罩，避免 GPU 重繪造成閃頻 */
+.tutorialDim{
+  display:none!important;
+}
+.tutorialSpotlight{
+  display:none!important;
+}
+
+/* 教學卡固定在右下角，不因目標位置重新跳動 */
+.tutorialCard{
+  left:auto!important;
+  right:16px!important;
+  top:auto!important;
+  bottom:16px!important;
+  width:min(390px,calc(100vw - 32px))!important;
+  max-height:calc(100vh - 32px);
+  overflow:auto;
+  visibility:visible!important;
+  transform:none!important;
+  transition:none!important;
+  animation:none!important;
+}
+
+/* 真正高亮目標本身，不另外繪製浮動框 */
+.tutorialDirectTarget{
+  position:relative!important;
+  z-index:11990!important;
+  outline:4px solid #60a5fa!important;
+  outline-offset:4px!important;
+  border-radius:10px!important;
+  box-shadow:0 0 0 7px rgba(96,165,250,.18)!important;
+}
+
+/* 禁止教學期間所有高亮閃爍與亮度動畫 */
+.tutorialTargetPulse{
+  animation:none!important;
+  filter:none!important;
+}
+.tutorialDemo,
+.tutorialDemo *,
+.tutorialCard,
+.tutorialCard *{
+  backface-visibility:hidden;
+  transform-style:flat;
+}
+
+/* 教學動畫保留，但取消游標與點擊圈的透明度閃爍 */
+.tutorialFakeCursor,
+.tutorialFakeClick{
+  display:none!important;
+}
+
+/* 改成純文字逐步顯示，不使用透明度動畫 */
+.tutorialDemo.play .tutorialType1,
+.tutorialDemo.play .tutorialType2,
+.tutorialDemo.play .tutorialType3{
+  animation:none!important;
+  color:inherit!important;
+}
+.tutorialDemo.play .tutorialFakeButton,
+.tutorialDemo.play .tutorialDemoStage.demo-highlight{
+  animation:none!important;
+}
+
+/* 手機版固定下方，避免畫面跳動 */
+@media(max-width:760px){
+  .tutorialCard{
+    left:8px!important;
+    right:8px!important;
+    bottom:8px!important;
+    width:auto!important;
+    max-height:46vh!important;
+  }
+}
+
 </style>
 </head>
 <body>
 <header>
   <div class="headerText">
-    <h1>棧板堆疊規劃系統 Pro</h1>
-    <p>整合高度、重量、承壓、支撐率、重心、安全邊距、突出與3D全景檢查。</p>
+    <h1>📦 Pallet AI Pro <span class="v4-mode-badge">V4 Enterprise</span></h1>
+    <p>AI 棧板空間最佳化、3D 堆疊預覽與雲端協作平台</p>
   </div>
   <div class="languageSwitch" aria-label="語言切換">
     <button type="button" class="langBtn" data-lang="zh">中文</button>
     <button type="button" class="langBtn" data-lang="en">English</button>
     <button type="button" class="langBtn" data-lang="th">ไทย</button>
-    <div class="cloudAccount" aria-label="雲端同步帳號">
+    <div class="cloudAccount" aria-label="雲端同步帳號" data-v63-i18n="cloud">
       <button type="button" class="cloudLoginBtn" id="cloudLoginBtn">☁ 雲端同步</button>
       <button type="button" class="teamBtn" id="teamWorkspaceBtn" hidden>團隊空間</button>
       <button type="button" class="cloudLogoutBtn" id="cloudLogoutBtn" hidden>登出</button>
       <span class="syncBadge"><span class="syncDot" id="syncDot"></span><span class="cloudStatus" id="cloudStatus">未登入：資料只存在此裝置</span></span>
     </div>
+    <button type="button" class="themeToggle" id="themeToggle" aria-label="切換深色模式">🌙 深色</button>
     <button type="button" class="manualBtn" id="manualBtn">操作手冊</button>
   </div>
 </header>
 
 
-<div class="cloudModal" id="cloudModal" aria-hidden="true">
+<div class="cloudModal" id="cloudModal" aria-hidden="true" data-v63-i18n="cloud">
   <div class="cloudDialog" role="dialog" aria-modal="true" aria-labelledby="cloudDialogTitle">
     <div class="cloudDialogTop"><h2 id="cloudDialogTitle">雲端同步</h2><button class="cloudDialogClose" id="cloudDialogClose" type="button">關閉</button></div>
     <div class="cloudDialogBody">
@@ -251,7 +1352,7 @@
   </div>
 </div>
 
-<div class="cloudModal" id="teamModal" aria-hidden="true">
+<div class="cloudModal" id="teamModal" aria-hidden="true" data-v63-i18n="cloud">
   <div class="cloudDialog" role="dialog" aria-modal="true" aria-labelledby="teamTitle">
     <div class="cloudDialogTop"><h2 id="teamTitle">團隊共享空間</h2><button class="cloudDialogClose" id="teamClose" type="button">關閉</button></div>
     <div class="cloudDialogBody">
@@ -267,7 +1368,7 @@
   </div>
 </div>
 
-<div class="cloudModal" id="conflictModal" aria-hidden="true">
+<div class="cloudModal" id="conflictModal" aria-hidden="true" data-v63-i18n="cloud">
   <div class="cloudDialog" role="dialog" aria-modal="true" aria-labelledby="conflictTitle">
     <div class="cloudDialogTop"><h2 id="conflictTitle">偵測到同步衝突</h2></div>
     <div class="cloudDialogBody">
@@ -284,7 +1385,7 @@
 <div class="manualModal" id="manualModal" aria-hidden="true">
   <div class="manualDialog" role="dialog" aria-modal="true" aria-labelledby="manualTitle">
     <div class="manualTop"><h2 id="manualTitle">操作手冊</h2><button class="manualClose" id="manualClose" type="button">關閉</button></div>
-    <div class="manualToolbar"><input id="manualSearch" type="search" placeholder="搜尋功能或操作步驟"><button class="secondary" id="manualPrint" type="button">列印手冊</button></div>
+    <div class="manualToolbar"><input id="manualSearch" type="search" placeholder="搜尋功能或操作步驟"><button type="button" class="tutorialLaunchBtn" id="tutorialLaunchBtn">🎓 新手導覽</button><button class="secondary" id="manualPrint" type="button">列印手冊</button></div>
     <div class="manualContent" id="manualContent"></div>
   </div>
 </div>
@@ -300,8 +1401,67 @@
 <section class="panel controls">
   <h2>輸入條件</h2>
 
+  <div class="modeSelector" id="modeSelector" data-i18n-managed="true">
+    <button type="button" class="modeBtn active" data-app-mode="pallet">
+      <span class="modeIcon">📦</span>
+      <span><b>棧板模式</b><small>一般棧板堆疊與 AI 最佳化</small></span>
+    </button>
+    <button type="button" class="modeBtn" data-app-mode="air">
+      <span class="modeIcon">✈️</span>
+      <span><b>空運模式</b><small>ULD 規劃、比較與計費重</small></span>
+    </button>
+  </div>
+
+  <div class="airCargoModePanel" data-i18n-managed="true">
+    <div class="airCargoModeHead">
+      <div>
+        <strong id="airCargoTitle">✈️ 空運 ULD 規劃</strong>
+        <small id="airCargoSubtitle">切換為 ULD 模式後，系統會將選定規格帶入原有最佳化引擎。</small>
+      </div>
+      <label class="airCargoSwitch"><input id="airCargoMode" type="checkbox"><span id="airCargoEnableText">啟用</span></label>
+    </div>
+
+    <div class="airCargoFields" id="airCargoFields" hidden>
+      <div class="grid2">
+        <label><span id="uldTypeLabel">ULD 類型</span>
+          <select id="uldType">
+            <option value="PMC">PMC｜96 × 125 in 主艙板</option>
+            <option value="PAG">PAG｜88 × 125 in 主艙板</option>
+            <option value="PLA">PLA｜60.4 × 125 in 主艙板</option>
+            <option value="AKE">AKE / LD3｜下艙貨櫃估算</option>
+            <option value="CUSTOM">自訂 ULD</option>
+          </select>
+        </label>
+        <label><span id="uldHeightLabel">可用裝載高度（cm）</span>
+          <input id="uldUsableHeight" type="number" min="1" step="0.1" value="160">
+        </label>
+      </div>
+
+      <div class="grid2" style="margin-top:8px">
+        <label><span id="uldMaxWeightLabel">ULD 最大貨物重量（kg）</span>
+          <input id="uldMaxCargoWeight" type="number" min="1" step="1" value="4600">
+        </label>
+        <label><span id="uldDivisorLabel">材積重除數（cm³/kg）</span>
+          <input id="uldVolumeDivisor" type="number" min="1" step="1" value="6000">
+        </label>
+      </div>
+
+      <div class="uldPresetSummary" id="uldPresetSummary"></div>
+
+      <div class="uldActions">
+        <button class="secondary" id="applyUldPreset" type="button">套用 ULD 規格</button>
+        <button class="primary aiBtn" id="compareUldBtn" type="button" style="margin-top:0">🤖 比較 ULD 方案</button>
+      </div>
+
+      <div class="uldDisclaimer" id="uldDisclaimer">
+        ULD 外形、輪廓、允許高度、總重與航空器相容性會因航空公司、機型及航線而不同。
+        此功能為初步規劃工具，正式訂艙前仍需向承運航空公司確認。
+      </div>
+    </div>
+  </div>
+
   <div class="sectionTitleRow">
-    <h3>棧板資料（cm / kg）</h3>
+    <h3 id="palletUldDataTitle">棧板／ULD 資料（cm / kg）</h3>
     <div class="palletPresetButtons" aria-label="棧板標準尺寸快捷鍵">
       <button type="button" class="presetBtn" data-pallet-preset="eu" title="120×80×15 cm｜總限高 155 cm｜載重 1500 kg">歐規</button>
       <button type="button" class="presetBtn" data-pallet-preset="us" title="121.92×101.6×15 cm｜總限高 160 cm｜載重 1500 kg">美規</button>
@@ -411,6 +1571,14 @@
 </section>
 
 <section class="panel view">
+  <div class="topKpiBar" id="topKpiBar" data-v63-i18n="kpi" data-i18n-managed="true">
+    <div class="topKpiCard primaryKpi"><span>空間利用率</span><strong id="topKpiUtil">—</strong></div>
+    <div class="topKpiCard"><span>每板總箱數</span><strong id="topKpiBoxes">—</strong></div>
+    <div class="topKpiCard"><span>總高度</span><strong id="topKpiHeight">—</strong></div>
+    <div class="topKpiCard"><span>總重量</span><strong id="topKpiWeight">—</strong></div>
+    <div class="topKpiCard airKpi" hidden><span>計費重</span><strong id="topKpiChargeable">—</strong></div>
+    <div class="topKpiCard airKpi" hidden><span>ULD 數</span><strong id="topKpiUldCount">—</strong></div>
+  </div>
   <div class="quickViews">
     <button class="secondary" data-view="iso">等角視圖</button>
     <button class="secondary" data-view="front">正視圖</button>
@@ -418,7 +1586,23 @@
     <button class="secondary" data-view="top">俯視圖</button>
     <button class="secondary" id="toggleExplode">爆炸圖：關</button>
     <button class="secondary" id="toggleLimit">限高面：開</button>
-    <div class="viewActions">
+      <div class="boxAnimationControls" id="boxAnimationControls" aria-label="放箱動畫">
+        <button class="secondary boxAnimBtn" id="boxAnimPlay" type="button">▶ 播放全部</button>
+        <button class="secondary boxAnimBtn" id="boxAnimPause" type="button" disabled>⏸ 暫停</button>
+        <button class="secondary boxAnimBtn" id="boxAnimPrev" type="button">◀ 上一箱</button>
+        <button class="secondary boxAnimBtn" id="boxAnimNext" type="button">下一箱 ▶</button>
+        <select id="boxAnimLayer" aria-label="播放範圍">
+          <option value="all">全部層</option>
+        </select>
+        <select id="boxAnimSpeed" aria-label="動畫速度">
+          <option value="900">慢速</option>
+          <option value="500" selected>標準</option>
+          <option value="220">快速</option>
+        </select>
+        <button class="secondary boxAnimBtn" id="boxAnimReset" type="button">↺ 重設</button>
+        <button class="secondary boxAnimBtn" id="boxAnimSop" type="button">🧾 列印動畫 SOP</button>
+      </div>
+    <div class="viewActions"><button class="secondary focus3DBtn" id="toggle3DFocus" type="button">⛶ 放大 3D</button>
       <button class="secondary" id="resetView">重設視角</button>
       <button class="secondary" id="toggleLabels">尺寸標記：開</button>
       <button class="secondary" id="downloadPNG">下載示意圖 PNG</button>
@@ -429,6 +1613,15 @@
   <div id="canvasWrap">
     <canvas id="scene"></canvas>
     <div class="statusBox" id="statusBox">等待計算</div>
+    <div class="boxAnimStatus" id="boxAnimStatus" hidden>
+      <div class="boxAnimStatusTop">
+        <strong id="boxAnimStatusTitle">放箱動畫</strong>
+        <span id="boxAnimCounter">0 / 0</span>
+      </div>
+      <div class="boxAnimProgress"><span id="boxAnimProgressBar"></span></div>
+      <div id="boxAnimLayerText">準備開始</div>
+      <div class="boxAnimDetail" id="boxAnimDetail">—</div>
+    </div>
     <div class="legend">
       <div><b>操作：</b>拖曳旋轉、滾輪縮放</div>
       <div>棕色：棧板　藍色：奇數層　橘色：偶數層</div>
@@ -446,6 +1639,10 @@
       <div class="card"><div class="k">需要棧板數</div><div class="v" id="rPallets">—</div></div>
       <div class="card"><div class="k">穩定性</div><div class="v" id="rStability">—</div></div>
       <div class="card"><div class="k">空間利用率</div><div class="v" id="rSpaceUtil">—</div></div>
+      <div class="card airCargoResult" hidden><div class="k" id="airActualWeightLabel">實際總重</div><div class="v" id="rAirActualWeight">—</div></div>
+      <div class="card airCargoResult" hidden><div class="k" id="airVolumeWeightLabel">材積重</div><div class="v" id="rAirVolumeWeight">—</div></div>
+      <div class="card airCargoResult" hidden><div class="k" id="airChargeableWeightLabel">預估計費重</div><div class="v" id="rAirChargeableWeight">—</div></div>
+      <div class="card airCargoResult" hidden><div class="k" id="airUldCountLabel">預估 ULD 數</div><div class="v" id="rAirUldCount">—</div></div>
     </div>
     <div class="details" id="details">請輸入條件後計算。</div><div class="printActions"><button class="secondary" id="exportPDF">PDF 堆疊報告</button><button class="secondary" id="printWorkOrder">一鍵列印工廠作業單</button></div>
     <div class="targetSearch" id="targetSearch"></div>
@@ -484,9 +1681,19 @@
 </dialog>
 
 
+<div class="aiModal" id="uldCompareModal" aria-hidden="true">
+  <div class="aiBox">
+    <div class="aiHead">
+      <h2><span id="uldCompareTitle">✈️ ULD 方案比較</span> <small id="uldCompareSubtitle" style="font-size:12px;color:#0b7a4b">初步規劃</small></h2>
+      <button class="aiClose" id="uldCompareClose" aria-label="關閉">×</button>
+    </div>
+    <div class="aiBody" id="uldCompareBody"><div class="historyEmpty" id="uldWaitingText">等待比較。</div></div>
+  </div>
+</div>
+
 <div class="aiModal" id="aiOptimizeModal" aria-hidden="true">
   <div class="aiBox">
-    <div class="aiHead"><h2>🤖 AI 空間最佳化分析 <small style="font-size:12px;color:#0b7a4b">正式版</small></h2><button class="aiClose" id="aiOptimizeClose" aria-label="關閉">×</button></div>
+    <div class="aiHead"><h2><span id="aiModalTitle">🤖 AI 空間最佳化分析</span> <small id="aiModalEdition" style="font-size:12px;color:#0b7a4b">正式版</small></h2><button class="aiClose" id="aiOptimizeClose" aria-label="關閉">×</button></div>
     <div class="aiBody" id="aiOptimizeBody"><div class="historyEmpty">等待分析。</div></div>
   </div>
 </div>
@@ -617,6 +1824,16 @@ window.addEventListener("DOMContentLoaded",()=>{
 });
 
 let model = null;
+/* 放箱動畫狀態 */
+let boxAnimationMode=false;
+let boxAnimationPlaying=false;
+let boxAnimationVisible=Infinity;
+let boxAnimationTimer=null;
+let boxAnimationScope="all";
+let boxAnimationStartIndex=0;
+let boxAnimationEndIndex=Infinity;
+let boxAnimationHighlightIndex=-1;
+
 let lastOptimizationCandidates=[];
 let lastOptimizationBest=null;
 let yaw = -0.72, pitch = 0.56, zoom = 1;
@@ -957,6 +2174,7 @@ function renderHistory(){
 }
 
 function calculate(recordHistory=false,deepOptimize=false){
+  resetBoxAnimation(false);
   try{
     const PL=n("pL"), PW=n("pW"), PH=n("pH"), maxH=n("maxH"), maxLoad=n("maxW");
     const L=n("bL"), W=n("bW"), H=n("bH"), boxWeight=n("boxWeight");
@@ -1069,6 +2287,7 @@ function uniqueCandidates(items){
   return items.filter(x=>{const k=candidateKey(x);if(seen.has(k))return false;seen.add(k);return true});
 }
 function activateCandidate(candidate,updateHistory=false){
+  resetBoxAnimation(false);
   if(!model||!candidate)return;
   const base={PL:model.PL,PW:model.PW,PH:model.PH,maxH:model.maxH,maxLoad:model.maxLoad,L:model.L,W:model.W,H:model.H,boxWeight:model.boxWeight,quantity:model.quantity,cross:true,partial:model.partial,edge:model.edge,overhang:model.overhang,layerPad:model.layerPad,topPack:model.topPack,palletsNeeded:model.quantity>0?Math.ceil(model.quantity/candidate.totalBoxes):null};
   model={...base,...candidate};
@@ -1166,6 +2385,269 @@ function buildLayerTabs(){
 }
 function setActive(btn){ [...$("layerTabs").children].forEach(x=>x.classList.remove("active")); btn.classList.add("active"); }
 
+
+
+/* ---------- 放箱動畫 / 工廠指導 ---------- */
+function getAnimationLanguage(){
+  const active=document.querySelector(".langBtn.active");
+  if(active?.dataset?.lang)return active.dataset.lang;
+  const lang=(document.documentElement.lang||"").toLowerCase();
+  if(lang.startsWith("en"))return "en";
+  if(lang.startsWith("th"))return "th";
+  return "zh";
+}
+function boxAnimationText(key,vars={}){
+  const dict={
+    zh:{
+      playAll:"▶ 播放全部",playLayer:"▶ 播放本層",continue:"▶ 繼續",replay:"▶ 重新播放",
+      pause:"⏸ 暫停",reset:"↺ 重設",prev:"◀ 上一箱",next:"下一箱 ▶",sop:"🧾 列印動畫 SOP",
+      slow:"慢速",normal:"標準",fast:"快速",allLayers:"全部層",layerOption:"第 {layer} 層",
+      title:"工廠放箱指導",ready:"準備開始",noData:"請先完成計算或 AI 最佳化。",
+      layer:"第 {layer} 層｜第 {inLayer} 箱",complete:"指定範圍放置完成",
+      paused:"已暫停｜目前第 {visible} 箱",counter:"{visible} / {total}",
+      detail:"箱號 Box {boxNo}｜位置：{position}｜方向：{rotation}",
+      frontLeft:"左前方",frontRight:"右前方",backLeft:"左後方",backRight:"右後方",center:"中央",
+      rotated:"旋轉 90°",normalDirection:"正常方向",sopTitle:"Pallet AI Pro 工廠放箱 SOP",
+      scopeAll:"全部層",scopeLayer:"第 {layer} 層"
+    },
+    en:{
+      playAll:"▶ Play All",playLayer:"▶ Play Layer",continue:"▶ Continue",replay:"▶ Replay",
+      pause:"⏸ Pause",reset:"↺ Reset",prev:"◀ Previous Box",next:"Next Box ▶",sop:"🧾 Print Animation SOP",
+      slow:"Slow",normal:"Normal",fast:"Fast",allLayers:"All Layers",layerOption:"Layer {layer}",
+      title:"Factory Box Loading Guide",ready:"Ready",noData:"Please calculate or run AI optimization first.",
+      layer:"Layer {layer} | Box {inLayer}",complete:"Selected range completed",
+      paused:"Paused | Box {visible}",counter:"{visible} / {total}",
+      detail:"Box {boxNo} | Position: {position} | Direction: {rotation}",
+      frontLeft:"Front left",frontRight:"Front right",backLeft:"Back left",backRight:"Back right",center:"Center",
+      rotated:"Rotated 90°",normalDirection:"Normal direction",sopTitle:"Pallet AI Pro Factory Loading SOP",
+      scopeAll:"All layers",scopeLayer:"Layer {layer}"
+    },
+    th:{
+      playAll:"▶ เล่นทั้งหมด",playLayer:"▶ เล่นชั้นนี้",continue:"▶ เล่นต่อ",replay:"▶ เล่นใหม่",
+      pause:"⏸ หยุดชั่วคราว",reset:"↺ รีเซ็ต",prev:"◀ กล่องก่อนหน้า",next:"กล่องถัดไป ▶",sop:"🧾 พิมพ์ SOP",
+      slow:"ช้า",normal:"ปกติ",fast:"เร็ว",allLayers:"ทุกชั้น",layerOption:"ชั้น {layer}",
+      title:"คู่มือวางกล่องสำหรับโรงงาน",ready:"พร้อมเริ่ม",noData:"กรุณาคำนวณหรือใช้ AI Optimization ก่อน",
+      layer:"ชั้น {layer} | กล่องที่ {inLayer}",complete:"วางกล่องในช่วงที่เลือกเสร็จแล้ว",
+      paused:"หยุดชั่วคราว | กล่องที่ {visible}",counter:"{visible} / {total}",
+      detail:"กล่อง {boxNo} | ตำแหน่ง: {position} | ทิศทาง: {rotation}",
+      frontLeft:"ด้านหน้าซ้าย",frontRight:"ด้านหน้าขวา",backLeft:"ด้านหลังซ้าย",backRight:"ด้านหลังขวา",center:"ตรงกลาง",
+      rotated:"หมุน 90°",normalDirection:"ทิศทางปกติ",sopTitle:"Pallet AI Pro SOP การวางกล่อง",
+      scopeAll:"ทุกชั้น",scopeLayer:"ชั้น {layer}"
+    }
+  };
+  let text=(dict[getAnimationLanguage()]||dict.zh)[key]||key;
+  Object.entries(vars).forEach(([k,v])=>{text=text.replaceAll(`{${k}}`,String(v))});
+  return text;
+}
+function animationBoxes(){
+  const out=[];
+  if(!model?.layerLayouts)return out;
+  let globalIndex=0;
+  model.layerLayouts.forEach((layer,layerIndex)=>{
+    (layer.boxes||[]).forEach((box,inLayerIndex)=>{
+      out.push({box,layerIndex,inLayerIndex,globalIndex});
+      globalIndex++;
+    });
+  });
+  return out;
+}
+function totalAnimationBoxes(){return animationBoxes().length}
+function currentScopeBounds(){
+  const boxes=animationBoxes();
+  if(boxAnimationScope==="all")return {start:0,end:boxes.length,total:boxes.length};
+  const layerIndex=Number(boxAnimationScope);
+  const selected=boxes.filter(x=>x.layerIndex===layerIndex);
+  if(!selected.length)return {start:0,end:0,total:0};
+  return {start:selected[0].globalIndex,end:selected[selected.length-1].globalIndex+1,total:selected.length};
+}
+function animationPositionFromGlobal(globalVisible){
+  const boxes=animationBoxes();
+  const item=boxes[Math.max(0,Math.min(globalVisible-1,boxes.length-1))];
+  if(!item)return {layer:0,inLayer:0};
+  return {layer:item.layerIndex+1,inLayer:item.inLayerIndex+1};
+}
+function boxPositionName(item){
+  if(!item||!model)return "—";
+  const cx=item.box.x+item.box.l/2,cy=item.box.y+item.box.w/2;
+  const dx=cx-model.PL/2,dy=cy-model.PW/2;
+  const nearCenter=Math.abs(dx)<model.PL*.12&&Math.abs(dy)<model.PW*.12;
+  if(nearCenter)return boxAnimationText("center");
+  if(dy<=0&&dx<=0)return boxAnimationText("frontLeft");
+  if(dy<=0&&dx>0)return boxAnimationText("frontRight");
+  if(dy>0&&dx<=0)return boxAnimationText("backLeft");
+  return boxAnimationText("backRight");
+}
+function boxRotationName(item){
+  if(!item||!model)return "—";
+  const baseA=Number(model.o?.a||0),baseB=Number(model.o?.b||0);
+  const rotated=Math.abs(item.box.l-baseB)<1e-6&&Math.abs(item.box.w-baseA)<1e-6&&Math.abs(baseA-baseB)>1e-6;
+  return boxAnimationText(rotated?"rotated":"normalDirection");
+}
+function updateLayerSelector(){
+  const sel=$("boxAnimLayer");
+  if(!sel||!model)return;
+  const current=sel.value||"all";
+  sel.innerHTML=`<option value="all">${boxAnimationText("allLayers")}</option>`+
+    model.layerLayouts.map((_,i)=>`<option value="${i}">${boxAnimationText("layerOption",{layer:i+1})}</option>`).join("");
+  sel.value=[...sel.options].some(o=>o.value===current)?current:"all";
+  boxAnimationScope=sel.value;
+}
+function currentVisibleInScope(){
+  const b=currentScopeBounds();
+  return Math.max(0,Math.min(boxAnimationVisible,b.end)-b.start);
+}
+function updateBoxAnimationUI(state=""){
+  const play=$("boxAnimPlay"),pause=$("boxAnimPause"),status=$("boxAnimStatus");
+  if(!play||!pause||!status)return;
+  const bounds=currentScopeBounds();
+  const visibleInScope=currentVisibleInScope();
+  const pct=bounds.total?visibleInScope/bounds.total*100:0;
+  $("boxAnimStatusTitle").textContent=boxAnimationText("title");
+  $("boxAnimCounter").textContent=boxAnimationText("counter",{visible:visibleInScope,total:bounds.total});
+  $("boxAnimProgressBar").style.width=`${pct}%`;
+
+  const currentGlobal=Math.max(bounds.start,Math.min(boxAnimationVisible-1,bounds.end-1));
+  const item=animationBoxes()[currentGlobal];
+  if(item&&boxAnimationMode&&visibleInScope>0){
+    $("boxAnimDetail").innerHTML=`<span class="boxAnimCurrentBadge">Box ${item.globalIndex+1}</span> `+
+      boxAnimationText("detail",{
+        boxNo:item.globalIndex+1,
+        position:boxPositionName(item),
+        rotation:boxRotationName(item)
+      });
+  }else{
+    $("boxAnimDetail").textContent="—";
+  }
+
+  if(state==="complete"){
+    $("boxAnimLayerText").textContent=boxAnimationText("complete");
+    play.textContent=boxAnimationText("replay");
+  }else if(state==="paused"){
+    $("boxAnimLayerText").textContent=boxAnimationText("paused",{visible:visibleInScope});
+    play.textContent=boxAnimationText("continue");
+  }else if(visibleInScope>0&&visibleInScope<bounds.total){
+    const pos=animationPositionFromGlobal(boxAnimationVisible);
+    $("boxAnimLayerText").textContent=boxAnimationText("layer",pos);
+    play.textContent=boxAnimationText("continue");
+  }else{
+    $("boxAnimLayerText").textContent=boxAnimationText("ready");
+    play.textContent=boxAnimationScope==="all"?boxAnimationText("playAll"):boxAnimationText("playLayer");
+  }
+  pause.textContent=boxAnimationText("pause");
+  $("boxAnimReset").textContent=boxAnimationText("reset");
+  $("boxAnimPrev").textContent=boxAnimationText("prev");
+  $("boxAnimNext").textContent=boxAnimationText("next");
+  $("boxAnimSop").textContent=boxAnimationText("sop");
+  pause.disabled=!boxAnimationPlaying;
+  status.hidden=!boxAnimationMode;
+}
+function stopBoxAnimationTimer(){
+  if(boxAnimationTimer){clearTimeout(boxAnimationTimer);boxAnimationTimer=null}
+}
+function prepareScope(resetToStart=true){
+  updateLayerSelector();
+  const bounds=currentScopeBounds();
+  boxAnimationStartIndex=bounds.start;
+  boxAnimationEndIndex=bounds.end;
+  if(resetToStart)boxAnimationVisible=bounds.start;
+}
+function resetBoxAnimation(redraw=true){
+  stopBoxAnimationTimer();
+  boxAnimationPlaying=false;
+  boxAnimationMode=false;
+  boxAnimationVisible=Infinity;
+  boxAnimationHighlightIndex=-1;
+  updateBoxAnimationUI();
+  if(redraw&&model)draw();
+}
+function pauseBoxAnimation(){
+  if(!boxAnimationMode)return;
+  stopBoxAnimationTimer();
+  boxAnimationPlaying=false;
+  updateBoxAnimationUI("paused");
+}
+function runBoxAnimationStep(){
+  if(!boxAnimationPlaying||!boxAnimationMode||!model)return;
+  if(boxAnimationVisible>=boxAnimationEndIndex){
+    boxAnimationPlaying=false;
+    boxAnimationHighlightIndex=-1;
+    updateBoxAnimationUI("complete");
+    draw();
+    return;
+  }
+  boxAnimationHighlightIndex=boxAnimationVisible;
+  boxAnimationVisible++;
+  updateBoxAnimationUI();
+  draw();
+  const delay=Number($("boxAnimSpeed")?.value||500);
+  boxAnimationTimer=setTimeout(runBoxAnimationStep,delay);
+}
+function playBoxAnimation(){
+  if(!model||!model.layerLayouts?.length){alert(boxAnimationText("noData"));return}
+  stopBoxAnimationTimer();
+  boxAnimationScope=$("boxAnimLayer")?.value||"all";
+  const bounds=currentScopeBounds();
+  if(!boxAnimationMode||boxAnimationVisible>=bounds.end||boxAnimationVisible<bounds.start){
+    boxAnimationMode=true;
+    prepareScope(true);
+    selectedLayer=-1;
+    const first=$("layerTabs")?.firstElementChild;
+    if(first)setActive(first);
+  }else{
+    boxAnimationStartIndex=bounds.start;
+    boxAnimationEndIndex=bounds.end;
+  }
+  boxAnimationPlaying=true;
+  updateBoxAnimationUI();
+  draw();
+  boxAnimationTimer=setTimeout(runBoxAnimationStep,160);
+}
+function stepBoxAnimation(delta){
+  if(!model||!model.layerLayouts?.length){alert(boxAnimationText("noData"));return}
+  stopBoxAnimationTimer();
+  boxAnimationPlaying=false;
+  boxAnimationScope=$("boxAnimLayer")?.value||"all";
+  const bounds=currentScopeBounds();
+  if(!boxAnimationMode||!Number.isFinite(boxAnimationVisible)){
+    boxAnimationMode=true;
+    boxAnimationVisible=bounds.start;
+  }
+  boxAnimationVisible=Math.max(bounds.start,Math.min(bounds.end,boxAnimationVisible+delta));
+  boxAnimationHighlightIndex=boxAnimationVisible>bounds.start?boxAnimationVisible-1:-1;
+  const state=boxAnimationVisible>=bounds.end?"complete":"paused";
+  updateBoxAnimationUI(state);
+  draw();
+}
+function refreshBoxAnimationLanguage(){
+  const speed=$("boxAnimSpeed");
+  if(speed&&speed.options.length>=3){
+    speed.options[0].textContent=boxAnimationText("slow");
+    speed.options[1].textContent=boxAnimationText("normal");
+    speed.options[2].textContent=boxAnimationText("fast");
+  }
+  updateLayerSelector();
+  updateBoxAnimationUI(
+    boxAnimationPlaying?"":(
+      boxAnimationMode&&boxAnimationVisible>=currentScopeBounds().end?"complete":
+      boxAnimationMode?"paused":""
+    )
+  );
+}
+function printAnimationSOP(){
+  if(!model||!model.layerLayouts?.length){alert(boxAnimationText("noData"));return}
+  const items=animationBoxes();
+  const rows=items.map(item=>{
+    const scope=boxAnimationText("scopeLayer",{layer:item.layerIndex+1});
+    return `<tr><td>${item.globalIndex+1}</td><td>${scope}</td><td>${item.inLayerIndex+1}</td><td>${boxPositionName(item)}</td><td>${boxRotationName(item)}</td><td>${f2(item.box.x)}, ${f2(item.box.y)} cm</td></tr>`;
+  }).join("");
+  const w=window.open("","_blank");
+  w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${boxAnimationText("sopTitle")}</title>
+  <style>body{font-family:Arial,"Microsoft JhengHei",sans-serif;margin:24px;color:#172033}h1{margin-bottom:5px}.meta{color:#637083;margin-bottom:18px}table{width:100%;border-collapse:collapse}th,td{padding:9px;border:1px solid #d9e1ec;text-align:left;font-size:12px}th{background:#f3f6fa}@media print{body{margin:12mm}}</style>
+  </head><body><h1>${boxAnimationText("sopTitle")}</h1><div class="meta">Pallet ${f2(model.PL)} × ${f2(model.PW)} cm｜${items.length} boxes｜${model.layerLayouts.length} layers</div>
+  <table><thead><tr><th>Step</th><th>Layer</th><th>Box in layer</th><th>Position</th><th>Direction</th><th>X / Y</th></tr></thead><tbody>${rows}</tbody></table></body></html>`);
+  w.document.close();w.focus();setTimeout(()=>w.print(),250);
+}
+
 /* ---------- 3D canvas ---------- */
 function resizeAndDraw(){
   const rect=canvas.getBoundingClientRect(), dpr=Math.min(2,window.devicePixelRatio||1);
@@ -1196,23 +2678,33 @@ function cuboid(x,y,z,l,w,h,type,label){
   return faces;
 }
 function colorFor(type,shade){
-  const base=type==="pallet"?[166,114,64]:type==="odd"?[70,137,207]:[226,142,64];
+  const base=type==="pallet"?[166,114,64]:
+    type==="current"?[250,204,21]:
+    type==="odd"?[70,137,207]:[226,142,64];
   return `rgb(${base.map(v=>Math.round(v*shade)).join(",")})`;
 }
 function draw(){
   if(!model) return;
   ctx.clearRect(0,0,canvas.clientWidth,canvas.clientHeight);
   const grad=ctx.createLinearGradient(0,0,0,canvas.clientHeight);
-  grad.addColorStop(0,"#fbfdff");grad.addColorStop(1,"#e8eef6");
+  const dark=document.documentElement.getAttribute("data-theme")==="dark";
+  grad.addColorStop(0,dark?"#020617":"#fbfdff");
+  grad.addColorStop(1,dark?"#0f172a":"#e8eef6");
   ctx.fillStyle=grad;ctx.fillRect(0,0,canvas.clientWidth,canvas.clientHeight);
 
   const faces=[];
   faces.push(...cuboid(0,0,0,model.PL,model.PW,model.PH,"pallet","棧板"));
   const layers = selectedLayer<0 ? model.layerLayouts.map((x,i)=>[x,i]) : [[model.layerLayouts[selectedLayer],selectedLayer]];
+  let animationIndex=selectedLayer<0?0:model.layerLayouts.slice(0,selectedLayer).reduce((sum,l)=>sum+(l.boxes?.length||0),0);
   for(const [layer,i] of layers){
     const z=model.PH+i*(model.o.h+model.layerPad)+(explode?i*12:0);
     for(const b of layer.boxes){
-      faces.push(...cuboid(b.x,b.y,z,b.l,b.w,model.o.h,i%2===0?"odd":"even",`第${i+1}層`));
+      const currentIndex=animationIndex;
+      const showBox=!boxAnimationMode || currentIndex<boxAnimationVisible;
+      animationIndex++;
+      if(!showBox)continue;
+      const type=currentIndex===boxAnimationHighlightIndex?"current":(i%2===0?"odd":"even");
+      faces.push(...cuboid(b.x,b.y,z,b.l,b.w,model.o.h,type,`Box ${currentIndex+1}`));
     }
   }
   faces.sort((a,b)=>a.depth-b.depth);
@@ -1246,9 +2738,15 @@ function line3D(a,b,text,offsetX=0,offsetY=0){
 }
 function drawDimensions(){
   const h=model.totalHeight;
-  line3D([0,-7,0],[model.PL,-7,0],`棧板長 ${f2(model.PL)} cm`,0,12);
-  line3D([-7,0,0],[-7,model.PW,0],`棧板寬 ${f2(model.PW)} cm`,-5,0);
-  line3D([model.PL+7,model.PW,0],[model.PL+7,model.PW,h],`總高 ${f2(h)} cm`,42,0);
+  const dimLang=(document.querySelector(".langBtn.active")?.dataset?.lang||"zh");
+  const dimText={
+    zh:{length:"棧板長",width:"棧板寬",height:"總高"},
+    en:{length:"Pallet Length",width:"Pallet Width",height:"Total Height"},
+    th:{length:"ความยาวพาเลท",width:"ความกว้างพาเลท",height:"ความสูงรวม"}
+  }[dimLang]||{length:"棧板長",width:"棧板寬",height:"總高"};
+  line3D([0,-7,0],[model.PL,-7,0],`${dimText.length} ${f2(model.PL)} cm`,0,12);
+  line3D([-7,0,0],[-7,model.PW,0],`${dimText.width} ${f2(model.PW)} cm`,-5,0);
+  line3D([model.PL+7,model.PW,0],[model.PL+7,model.PW,h],`${dimText.height} ${f2(h)} cm`,42,0);
   if(model.layerLayouts.length){
     const b=model.layerLayouts[0].boxes[0];
     line3D([b.x,b.y,model.PH],[b.x+b.l,b.y,model.PH],`${f2(b.l)} cm`,0,-12);
@@ -1429,7 +2927,7 @@ function translateNode(node,lang){
     return;
   }
   if(node.nodeType!==Node.ELEMENT_NODE)return;
-  if(node.closest&&node.closest("script,style"))return;
+  if(node.closest&&node.closest("script,style,[data-i18n-managed=\"true\"]"))return;
   ["title","placeholder","aria-label"].forEach(attr=>{
     if(!node.hasAttribute||!node.hasAttribute(attr))return;
     let originals=originalAttributes.get(node);if(!originals){originals={};originalAttributes.set(node,originals)}
@@ -1621,50 +3119,181 @@ function aiCompositeScore(x){
   const cgScore=Math.max(0,100-x.cg.d*8);
   return utilization*.48+stability*.25+support*.17+cgScore*.10;
 }
+
+const AI_OPT_I18N={
+  zh:{
+    runningTitle:"正在執行深度最佳化…",
+    runningText:"系統將比較 6 種箱體方向、3 種交叉方式及可用混合排列。",
+    noPlan:"目前限制下找不到可行方案。",
+    planNames:["🥇 最佳首選","🥈 高穩定方案","🥉 替代方案"],
+    score:"智慧綜合評分",
+    cartonsPerPallet:"每板箱數",
+    cartonUnit:"箱",
+    spaceUtil:"空間利用率",
+    stability:"穩定性",
+    support:"最低支撐率",
+    cgOffset:"重心偏移",
+    orientation:"紙箱方向",
+    crossPattern:"交叉方式",
+    apply:"套用並查看 3D",
+    completed:"分析完成：共比較 {count} 個候選方案。",
+    bestSummary:"最佳首選為每板 {boxes} 箱、{layers} 層，空間利用率 {util}%，穩定性 {stability}/100。",
+    noticeTitle:"說明：",
+    notice:"此功能採用多目標智慧最佳化演算法，會依空間利用率、穩定性、支撐率及重心偏移進行排序。結果屬於本系統排列模型與目前輸入限制下的最佳建議，正式出貨前仍須依紙箱耐壓、易碎性、運輸規範及現場固定方式確認。",
+    reasonBest:"綜合空間利用率、穩定性、支撐率與重心後的首選",
+    reasonUtilGood:"空間利用率已達 80% 以上",
+    reasonUtilLimit:"目前尺寸限制下，最佳空間利用率約為 {value}%",
+    reasonStable:"穩定性表現佳",
+    reasonUnstable:"穩定性較低，現場需加強膜包、護角或綁帶",
+    reasonCg:"重心接近棧板中心",
+    reasonSupport:"層間支撐率偏低，不建議用於易碎或長途運輸",
+    crossSame:"全部同向",
+    crossAlternate:"每層旋轉 90°",
+    crossPair:"每兩層交叉",
+    crossAuto:"自動最佳交叉"
+  },
+  en:{
+    runningTitle:"Running deep optimization…",
+    runningText:"The system will compare 6 carton orientations, 3 cross-layer patterns, and available mixed layouts.",
+    noPlan:"No feasible solution was found under the current constraints.",
+    planNames:["🥇 Best Overall","🥈 High-Stability Option","🥉 Alternative Option"],
+    score:"AI Composite Score",
+    cartonsPerPallet:"Cartons per Pallet",
+    cartonUnit:"carton(s)",
+    spaceUtil:"Space Utilization",
+    stability:"Stability",
+    support:"Minimum Support",
+    cgOffset:"CG Offset",
+    orientation:"Carton Orientation",
+    crossPattern:"Cross Pattern",
+    apply:"Apply and View in 3D",
+    completed:"Analysis complete: {count} candidate solutions compared.",
+    bestSummary:"The best option loads {boxes} carton(s) per pallet in {layers} layer(s), with {util}% space utilization and stability {stability}/100.",
+    noticeTitle:"Note:",
+    notice:"This feature uses multi-objective optimization and ranks solutions by space utilization, stability, support ratio, and center-of-gravity offset. Results are recommendations based on the current model and input constraints. Before shipment, confirm carton compression strength, fragility, transport rules, and on-site securing methods.",
+    reasonBest:"Best overall balance of space utilization, stability, support ratio, and center of gravity",
+    reasonUtilGood:"Space utilization is above 80%",
+    reasonUtilLimit:"Under the current dimensional constraints, the best space utilization is about {value}%",
+    reasonStable:"Good stability performance",
+    reasonUnstable:"Stability is relatively low; use additional stretch wrap, corner protection, or straps",
+    reasonCg:"Center of gravity is close to the pallet center",
+    reasonSupport:"Interlayer support is low and is not recommended for fragile goods or long-distance transport",
+    crossSame:"Same direction for all layers",
+    crossAlternate:"Rotate every layer 90°",
+    crossPair:"Cross every two layers",
+    crossAuto:"Automatically optimized pattern"
+  },
+  th:{
+    runningTitle:"กำลังเพิ่มประสิทธิภาพเชิงลึก…",
+    runningText:"ระบบจะเปรียบเทียบทิศทางกล่อง 6 แบบ รูปแบบสลับชั้น 3 แบบ และรูปแบบผสมที่ใช้ได้",
+    noPlan:"ไม่พบแผนที่เป็นไปได้ภายใต้ข้อจำกัดปัจจุบัน",
+    planNames:["🥇 ตัวเลือกที่ดีที่สุด","🥈 ตัวเลือกที่มั่นคงสูง","🥉 ตัวเลือกสำรอง"],
+    score:"คะแนนรวม AI",
+    cartonsPerPallet:"จำนวนกล่องต่อพาเลท",
+    cartonUnit:"กล่อง",
+    spaceUtil:"การใช้พื้นที่",
+    stability:"ความมั่นคง",
+    support:"อัตราการรองรับต่ำสุด",
+    cgOffset:"ระยะเยื้องจุดศูนย์ถ่วง",
+    orientation:"ทิศทางกล่อง",
+    crossPattern:"รูปแบบสลับชั้น",
+    apply:"ใช้แผนและดูใน 3D",
+    completed:"วิเคราะห์เสร็จแล้ว: เปรียบเทียบทั้งหมด {count} แผน",
+    bestSummary:"ตัวเลือกที่ดีที่สุดบรรจุได้ {boxes} กล่องต่อพาเลท จำนวน {layers} ชั้น ใช้พื้นที่ {util}% และมีความมั่นคง {stability}/100",
+    noticeTitle:"หมายเหตุ:",
+    notice:"ฟังก์ชันนี้ใช้การเพิ่มประสิทธิภาพหลายเป้าหมาย และจัดอันดับตามการใช้พื้นที่ ความมั่นคง อัตราการรองรับ และระยะเยื้องจุดศูนย์ถ่วง ผลลัพธ์เป็นคำแนะนำตามแบบจำลองและข้อจำกัดที่ป้อน ก่อนส่งสินค้า โปรดยืนยันความแข็งแรงของกล่อง ความเปราะบาง กฎการขนส่ง และวิธีการยึดตรึงหน้างาน",
+    reasonBest:"สมดุลโดยรวมดีที่สุดระหว่างการใช้พื้นที่ ความมั่นคง อัตราการรองรับ และจุดศูนย์ถ่วง",
+    reasonUtilGood:"การใช้พื้นที่มากกว่า 80%",
+    reasonUtilLimit:"ภายใต้ข้อจำกัดด้านขนาดปัจจุบัน การใช้พื้นที่สูงสุดประมาณ {value}%",
+    reasonStable:"ความมั่นคงอยู่ในระดับดี",
+    reasonUnstable:"ความมั่นคงค่อนข้างต่ำ ควรเพิ่มฟิล์มหุ้ม มุมกันกระแทก หรือสายรัด",
+    reasonCg:"จุดศูนย์ถ่วงอยู่ใกล้กึ่งกลางพาเลท",
+    reasonSupport:"อัตราการรองรับระหว่างชั้นต่ำ ไม่แนะนำสำหรับสินค้าที่แตกง่ายหรือการขนส่งระยะไกล",
+    crossSame:"วางทิศทางเดียวกันทุกชั้น",
+    crossAlternate:"หมุน 90° ทุกชั้น",
+    crossPair:"สลับทุกสองชั้น",
+    crossAuto:"ระบบเลือกแบบสลับที่ดีที่สุด"
+  }
+};
+function aiOptLang(){
+  const active=document.querySelector(".langBtn.active");
+  if(active?.dataset?.lang)return active.dataset.lang;
+  const value=(document.documentElement.lang||"").toLowerCase();
+  if(value.startsWith("en"))return "en";
+  if(value.startsWith("th"))return "th";
+  return "zh";
+}
+function aiOptT(key,vars={}){
+  let value=(AI_OPT_I18N[aiOptLang()]||AI_OPT_I18N.zh)[key]||key;
+  Object.entries(vars).forEach(([k,v])=>value=value.split("{"+k+"}").join(String(v)));
+  return value;
+}
+function aiCrossLabel(mode){
+  if(mode==="same")return aiOptT("crossSame");
+  if(mode==="alternate")return aiOptT("crossAlternate");
+  if(mode==="pair")return aiOptT("crossPair");
+  return aiOptT("crossAuto");
+}
 function aiPlanReason(x,index){
   const reasons=[];
-  if(index===0)reasons.push('綜合空間利用率、穩定性、支撐率與重心後的首選');
-  if(x.spaceUtil>=80)reasons.push('空間利用率已達 80% 以上');
-  else reasons.push(`目前尺寸限制下，最佳空間利用率約為 ${f2(x.spaceUtil)}%`);
-  if(x.stability>=85)reasons.push('穩定性表現佳');
-  else if(x.stability<70)reasons.push('穩定性較低，現場需加強膜包、護角或綁帶');
-  if(x.cg.d<=2)reasons.push('重心接近棧板中心');
-  if(x.support<80)reasons.push('層間支撐率偏低，不建議用於易碎或長途運輸');
-  return reasons.join('；')+'。';
+  if(index===0)reasons.push(aiOptT("reasonBest"));
+  if(x.spaceUtil>=80)reasons.push(aiOptT("reasonUtilGood"));
+  else reasons.push(aiOptT("reasonUtilLimit",{value:f2(x.spaceUtil)}));
+  if(x.stability>=85)reasons.push(aiOptT("reasonStable"));
+  else if(x.stability<70)reasons.push(aiOptT("reasonUnstable"));
+  if(x.cg.d<=2)reasons.push(aiOptT("reasonCg"));
+  if(x.support<80)reasons.push(aiOptT("reasonSupport"));
+  return reasons.join(aiOptLang()==="en"?"; ":"；")+(aiOptLang()==="th"?"":"。");
 }
 function openAIOptimizer(){
   const modal=$('aiOptimizeModal'),body=$('aiOptimizeBody');
-  modal.classList.add('open');modal.setAttribute('aria-hidden','false');
-  body.innerHTML='<div class="aiIntro"><b>正在執行深度最佳化…</b><br>系統將比較 6 種箱體方向、3 種交叉方式及可用混合排列。</div>';
+  modal.classList.add('open');
+  modal.setAttribute('aria-hidden','false');
+  body.setAttribute("data-i18n-managed","true");
+  body.innerHTML='<div class="aiIntro"><b>'+aiOptT("runningTitle")+'</b><br>'+aiOptT("runningText")+'</div>';
+
   setTimeout(()=>{
     calculate(false,true);
     const ranked=uniqueCandidates([...lastOptimizationCandidates])
       .map(x=>({...x,aiScore:aiCompositeScore(x)}))
       .sort((a,b)=>b.aiScore-a.aiScore||b.spaceUtil-a.spaceUtil||b.stability-a.stability)
       .slice(0,3);
-    if(!ranked.length){body.innerHTML='<div class="historyEmpty">目前限制下找不到可行方案。</div>';return}
+
+    if(!ranked.length){
+      body.innerHTML='<div class="historyEmpty">'+aiOptT("noPlan")+'</div>';
+      return;
+    }
+
+    const names=AI_OPT_I18N[aiOptLang()].planNames;
     const cards=ranked.map((x,i)=>`<article class="aiPlan ${i===0?'best':''}">
-      <h3>${i===0?'🥇 最佳首選':i===1?'🥈 高穩定方案':'🥉 替代方案'}</h3>
-      <div class="aiMetric"><span>智慧綜合評分</span><b>${f2(x.aiScore)}/100</b></div>
-      <div class="aiMetric"><span>每板箱數</span><b>${x.totalBoxes} 箱</b></div>
-      <div class="aiMetric"><span>空間利用率</span><b>${f2(x.spaceUtil)}%</b></div>
-      <div class="aiMetric"><span>穩定性</span><b>${x.stability}/100</b></div>
-      <div class="aiMetric"><span>最低支撐率</span><b>${f2(x.support)}%</b></div>
-      <div class="aiMetric"><span>重心偏移</span><b>${f2(x.cg.d)} cm</b></div>
-      <div class="aiMetric"><span>紙箱方向</span><b>${x.o.label} cm</b></div>
-      <div class="aiMetric"><span>交叉方式</span><b>${guideCrossName(x.activeCrossMode)}</b></div>
+      <h3>${names[i]}</h3>
+      <div class="aiMetric"><span>${aiOptT("score")}</span><b>${f2(x.aiScore)}/100</b></div>
+      <div class="aiMetric"><span>${aiOptT("cartonsPerPallet")}</span><b>${x.totalBoxes} ${aiOptT("cartonUnit")}</b></div>
+      <div class="aiMetric"><span>${aiOptT("spaceUtil")}</span><b>${f2(x.spaceUtil)}%</b></div>
+      <div class="aiMetric"><span>${aiOptT("stability")}</span><b>${x.stability}/100</b></div>
+      <div class="aiMetric"><span>${aiOptT("support")}</span><b>${f2(x.support)}%</b></div>
+      <div class="aiMetric"><span>${aiOptT("cgOffset")}</span><b>${f2(x.cg.d)} cm</b></div>
+      <div class="aiMetric"><span>${aiOptT("orientation")}</span><b>${x.o.label} cm</b></div>
+      <div class="aiMetric"><span>${aiOptT("crossPattern")}</span><b>${aiCrossLabel(x.activeCrossMode)}</b></div>
       <div class="aiReason">${aiPlanReason(x,i)}</div>
-      <div class="aiActions"><button class="secondary aiApply" data-ai-index="${i}">套用並查看 3D</button></div>
+      <div class="aiActions"><button class="secondary aiApply" data-ai-index="${i}">${aiOptT("apply")}</button></div>
     </article>`).join('');
+
     const best=ranked[0];
-    const improvement=model&&model.spaceUtil?best.spaceUtil-model.spaceUtil:0;
-    body.innerHTML=`<div class="aiIntro"><b>分析完成：共比較 ${lastOptimizationCandidates.length} 個候選方案。</b><br>
-      最佳首選為每板 ${best.totalBoxes} 箱、${best.occupiedLayers} 層，空間利用率 ${f2(best.spaceUtil)}%，穩定性 ${best.stability}/100。</div>
+    body.innerHTML=`<div class="aiIntro"><b>${aiOptT("completed",{count:lastOptimizationCandidates.length})}</b><br>
+      ${aiOptT("bestSummary",{boxes:best.totalBoxes,layers:best.occupiedLayers,util:f2(best.spaceUtil),stability:best.stability})}</div>
       <div class="aiGrid">${cards}</div>
-      <div class="aiNotice"><b>說明：</b>此功能採用多目標智慧最佳化演算法，會依空間利用率、穩定性、支撐率及重心偏移進行排序。結果屬於本系統排列模型與目前輸入限制下的最佳建議，正式出貨前仍須依紙箱耐壓、易碎性、運輸規範及現場固定方式確認。</div>`;
-    body.querySelectorAll('.aiApply').forEach(btn=>btn.onclick=()=>{const x=ranked[Number(btn.dataset.aiIndex)];activateCandidate(x,true);modal.classList.remove('open');modal.setAttribute('aria-hidden','true')});
+      <div class="aiNotice"><b>${aiOptT("noticeTitle")}</b>${aiOptT("notice")}</div>`;
+
+    body.querySelectorAll('.aiApply').forEach(btn=>btn.onclick=()=>{
+      const x=ranked[Number(btn.dataset.aiIndex)];
+      activateCandidate(x,true);
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden','true');
+    });
   },80);
 }
+
 $('aiOptimizeBtn').onclick=openAIOptimizer;
 $('aiOptimizeClose').onclick=()=>{$('aiOptimizeModal').classList.remove('open');$('aiOptimizeModal').setAttribute('aria-hidden','true')};
 $('aiOptimizeModal').addEventListener('click',e=>{if(e.target===$('aiOptimizeModal'))$('aiOptimizeClose').click()});
@@ -1677,5 +3306,1539 @@ $('utilGuideModal').addEventListener('click',e=>{if(e.target===$('utilGuideModal
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('utilGuideModal').classList.contains('open'))close80UtilGuide()});
 
 </script>
+
+<script>
+(function(){
+  function ready(fn){
+    if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",fn);
+    else fn();
+  }
+  ready(function(){
+    const controls=document.querySelector(".controls");
+    const history=document.querySelector(".historyPanel");
+    const calc=document.getElementById("calculateBtn");
+    const ai=document.getElementById("aiOptimizeBtn");
+
+    if(controls && !document.querySelector(".v4-workflow")){
+      const flow=document.createElement("div");
+      flow.className="v4-workflow";
+      flow.innerHTML=
+        '<div class="v4-step active" data-v4step="1"><span class="v4-step-num">1</span>棧板</div>'+
+        '<div class="v4-step" data-v4step="2"><span class="v4-step-num">2</span>紙箱</div>'+
+        '<div class="v4-step" data-v4step="3"><span class="v4-step-num">3</span>安全設定</div>'+
+        '<div class="v4-step" data-v4step="4"><span class="v4-step-num">4</span>分析結果</div>';
+      controls.insertBefore(flow,controls.firstChild);
+    }
+
+    if(history && !history.querySelector(".v4-history-close")){
+      const close=document.createElement("button");
+      close.type="button";
+      close.className="v4-history-close";
+      close.setAttribute("aria-label","關閉歷史紀錄");
+      close.textContent="×";
+      history.appendChild(close);
+      close.addEventListener("click",()=>history.classList.remove("v4-open"));
+    }
+
+    if(!document.querySelector(".v4-floating-tools")){
+      const tools=document.createElement("div");
+      tools.className="v4-floating-tools";
+      tools.innerHTML=
+        '<button type="button" class="v4-fab" id="v4HistoryBtn">📂 歷史與收藏</button>'+
+        '<button type="button" class="v4-fab primary-fab" id="v4AiBtn">🤖 AI 最佳化</button>';
+      document.body.appendChild(tools);
+      document.getElementById("v4HistoryBtn")?.addEventListener("click",()=>{
+        history?.classList.toggle("v4-open");
+      });
+      document.getElementById("v4AiBtn")?.addEventListener("click",()=>ai?.click());
+    }
+
+    function setStep(step){
+      document.querySelectorAll(".v4-step").forEach(el=>{
+        el.classList.toggle("active",Number(el.dataset.v4step)===step);
+      });
+    }
+
+    document.querySelectorAll("#pL,#pW,#pH,#maxH,#maxW").forEach(el=>el?.addEventListener("focus",()=>setStep(1)));
+    document.querySelectorAll("#bL,#bW,#bH,#boxWeight,#quantity,#palletWeight").forEach(el=>el?.addEventListener("focus",()=>setStep(2)));
+    document.querySelectorAll("#edgeMargin,#overhang,#layerPad,#topPack,#boxGap,#packWeight,#boxCompression,#minSupport,#orientationMode,#crossMode,#objective").forEach(el=>el?.addEventListener("focus",()=>setStep(3)));
+    calc?.addEventListener("click",()=>setStep(4));
+    ai?.addEventListener("click",()=>setStep(4));
+
+    document.addEventListener("keydown",e=>{
+      if(e.key==="Escape") history?.classList.remove("v4-open");
+    });
+  });
+})();
+</script>
+
+
+
+<script>
+(function(){
+  const THEME_KEY="palletAiThemeV1";
+
+  function systemTheme(){
+    return window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark" : "light";
+  }
+
+  function detectLanguage(){
+    const active=document.querySelector(".langBtn.active");
+    if(active?.dataset?.lang) return active.dataset.lang;
+
+    const htmlLang=(document.documentElement.lang||"").toLowerCase();
+    if(htmlLang.startsWith("en")) return "en";
+    if(htmlLang.startsWith("th")) return "th";
+    return "zh";
+  }
+
+  function themeLabels(lang){
+    const labels={
+      zh:{
+        light:"☀️ 淺色",
+        dark:"🌙 深色",
+        system:"🖥 跟隨系統",
+        title:"點擊切換外觀模式"
+      },
+      en:{
+        light:"☀️ Light",
+        dark:"🌙 Dark",
+        system:"🖥 System",
+        title:"Click to change appearance"
+      },
+      th:{
+        light:"☀️ โหมดสว่าง",
+        dark:"🌙 โหมดมืด",
+        system:"🖥 ตามระบบ",
+        title:"คลิกเพื่อเปลี่ยนรูปแบบการแสดงผล"
+      }
+    };
+    return labels[lang]||labels.zh;
+  }
+
+  function updateThemeButton(theme){
+    const btn=document.getElementById("themeToggle");
+    if(!btn) return;
+    const lang=detectLanguage();
+    const labels=themeLabels(lang);
+    btn.textContent=labels[theme]||labels.system;
+    btn.title=labels.title;
+    btn.setAttribute("aria-label",labels.title);
+  }
+
+  function applyTheme(theme){
+    const actual=theme==="system"?systemTheme():theme;
+    document.documentElement.setAttribute("data-theme",actual);
+    document.documentElement.setAttribute("data-theme-choice",theme);
+    updateThemeButton(theme);
+  }
+
+  function nextTheme(current){
+    if(current==="light") return "dark";
+    if(current==="dark") return "system";
+    return "light";
+  }
+
+  function currentChoice(){
+    return localStorage.getItem(THEME_KEY)||"system";
+  }
+
+  applyTheme(currentChoice());
+
+  if(window.matchMedia){
+    const media=window.matchMedia("(prefers-color-scheme: dark)");
+    const onSystemChange=()=>{
+      if(currentChoice()==="system") applyTheme("system");
+    };
+    if(media.addEventListener) media.addEventListener("change",onSystemChange);
+    else if(media.addListener) media.addListener(onSystemChange);
+  }
+
+  function bind(){
+    const btn=document.getElementById("themeToggle");
+    if(btn){
+      btn.addEventListener("click",()=>{
+        const next=nextTheme(currentChoice());
+        localStorage.setItem(THEME_KEY,next);
+        applyTheme(next);
+      });
+    }
+
+    document.querySelectorAll(".langBtn").forEach(languageButton=>{
+      languageButton.addEventListener("click",()=>{
+        // Wait until the website's original language switching function
+        // updates the active button and html lang attribute.
+        setTimeout(()=>updateThemeButton(currentChoice()),50);
+      });
+    });
+
+    // Also detect language changes made elsewhere in the original website.
+    const observer=new MutationObserver(()=>{
+      updateThemeButton(currentChoice());
+    });
+    observer.observe(document.documentElement,{
+      attributes:true,
+      attributeFilter:["lang"]
+    });
+
+    const languageArea=document.querySelector(".languageSwitch");
+    if(languageArea){
+      observer.observe(languageArea,{
+        subtree:true,
+        attributes:true,
+        attributeFilter:["class"]
+      });
+    }
+
+    updateThemeButton(currentChoice());
+  }
+
+  if(document.readyState==="loading"){
+    document.addEventListener("DOMContentLoaded",bind);
+  }else{
+    bind();
+  }
+})();
+</script>
+
+
+
+
+<script>
+(function(){
+  function bindBoxAnimation(){
+    document.getElementById("boxAnimPlay")?.addEventListener("click",playBoxAnimation);
+    document.getElementById("boxAnimPause")?.addEventListener("click",pauseBoxAnimation);
+    document.getElementById("boxAnimPrev")?.addEventListener("click",()=>stepBoxAnimation(-1));
+    document.getElementById("boxAnimNext")?.addEventListener("click",()=>stepBoxAnimation(1));
+    document.getElementById("boxAnimReset")?.addEventListener("click",()=>resetBoxAnimation(true));
+    document.getElementById("boxAnimSop")?.addEventListener("click",printAnimationSOP);
+    document.getElementById("boxAnimLayer")?.addEventListener("change",e=>{
+      boxAnimationScope=e.target.value;
+      stopBoxAnimationTimer();
+      boxAnimationPlaying=false;
+      boxAnimationMode=true;
+      prepareScope(true);
+      boxAnimationHighlightIndex=-1;
+      updateBoxAnimationUI();
+      draw();
+    });
+    document.querySelectorAll(".langBtn").forEach(btn=>{
+      btn.addEventListener("click",()=>setTimeout(refreshBoxAnimationLanguage,80));
+    });
+    const observer=new MutationObserver(refreshBoxAnimationLanguage);
+    observer.observe(document.documentElement,{attributes:true,attributeFilter:["lang"]});
+    refreshBoxAnimationLanguage();
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bindBoxAnimation);
+  else bindBoxAnimation();
+})();
+</script>
+
+
+
+
+<script>
+(function(){
+  const I18N={
+    zh:{
+      title:"✈️ 空運 ULD 規劃",
+      subtitle:"切換為 ULD 模式後，系統會將選定規格帶入原有最佳化引擎。",
+      enable:"啟用",
+      uldType:"ULD 類型",
+      height:"可用裝載高度（cm）",
+      maxWeight:"ULD 最大貨物重量（kg）",
+      divisor:"材積重除數（cm³/kg）",
+      apply:"套用 ULD 規格",
+      compare:"🤖 比較 ULD 方案",
+      disclaimer:"ULD 外形、輪廓、允許高度、總重與航空器相容性會因航空公司、機型及航線而不同。此功能為初步規劃工具，正式訂艙前仍需向承運航空公司確認。",
+      palletData:"棧板／ULD 資料（cm / kg）",
+      actualWeight:"實際總重",
+      volumeWeight:"材積重",
+      chargeableWeight:"預估計費重",
+      uldCount:"預估 ULD 數",
+      compareTitle:"✈️ ULD 方案比較",
+      compareSubtitle:"初步規劃",
+      waiting:"等待比較。",
+      optionPMC:"PMC｜96 × 125 in 主艙板",
+      optionPAG:"PAG｜88 × 125 in 主艙板",
+      optionPLA:"PLA｜60.4 × 125 in 主艙板",
+      optionAKE:"AKE / LD3｜下艙貨櫃估算",
+      optionCUSTOM:"自訂 ULD",
+      customSummary:"<b>自訂 ULD：</b>請直接修改下方棧板／ULD尺寸、限高與限重。",
+      base:"基底",
+      defaultHeight:"預設可用裝載高度",
+      defaultWeight:"預設最大貨物重量",
+      notePMC:"大型主艙棧板；實際輪廓及允許高度須依機型確認。",
+      notePAG:"較窄主艙棧板；適用性須依航空公司與機型確認。",
+      notePLA:"窄型主艙棧板估算值；正式限制須依承運人資料。",
+      noteAKE:"以外接矩形作容量初估；未完整模擬 LD3 斜面輪廓。",
+      invalidBox:"請先輸入有效的紙箱尺寸。",
+      intro:"系統依紙箱尺寸、總箱數、單箱重量、ULD基底、可用高度及最大貨物重量進行初步比較。AKE目前使用外接矩形估算，尚未完整計入斜面輪廓。",
+      perLayer:"每層估算",
+      layers:"可堆層數",
+      capacity:"每個容量",
+      required:"預估需要",
+      utilization:"體積利用率",
+      chargeable:"預估計費重",
+      bestReason:"在目前輸入條件下，ULD數量較少或利用率較高。",
+      applyCode:"套用 {code}",
+      notice:"此比較為矩形／棧板基礎估算，不代表航空公司已接受此裝載方案。正式出貨前請確認機型輪廓、ULD認證、地板載重、危險品與綁固要求。",
+      cartonUnit:"箱",layerUnit:"層",unitUnit:"個"
+    },
+    en:{
+      title:"✈️ Air Cargo ULD Planning",
+      subtitle:"When ULD mode is enabled, the selected specification is sent to the existing optimization engine.",
+      enable:"Enable",
+      uldType:"ULD Type",
+      height:"Usable Loading Height (cm)",
+      maxWeight:"Maximum ULD Cargo Weight (kg)",
+      divisor:"Volumetric Weight Divisor (cm³/kg)",
+      apply:"Apply ULD Specification",
+      compare:"🤖 Compare ULD Options",
+      disclaimer:"ULD shape, contour, allowable height, gross weight, and aircraft compatibility vary by airline, aircraft type, and route. This is a preliminary planning tool. Confirm all limits with the operating carrier before booking.",
+      palletData:"Pallet / ULD Data (cm / kg)",
+      actualWeight:"Actual Gross Weight",
+      volumeWeight:"Volumetric Weight",
+      chargeableWeight:"Estimated Chargeable Weight",
+      uldCount:"Estimated ULD Count",
+      compareTitle:"✈️ ULD Option Comparison",
+      compareSubtitle:"Preliminary Planning",
+      waiting:"Waiting for comparison.",
+      optionPMC:"PMC | 96 × 125 in Main-deck Pallet",
+      optionPAG:"PAG | 88 × 125 in Main-deck Pallet",
+      optionPLA:"PLA | 60.4 × 125 in Main-deck Pallet",
+      optionAKE:"AKE / LD3 | Lower-deck Container Estimate",
+      optionCUSTOM:"Custom ULD",
+      customSummary:"<b>Custom ULD:</b> Edit the pallet / ULD dimensions, height limit, and weight limit below.",
+      base:"Base",
+      defaultHeight:"Default usable loading height",
+      defaultWeight:"Default maximum cargo weight",
+      notePMC:"Large main-deck pallet. Confirm the actual contour and allowable height for the aircraft type.",
+      notePAG:"Narrower main-deck pallet. Compatibility must be confirmed with the airline and aircraft type.",
+      notePLA:"Narrow main-deck pallet estimate. Final operating limits must follow carrier data.",
+      noteAKE:"Capacity is estimated with a bounding rectangle. The LD3 sloped contour is not fully modeled.",
+      invalidBox:"Please enter valid carton dimensions first.",
+      intro:"The system performs a preliminary comparison using carton dimensions, total quantity, unit weight, ULD base size, usable height, and maximum cargo weight. AKE is currently estimated with a bounding rectangle, so the sloped contour is not fully included.",
+      perLayer:"Estimated per Layer",
+      layers:"Available Layers",
+      capacity:"Capacity per ULD",
+      required:"Estimated Required",
+      utilization:"Volume Utilization",
+      chargeable:"Estimated Chargeable Weight",
+      bestReason:"Under the current inputs, this option requires fewer ULDs or provides better utilization.",
+      applyCode:"Apply {code}",
+      notice:"This is a rectangular / pallet-based estimate and does not mean the airline has accepted the loading plan. Before shipment, confirm aircraft contour, ULD certification, floor loading, dangerous-goods rules, and restraint requirements.",
+      cartonUnit:"cartons",layerUnit:"layers",unitUnit:"ULDs"
+    },
+    th:{
+      title:"✈️ การวางแผน ULD สำหรับขนส่งทางอากาศ",
+      subtitle:"เมื่อเปิดโหมด ULD ระบบจะนำข้อกำหนดที่เลือกไปใช้กับเครื่องมือเพิ่มประสิทธิภาพเดิม",
+      enable:"เปิดใช้งาน",
+      uldType:"ประเภท ULD",
+      height:"ความสูงที่ใช้บรรทุกได้ (ซม.)",
+      maxWeight:"น้ำหนักสินค้าสูงสุดของ ULD (กก.)",
+      divisor:"ตัวหารน้ำหนักปริมาตร (ซม.³/กก.)",
+      apply:"ใช้ข้อกำหนด ULD",
+      compare:"🤖 เปรียบเทียบตัวเลือก ULD",
+      disclaimer:"รูปร่าง ขอบเขต ความสูงที่อนุญาต น้ำหนักรวม และความเข้ากันได้กับอากาศยานของ ULD อาจแตกต่างกันตามสายการบิน รุ่นเครื่องบิน และเส้นทาง ฟังก์ชันนี้ใช้สำหรับวางแผนเบื้องต้นเท่านั้น กรุณายืนยันข้อจำกัดกับสายการบินก่อนทำการจอง",
+      palletData:"ข้อมูลพาเลท / ULD (ซม. / กก.)",
+      actualWeight:"น้ำหนักรวมจริง",
+      volumeWeight:"น้ำหนักปริมาตร",
+      chargeableWeight:"น้ำหนักคิดค่าระวางโดยประมาณ",
+      uldCount:"จำนวน ULD โดยประมาณ",
+      compareTitle:"✈️ เปรียบเทียบตัวเลือก ULD",
+      compareSubtitle:"การวางแผนเบื้องต้น",
+      waiting:"รอการเปรียบเทียบ",
+      optionPMC:"PMC | พาเลทชั้นหลัก 96 × 125 นิ้ว",
+      optionPAG:"PAG | พาเลทชั้นหลัก 88 × 125 นิ้ว",
+      optionPLA:"PLA | พาเลทชั้นหลัก 60.4 × 125 นิ้ว",
+      optionAKE:"AKE / LD3 | ประมาณการตู้ชั้นล่าง",
+      optionCUSTOM:"ULD กำหนดเอง",
+      customSummary:"<b>ULD กำหนดเอง:</b> แก้ไขขนาดพาเลท / ULD ความสูงจำกัด และน้ำหนักจำกัดด้านล่าง",
+      base:"ฐาน",
+      defaultHeight:"ความสูงบรรทุกเริ่มต้น",
+      defaultWeight:"น้ำหนักสินค้าสูงสุดเริ่มต้น",
+      notePMC:"พาเลทชั้นหลักขนาดใหญ่ ต้องยืนยันรูปทรงและความสูงที่อนุญาตตามรุ่นเครื่องบิน",
+      notePAG:"พาเลทชั้นหลักที่แคบกว่า ต้องยืนยันความเข้ากันได้กับสายการบินและรุ่นเครื่องบิน",
+      notePLA:"ค่าประมาณพาเลทชั้นหลักแบบแคบ ข้อจำกัดจริงต้องอ้างอิงข้อมูลของผู้ขนส่ง",
+      noteAKE:"ประมาณความจุด้วยกรอบสี่เหลี่ยมภายนอก และยังไม่ได้จำลองส่วนลาดของ LD3 อย่างสมบูรณ์",
+      invalidBox:"กรุณากรอกขนาดกล่องที่ถูกต้องก่อน",
+      intro:"ระบบเปรียบเทียบเบื้องต้นจากขนาดกล่อง จำนวนรวม น้ำหนักต่อกล่อง ขนาดฐาน ULD ความสูงที่ใช้ได้ และน้ำหนักสินค้าสูงสุด ปัจจุบัน AKE ใช้กรอบสี่เหลี่ยมภายนอกในการประมาณ จึงยังไม่รวมส่วนลาดทั้งหมด",
+      perLayer:"ประมาณต่อชั้น",
+      layers:"จำนวนชั้นที่วางได้",
+      capacity:"ความจุต่อ ULD",
+      required:"จำนวนที่ต้องใช้โดยประมาณ",
+      utilization:"การใช้ปริมาตร",
+      chargeable:"น้ำหนักคิดค่าระวางโดยประมาณ",
+      bestReason:"ภายใต้ข้อมูลปัจจุบัน ตัวเลือกนี้ใช้ ULD น้อยกว่า หรือมีการใช้พื้นที่ดีกว่า",
+      applyCode:"ใช้ {code}",
+      notice:"การเปรียบเทียบนี้เป็นการประมาณแบบสี่เหลี่ยม / พาเลท และไม่ได้หมายความว่าสายการบินยอมรับแผนการบรรทุกแล้ว ก่อนส่งสินค้า โปรดยืนยันรูปทรงเครื่องบิน การรับรอง ULD น้ำหนักพื้น กฎสินค้าอันตราย และข้อกำหนดการยึดตรึง",
+      cartonUnit:"กล่อง",layerUnit:"ชั้น",unitUnit:"ULD"
+    }
+  };
+
+  const ULD_PRESETS={
+    PMC:{code:"PMC",name:"PMC 96 × 125 in",baseL:317.5,baseW:243.8,palletH:5.1,usableH:160,maxCargo:4600,type:"pallet",noteKey:"notePMC"},
+    PAG:{code:"PAG",name:"PAG 88 × 125 in",baseL:317.5,baseW:223.5,palletH:5.1,usableH:160,maxCargo:4600,type:"pallet",noteKey:"notePAG"},
+    PLA:{code:"PLA",name:"PLA 60.4 × 125 in",baseL:317.5,baseW:153.4,palletH:5.1,usableH:160,maxCargo:3000,type:"pallet",noteKey:"notePLA"},
+    AKE:{code:"AKE",name:"AKE / LD3",baseL:200.7,baseW:153.4,palletH:0,usableH:162.6,maxCargo:1588,type:"container",noteKey:"noteAKE"}
+  };
+
+  function q(id){return document.getElementById(id)}
+  function num(id){return Number(q(id)?.value||0)}
+  function isAirMode(){return !!q("airCargoMode")?.checked}
+  function currentPreset(){return ULD_PRESETS[q("uldType")?.value]||null}
+  function lang(){
+    const active=document.querySelector(".langBtn.active");
+    if(active?.dataset?.lang)return active.dataset.lang;
+    const htmlLang=(document.documentElement.lang||"zh").toLowerCase();
+    if(htmlLang.startsWith("en"))return "en";
+    if(htmlLang.startsWith("th"))return "th";
+    return "zh";
+  }
+  function t(key,vars={}){
+    let text=(I18N[lang()]||I18N.zh)[key]||I18N.zh[key]||key;
+    Object.entries(vars).forEach(([k,v])=>{text=text.replaceAll(`{${k}}`,String(v))});
+    return text;
+  }
+  function setText(id,key){
+    const el=q(id);if(el)el.textContent=t(key);
+  }
+
+  function refreshStaticLanguage(){
+    setText("airCargoTitle","title");
+    setText("airCargoSubtitle","subtitle");
+    setText("airCargoEnableText","enable");
+    setText("uldTypeLabel","uldType");
+    setText("uldHeightLabel","height");
+    setText("uldMaxWeightLabel","maxWeight");
+    setText("uldDivisorLabel","divisor");
+    setText("applyUldPreset","apply");
+    setText("compareUldBtn","compare");
+    setText("uldDisclaimer","disclaimer");
+    setText("palletUldDataTitle","palletData");
+    setText("airActualWeightLabel","actualWeight");
+    setText("airVolumeWeightLabel","volumeWeight");
+    setText("airChargeableWeightLabel","chargeableWeight");
+    setText("airUldCountLabel","uldCount");
+    setText("uldCompareTitle","compareTitle");
+    setText("uldCompareSubtitle","compareSubtitle");
+    setText("uldWaitingText","waiting");
+
+    const select=q("uldType");
+    if(select&&select.options.length>=5){
+      select.options[0].textContent=t("optionPMC");
+      select.options[1].textContent=t("optionPAG");
+      select.options[2].textContent=t("optionPLA");
+      select.options[3].textContent=t("optionAKE");
+      select.options[4].textContent=t("optionCUSTOM");
+    }
+    updatePresetSummary();
+  }
+
+  function updatePresetSummary(){
+    const p=currentPreset(),box=q("uldPresetSummary");
+    if(!box)return;
+    if(!p){box.innerHTML=t("customSummary");return}
+    box.innerHTML=`<b>${p.name}</b><br>
+      ${t("base")}：${p.baseL.toFixed(1)} × ${p.baseW.toFixed(1)} cm｜
+      ${t("defaultHeight")}：${num("uldUsableHeight")||p.usableH} cm｜
+      ${t("defaultWeight")}：${num("uldMaxCargoWeight")||p.maxCargo} kg<br>
+      <span style="color:var(--muted)">${t(p.noteKey)}</span>`;
+  }
+
+  function applyPreset(code=q("uldType")?.value){
+    const p=ULD_PRESETS[code];if(!p)return;
+    q("uldUsableHeight").value=p.usableH;
+    q("uldMaxCargoWeight").value=p.maxCargo;
+    q("pL").value=p.baseL;
+    q("pW").value=p.baseW;
+    q("pH").value=p.palletH;
+    q("maxH").value=p.palletH+p.usableH;
+    q("maxW").value=p.maxCargo;
+    q("palletWeight").value=p.type==="container"?55:110;
+    updatePresetSummary();updateAirCargoResults();
+  }
+
+  function setAirMode(enabled){
+    q("airCargoFields").hidden=!enabled;
+    document.querySelectorAll(".airCargoResult").forEach(el=>el.hidden=!enabled);
+    if(enabled)applyPreset();
+    updateAirCargoResults();
+  }
+
+  function estimateForPreset(p){
+    const L=num("bL"),W=num("bW"),H=num("bH"),qty=Math.max(0,Math.floor(num("quantity")));
+    const weight=num("boxWeight"),usableH=num("uldUsableHeight")||p.usableH,maxCargo=num("uldMaxCargoWeight")||p.maxCargo;
+    const orientations=[[L,W,H],[W,L,H],[L,H,W],[H,L,W],[W,H,L],[H,W,L]];
+    let best={perLayer:0,layers:0,capacity:0,orientation:null,volumeUtil:0};
+    for(const [a,b,h] of orientations){
+      if(a<=0||b<=0||h<=0)continue;
+      const perLayer=Math.max(Math.floor(p.baseL/a)*Math.floor(p.baseW/b),Math.floor(p.baseL/b)*Math.floor(p.baseW/a));
+      const layers=Math.floor(usableH/h),bySpace=perLayer*layers,byWeight=weight>0?Math.floor(maxCargo/weight):bySpace;
+      const capacity=Math.max(0,Math.min(bySpace,byWeight)),used=Math.min(qty||capacity,capacity);
+      const util=p.baseL*p.baseW*usableH>0?used*L*W*H/(p.baseL*p.baseW*usableH)*100:0;
+      if(capacity>best.capacity||(capacity===best.capacity&&util>best.volumeUtil))best={perLayer,layers,capacity,orientation:[a,b,h],volumeUtil:util};
+    }
+    const ulds=qty>0&&best.capacity>0?Math.ceil(qty/best.capacity):1;
+    const actualWeight=qty*weight,divisor=Math.max(1,num("uldVolumeDivisor")||6000),volumeWeight=qty*L*W*H/divisor;
+    return {...best,ulds,actualWeight,volumeWeight,chargeable:Math.max(actualWeight,volumeWeight),preset:p};
+  }
+
+  function updateAirCargoResults(){
+    if(!isAirMode())return;
+    const qty=Math.max(0,Math.floor(num("quantity"))),actual=qty*num("boxWeight"),divisor=Math.max(1,num("uldVolumeDivisor")||6000);
+    const vol=qty*num("bL")*num("bW")*num("bH")/divisor;
+    q("rAirActualWeight").textContent=actual?`${actual.toFixed(1)} kg`:"—";
+    q("rAirVolumeWeight").textContent=vol?`${vol.toFixed(1)} kg`:"—";
+    q("rAirChargeableWeight").textContent=(actual||vol)?`${Math.max(actual,vol).toFixed(1)} kg`:"—";
+    const perUld=Number((q("rTotal")?.textContent||"").replace(/[^\d.]/g,""))||0;
+    q("rAirUldCount").textContent=qty&&perUld?`${Math.ceil(qty/perUld)} ULD`:"—";
+  }
+
+  function compareULDs(){
+    if(num("bL")<=0||num("bW")<=0||num("bH")<=0){alert(t("invalidBox"));return}
+    const results=Object.values(ULD_PRESETS).map(estimateForPreset).sort((a,b)=>a.ulds-b.ulds||b.volumeUtil-a.volumeUtil||b.capacity-a.capacity);
+    q("uldCompareBody").innerHTML=`<div class="aiIntro">${t("intro")}</div>
+    <div class="uldCompareGrid">${results.map((r,i)=>`
+      <div class="uldCompareCard ${i===0?"best":""}">
+        <h3>${i===0?"🥇 ":""}${r.preset.code}</h3>
+        <div class="uldCompareMetric"><span>${t("perLayer")}</span><b>${r.perLayer} ${t("cartonUnit")}</b></div>
+        <div class="uldCompareMetric"><span>${t("layers")}</span><b>${r.layers} ${t("layerUnit")}</b></div>
+        <div class="uldCompareMetric"><span>${t("capacity")}</span><b>${r.capacity} ${t("cartonUnit")}</b></div>
+        <div class="uldCompareMetric"><span>${t("required")}</span><b>${r.ulds} ${t("unitUnit")}</b></div>
+        <div class="uldCompareMetric"><span>${t("utilization")}</span><b>${r.volumeUtil.toFixed(1)}%</b></div>
+        <div class="uldCompareMetric"><span>${t("chargeable")}</span><b>${r.chargeable.toFixed(1)} kg</b></div>
+        <div class="uldCompareReason">${i===0?t("bestReason"):t(r.preset.noteKey)}</div>
+        <button class="secondary uldApplyBtn" type="button" data-apply-uld="${r.preset.code}">${t("applyCode",{code:r.preset.code})}</button>
+      </div>`).join("")}</div>
+      <div class="aiNotice">${t("notice")}</div>`;
+    q("uldCompareModal").classList.add("open");
+    q("uldCompareModal").setAttribute("aria-hidden","false");
+    document.querySelectorAll("[data-apply-uld]").forEach(btn=>btn.addEventListener("click",()=>{
+      q("uldType").value=btn.dataset.applyUld;applyPreset(btn.dataset.applyUld);
+      q("uldCompareModal").classList.remove("open");q("calculateBtn")?.click();
+    }));
+  }
+
+  function bind(){
+    q("airCargoMode")?.addEventListener("change",e=>setAirMode(e.target.checked));
+    q("uldType")?.addEventListener("change",()=>{
+      const p=currentPreset();
+      if(p){q("uldUsableHeight").value=p.usableH;q("uldMaxCargoWeight").value=p.maxCargo}
+      updatePresetSummary();
+    });
+    q("applyUldPreset")?.addEventListener("click",()=>applyPreset());
+    q("compareUldBtn")?.addEventListener("click",compareULDs);
+    q("uldCompareClose")?.addEventListener("click",()=>{q("uldCompareModal").classList.remove("open");q("uldCompareModal").setAttribute("aria-hidden","true")});
+    q("uldCompareModal")?.addEventListener("click",e=>{if(e.target===q("uldCompareModal"))q("uldCompareClose").click()});
+    ["quantity","boxWeight","bL","bW","bH","uldVolumeDivisor"].forEach(id=>q(id)?.addEventListener("input",updateAirCargoResults));
+    q("calculateBtn")?.addEventListener("click",()=>setTimeout(updateAirCargoResults,80));
+    q("aiOptimizeBtn")?.addEventListener("click",()=>setTimeout(updateAirCargoResults,80));
+    document.querySelectorAll(".langBtn").forEach(btn=>btn.addEventListener("click",()=>setTimeout(refreshStaticLanguage,100)));
+
+    const observer=new MutationObserver(()=>refreshStaticLanguage());
+    observer.observe(document.documentElement,{attributes:true,attributeFilter:["lang"]});
+
+    refreshStaticLanguage();
+  }
+
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind);
+  else bind();
+})();
+</script>
+
+
+
+<script>
+(function(){
+  const UI_MODE_KEY="palletAiAppModeV1";
+
+  function el(id){return document.getElementById(id)}
+  function activeLang(){
+    const active=document.querySelector(".langBtn.active");
+    if(active?.dataset?.lang)return active.dataset.lang;
+    const l=(document.documentElement.lang||"zh").toLowerCase();
+    return l.startsWith("en")?"en":l.startsWith("th")?"th":"zh";
+  }
+  const TX={
+    zh:{
+      palletTitle:"📦 棧板模式",palletSub:"一般棧板堆疊與 AI 最佳化",
+      airTitle:"✈️ 空運模式",airSub:"ULD 規劃、比較與計費重",
+      palletData:"棧板資料（cm / kg）",airData:"棧板／ULD 資料（cm / kg）",
+      util:"空間利用率",boxes:"每板總箱數",height:"總高度",weight:"總重量",
+      chargeable:"計費重",uldCount:"ULD 數",
+      advancedSafety:"進階安全與包材設定",advancedStack:"進階堆疊設定",
+      hint:"先輸入棧板與紙箱基本資料，再按下計算；需要更細緻控制時再展開進階設定。"
+    },
+    en:{
+      palletTitle:"📦 Pallet Mode",palletSub:"Standard pallet stacking and AI optimization",
+      airTitle:"✈️ Air Cargo Mode",airSub:"ULD planning, comparison and chargeable weight",
+      palletData:"Pallet Data (cm / kg)",airData:"Pallet / ULD Data (cm / kg)",
+      util:"Space Utilization",boxes:"Cartons per Pallet",height:"Total Height",weight:"Total Weight",
+      chargeable:"Chargeable Weight",uldCount:"ULD Count",
+      advancedSafety:"Advanced Safety and Packaging",advancedStack:"Advanced Stacking Settings",
+      hint:"Enter the basic pallet and carton data first, then calculate. Open advanced settings only when more control is needed."
+    },
+    th:{
+      palletTitle:"📦 โหมดพาเลท",palletSub:"การซ้อนพาเลททั่วไปและการเพิ่มประสิทธิภาพด้วย AI",
+      airTitle:"✈️ โหมดขนส่งทางอากาศ",airSub:"วางแผน ULD เปรียบเทียบ และคำนวณน้ำหนักคิดค่าระวาง",
+      palletData:"ข้อมูลพาเลท (ซม. / กก.)",airData:"ข้อมูลพาเลท / ULD (ซม. / กก.)",
+      util:"การใช้พื้นที่",boxes:"กล่องต่อพาเลท",height:"ความสูงรวม",weight:"น้ำหนักรวม",
+      chargeable:"น้ำหนักคิดค่าระวาง",uldCount:"จำนวน ULD",
+      advancedSafety:"การตั้งค่าความปลอดภัยและบรรจุภัณฑ์ขั้นสูง",advancedStack:"การตั้งค่าการซ้อนขั้นสูง",
+      hint:"กรอกข้อมูลพาเลทและกล่องพื้นฐานก่อน แล้วกดคำนวณ เปิดการตั้งค่าขั้นสูงเมื่อจำเป็นเท่านั้น"
+    }
+  };
+  function t(k){return (TX[activeLang()]||TX.zh)[k]||k}
+
+  function setMode(mode){
+    const air=mode==="air";
+    localStorage.setItem(UI_MODE_KEY,mode);
+    document.querySelectorAll(".modeBtn").forEach(b=>b.classList.toggle("active",b.dataset.appMode===mode));
+    document.querySelector(".airCargoModePanel")?.classList.toggle("mode-hidden",!air);
+    document.querySelectorAll(".airKpi").forEach(x=>x.hidden=!air);
+
+    const toggle=el("airCargoMode");
+    if(toggle&&toggle.checked!==air){
+      toggle.checked=air;
+      toggle.dispatchEvent(new Event("change",{bubbles:true}));
+    }
+
+    const title=el("palletUldDataTitle");
+    if(title)title.textContent=air?t("airData"):t("palletData");
+    updateModeText();
+    syncKpi();
+  }
+
+  function updateModeText(){
+    const buttons=document.querySelectorAll(".modeBtn");
+    if(buttons.length>=2){
+      buttons[0].querySelector("b").textContent=t("palletTitle").replace(/^📦\s*/,"");
+      buttons[0].querySelector("small").textContent=t("palletSub");
+      buttons[1].querySelector("b").textContent=t("airTitle").replace(/^✈️\s*/,"");
+      buttons[1].querySelector("small").textContent=t("airSub");
+    }
+    const labels=document.querySelectorAll(".topKpiCard span");
+    const keys=["util","boxes","height","weight","chargeable","uldCount"];
+    labels.forEach((node,i)=>{if(keys[i])node.textContent=t(keys[i])});
+
+    document.querySelectorAll(".uiCollapsible").forEach(d=>{
+      const type=d.dataset.collapseType;
+      const summary=d.querySelector("summary");
+      if(summary)summary.textContent=t(type==="safety"?"advancedSafety":"advancedStack");
+    });
+    const hint=document.querySelector(".quickStartHint");
+    if(hint)hint.textContent=t("hint");
+
+    const mode=localStorage.getItem(UI_MODE_KEY)||"pallet";
+    const title=el("palletUldDataTitle");
+    if(title)title.textContent=mode==="air"?t("airData"):t("palletData");
+  }
+
+  function syncKpi(){
+    const map=[
+      ["rSpaceUtil","topKpiUtil"],
+      ["rTotal","topKpiBoxes"],
+      ["rHeight","topKpiHeight"],
+      ["rWeight","topKpiWeight"],
+      ["rAirChargeableWeight","topKpiChargeable"],
+      ["rAirUldCount","topKpiUldCount"]
+    ];
+    map.forEach(([from,to])=>{
+      const source=el(from),target=el(to);
+      if(source&&target)target.textContent=source.textContent||"—";
+    });
+  }
+
+  function createCollapsible(startHeadingText,type){
+    const controls=document.querySelector(".controls");
+    if(!controls)return;
+    const headings=[...controls.querySelectorAll(":scope > h3")];
+    const heading=headings.find(h=>h.textContent.trim().includes(startHeadingText));
+    if(!heading||heading.closest(".uiCollapsible"))return;
+
+    const details=document.createElement("details");
+    details.className="uiCollapsible";
+    details.dataset.collapseType=type;
+    const summary=document.createElement("summary");
+    summary.textContent=t(type==="safety"?"advancedSafety":"advancedStack");
+    const body=document.createElement("div");
+    body.className="uiCollapsibleBody";
+    heading.parentNode.insertBefore(details,heading);
+    details.append(summary,body);
+
+    let node=heading;
+    while(node){
+      const next=node.nextSibling;
+      if(node!==heading && node.nodeType===1 && (
+        node.matches("h3") ||
+        node.matches(".sectionTitleRow") ||
+        node.matches("#calculateBtn") ||
+        node.matches("#aiOptimizeBtn") ||
+        node.matches(".layerTabs") ||
+        node.matches(".historyPanel")
+      ))break;
+      body.appendChild(node);
+      node=next;
+    }
+  }
+
+  function setup(){
+    const controls=document.querySelector(".controls");
+    if(controls&&!document.querySelector(".quickStartHint")){
+      const hint=document.createElement("div");
+      hint.className="quickStartHint";
+      hint.textContent=t("hint");
+      const mode=document.querySelector(".modeSelector");
+      mode?.insertAdjacentElement("afterend",hint);
+    }
+
+    createCollapsible("安全與包材設定","safety");
+    createCollapsible("堆疊設定","stack");
+
+    document.querySelectorAll(".modeBtn").forEach(btn=>btn.addEventListener("click",()=>setMode(btn.dataset.appMode)));
+    document.querySelectorAll(".langBtn").forEach(btn=>btn.addEventListener("click",()=>setTimeout(updateModeText,100)));
+
+    const observer=new MutationObserver(()=>{syncKpi();updateModeText()});
+    ["rSpaceUtil","rTotal","rHeight","rWeight","rAirChargeableWeight","rAirUldCount"].forEach(id=>{
+      const node=el(id);if(node)observer.observe(node,{childList:true,characterData:true,subtree:true});
+    });
+    observer.observe(document.documentElement,{attributes:true,attributeFilter:["lang"]});
+
+    setMode(localStorage.getItem(UI_MODE_KEY)||"pallet");
+    syncKpi();
+  }
+
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",setup);
+  else setup();
+})();
+</script>
+
+
+<script>
+(function(){
+  function detectLang(){
+    const active=document.querySelector(".langBtn.active");
+    if(active?.dataset?.lang)return active.dataset.lang;
+    const lang=(document.documentElement.lang||"").toLowerCase();
+    if(lang.startsWith("en"))return "en";
+    if(lang.startsWith("th"))return "th";
+    return "zh";
+  }
+  function updateButton(){
+    const btn=document.getElementById("toggle3DFocus");
+    if(!btn)return;
+    const active=document.body.classList.contains("v51-focus3d");
+    const labels={
+      zh:{open:"⛶ 放大 3D",close:"✕ 離開放大"},
+      en:{open:"⛶ Enlarge 3D",close:"✕ Exit 3D Focus"},
+      th:{open:"⛶ ขยาย 3D",close:"✕ ออกจากโหมดขยาย"}
+    };
+    const set=labels[detectLang()]||labels.zh;
+    btn.textContent=active?set.close:set.open;
+    btn.classList.toggle("active",active);
+  }
+  function toggleFocus(){
+    document.body.classList.toggle("v51-focus3d");
+    updateButton();
+    setTimeout(()=>{
+      window.dispatchEvent(new Event("resize"));
+      if(typeof resizeCanvas==="function")resizeCanvas();
+      if(typeof draw==="function")draw();
+    },60);
+  }
+  function bind(){
+    document.getElementById("toggle3DFocus")?.addEventListener("click",toggleFocus);
+    document.querySelectorAll(".langBtn").forEach(btn=>{
+      btn.addEventListener("click",()=>setTimeout(updateButton,80));
+    });
+    document.addEventListener("keydown",e=>{
+      if(e.key==="Escape"&&document.body.classList.contains("v51-focus3d"))toggleFocus();
+    });
+    const observer=new MutationObserver(updateButton);
+    observer.observe(document.documentElement,{attributes:true,attributeFilter:["lang"]});
+    updateButton();
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind);
+  else bind();
+})();
+</script>
+
+
+<script>
+(function(){
+  function resize3DForDevice(){
+    document.body.classList.toggle("android-narrow-layout",window.innerWidth<=1180);
+    requestAnimationFrame(()=>{
+      window.dispatchEvent(new Event("resize"));
+      if(typeof resizeCanvas==="function")resizeCanvas();
+      if(typeof draw==="function")draw();
+    });
+  }
+
+  let timer=null;
+  function scheduleResize(){
+    clearTimeout(timer);
+    timer=setTimeout(resize3DForDevice,120);
+  }
+
+  if(document.readyState==="loading"){
+    document.addEventListener("DOMContentLoaded",resize3DForDevice);
+  }else{
+    resize3DForDevice();
+  }
+
+  window.addEventListener("resize",scheduleResize,{passive:true});
+  window.addEventListener("orientationchange",()=>setTimeout(resize3DForDevice,250),{passive:true});
+
+  if(window.visualViewport){
+    window.visualViewport.addEventListener("resize",scheduleResize,{passive:true});
+  }
+})();
+</script>
+
+
+<div class="tutorialOverlay" id="tutorialOverlay" aria-hidden="true" data-i18n-managed="true">
+  <div class="tutorialDim" id="tutorialDim"></div>
+  <div class="tutorialSpotlight" id="tutorialSpotlight"></div>
+  <div class="tutorialCard" id="tutorialCard" role="dialog" aria-modal="true" aria-labelledby="tutorialTitle">
+    <div class="tutorialCardTop">
+      <span class="tutorialBadge" id="tutorialStepBadge">1 / 10</span>
+      <button type="button" class="tutorialClose" id="tutorialClose" aria-label="關閉">×</button>
+    </div>
+    <h3 id="tutorialTitle">歡迎使用</h3>
+    <p id="tutorialText"></p>
+    <div class="tutorialDemo" id="tutorialDemo" aria-live="polite"></div>
+    <div class="tutorialHint" id="tutorialHint"></div>
+    <div class="tutorialProgress"><span id="tutorialProgressBar"></span></div>
+    <div class="tutorialActions">
+      <div class="tutorialActionsLeft"><button type="button" class="tutorialSkip" id="tutorialSkip">略過</button></div>
+      <div class="tutorialActionsRight">
+        <button type="button" class="tutorialPrev" id="tutorialPrev">上一步</button>
+        <button type="button" class="tutorialNext" id="tutorialNext">下一步</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+<script>
+(function(){
+  const TUTORIAL_KEY="palletAiTutorialCompletedV1";
+  let tutorialIndex=0;
+  let tutorialSteps=[];
+  let currentTarget=null;
+  let stepLock=false;
+
+  const I18N={
+    zh:{
+      launch:"🎓 開始互動式教學",close:"關閉",skip:"略過",prev:"上一步",next:"下一步",finish:"完成",
+      badge:"{current} / {total}",demoTitle:"操作動畫示意",
+      steps:[
+        {selector:".modeSelector",type:"mode",title:"選擇操作模式",text:"先選擇棧板模式或空運模式。",hint:"第一次使用建議先從棧板模式開始。",demo:"點選需要使用的模式。"},
+        {selector:"#pL",type:"pallet",title:"輸入棧板尺寸",text:"依序輸入棧板的長、寬、高，以及總限高與最大載重。",hint:"尺寸單位為公分，重量單位為公斤。",demo:"依序點擊欄位並輸入 120、100、15。"},
+        {selector:"#bL",type:"carton",title:"輸入紙箱尺寸",text:"輸入紙箱的長、寬、高、單箱重量與總箱數。",hint:"請使用包裝完成後的外箱實際尺寸。",demo:"依序輸入紙箱長、寬、高。"},
+        {selector:".uiCollapsible[data-collapse-type='safety']",type:"expand",title:"設定安全條件",text:"需要時展開安全與包材設定。",hint:"一般測試可先使用預設值。",demo:"點擊標題即可展開進階設定。"},
+        {selector:".uiCollapsible[data-collapse-type='stack']",type:"expand",title:"設定堆疊方式",text:"可設定紙箱方向、交叉方式與最佳化目標。",hint:"易碎品建議選擇穩定性優先。",demo:"展開後選擇合適的堆疊方式。"},
+        {selector:"#calculateBtn",type:"calculate",title:"執行基本計算",text:"按下計算後，系統會產生箱數、層數、高度、重量與利用率。",hint:"建議先做基本計算，再執行 AI 最佳化。",demo:"確認資料後，點擊開始計算。"},
+        {selector:"#aiOptimizeBtn",type:"ai",title:"使用 AI 最佳化",text:"AI 會比較不同方向與排列方案。",hint:"套用前請確認貨物是否允許側放或倒放。",demo:"點擊 AI 最佳化並選擇推薦方案。"},
+        {selector:".topKpiBar",type:"kpi",title:"查看關鍵結果",text:"KPI 區會顯示利用率、箱數、高度與重量。",hint:"這裡是計算後最先確認的區域。",demo:"計算完成後，數值會自動更新。"},
+        {selector:"#canvasWrap",type:"view3d",title:"操作 3D 視圖",text:"拖曳可旋轉視角，滾輪可縮放。",hint:"查看爆炸圖可逐層檢查排列。",demo:"拖曳畫面旋轉，使用滾輪縮放。"},
+        {selector:"#boxAnimationControls",type:"animation",title:"播放放箱動畫",text:"可播放全部、指定層、上一箱或下一箱。",hint:"動畫會顯示箱號、位置與方向。",demo:"點擊播放，箱子會依順序逐一放入。"},
+        {selector:"#airCargoMode",type:"air",title:"使用空運 ULD",text:"切換到空運模式後，可比較 PMC、PAG、PLA、AKE。",hint:"正式訂艙前仍需向航空公司確認限制。",demo:"切換空運模式，再選擇 ULD 類型。"},
+        {selector:"#manualBtn",type:"manual",title:"隨時查看操作手冊",text:"操作手冊可搜尋完整功能與詳細步驟。",hint:"切換系統語言後，教學也會同步翻譯。",demo:"在操作手冊內可再次啟動本教學。"}
+      ]
+    },
+    en:{
+      launch:"🎓 Start Interactive Guide",close:"Close",skip:"Skip",prev:"Previous",next:"Next",finish:"Finish",
+      badge:"{current} / {total}",demoTitle:"Animated Interface Example",
+      steps:[
+        {selector:".modeSelector",type:"mode",title:"Choose a Working Mode",text:"Choose Pallet Mode or Air Cargo Mode.",hint:"Start with Pallet Mode for your first use.",demo:"Click the mode you need."},
+        {selector:"#pL",type:"pallet",title:"Enter Pallet Dimensions",text:"Enter pallet length, width, height, height limit, and maximum load.",hint:"Dimensions use centimeters and weight uses kilograms.",demo:"Click each field and enter 120, 100, and 15."},
+        {selector:"#bL",type:"carton",title:"Enter Carton Data",text:"Enter carton length, width, height, unit weight, and quantity.",hint:"Use the actual outer dimensions after packing.",demo:"Enter carton length, width, and height in order."},
+        {selector:".uiCollapsible[data-collapse-type='safety']",type:"expand",title:"Set Safety Conditions",text:"Open advanced safety and packaging settings when needed.",hint:"Default values are suitable for an initial test.",demo:"Click the section title to expand the settings."},
+        {selector:".uiCollapsible[data-collapse-type='stack']",type:"expand",title:"Set Stacking Rules",text:"Choose orientation, cross-layer pattern, and optimization objective.",hint:"Prioritize stability for fragile cargo.",demo:"Expand the section and choose a stacking method."},
+        {selector:"#calculateBtn",type:"calculate",title:"Run the Basic Calculation",text:"The system calculates cartons, layers, height, weight, and utilization.",hint:"Run the basic calculation before AI optimization.",demo:"Confirm the data and click Calculate."},
+        {selector:"#aiOptimizeBtn",type:"ai",title:"Run AI Optimization",text:"AI compares different orientations and layouts.",hint:"Confirm that the recommended orientation is allowed.",demo:"Click AI Optimization and select a recommended plan."},
+        {selector:".topKpiBar",type:"kpi",title:"Review Key Results",text:"The KPI bar displays utilization, cartons, height, and weight.",hint:"Review this area first after calculation.",demo:"The values update automatically after calculation."},
+        {selector:"#canvasWrap",type:"view3d",title:"Use the 3D View",text:"Drag to rotate and use the mouse wheel to zoom.",hint:"Use the exploded view to inspect each layer.",demo:"Drag to rotate and scroll to zoom."},
+        {selector:"#boxAnimationControls",type:"animation",title:"Play the Loading Animation",text:"Play all boxes, one layer, previous box, or next box.",hint:"The animation shows box number, position, and direction.",demo:"Click Play and watch the boxes appear in order."},
+        {selector:"#airCargoMode",type:"air",title:"Use Air Cargo ULD Planning",text:"Switch to Air Cargo Mode to compare PMC, PAG, PLA, and AKE.",hint:"Confirm all limits with the airline before booking.",demo:"Switch to Air Cargo Mode and choose a ULD type."},
+        {selector:"#manualBtn",type:"manual",title:"Open the User Manual Anytime",text:"Search the user manual for detailed instructions.",hint:"The guide changes automatically with the system language.",demo:"You can restart this guide inside the user manual."}
+      ]
+    },
+    th:{
+      launch:"🎓 เริ่มคำแนะนำแบบโต้ตอบ",close:"ปิด",skip:"ข้าม",prev:"ก่อนหน้า",next:"ถัดไป",finish:"เสร็จสิ้น",
+      badge:"{current} / {total}",demoTitle:"ตัวอย่างแอนิเมชันการใช้งาน",
+      steps:[
+        {selector:".modeSelector",type:"mode",title:"เลือกโหมดการทำงาน",text:"เลือกโหมดพาเลทหรือโหมดขนส่งทางอากาศ",hint:"ครั้งแรกแนะนำให้เริ่มจากโหมดพาเลท",demo:"คลิกโหมดที่ต้องการใช้งาน"},
+        {selector:"#pL",type:"pallet",title:"กรอกขนาดพาเลท",text:"กรอกความยาว ความกว้าง ความสูง ขีดจำกัดความสูง และน้ำหนักสูงสุด",hint:"ขนาดเป็นเซนติเมตร และน้ำหนักเป็นกิโลกรัม",demo:"คลิกแต่ละช่องและกรอก 120, 100 และ 15"},
+        {selector:"#bL",type:"carton",title:"กรอกข้อมูลกล่อง",text:"กรอกความยาว ความกว้าง ความสูง น้ำหนักต่อกล่อง และจำนวน",hint:"ใช้ขนาดภายนอกจริงหลังบรรจุ",demo:"กรอกความยาว ความกว้าง และความสูงตามลำดับ"},
+        {selector:".uiCollapsible[data-collapse-type='safety']",type:"expand",title:"ตั้งค่าความปลอดภัย",text:"เปิดการตั้งค่าความปลอดภัยและบรรจุภัณฑ์ขั้นสูงเมื่อจำเป็น",hint:"สามารถใช้ค่าเริ่มต้นสำหรับการทดสอบครั้งแรก",demo:"คลิกชื่อหัวข้อเพื่อขยายการตั้งค่า"},
+        {selector:".uiCollapsible[data-collapse-type='stack']",type:"expand",title:"ตั้งค่าการซ้อน",text:"เลือกทิศทาง รูปแบบสลับชั้น และเป้าหมายการเพิ่มประสิทธิภาพ",hint:"สินค้าที่แตกง่ายควรให้ความสำคัญกับความมั่นคง",demo:"ขยายหัวข้อแล้วเลือกรูปแบบการซ้อน"},
+        {selector:"#calculateBtn",type:"calculate",title:"เริ่มการคำนวณพื้นฐาน",text:"ระบบจะคำนวณจำนวนกล่อง ชั้น ความสูง น้ำหนัก และการใช้พื้นที่",hint:"ควรคำนวณพื้นฐานก่อนใช้ AI",demo:"ตรวจสอบข้อมูลแล้วคลิกคำนวณ"},
+        {selector:"#aiOptimizeBtn",type:"ai",title:"ใช้ AI Optimization",text:"AI จะเปรียบเทียบทิศทางและรูปแบบการวาง",hint:"ตรวจสอบว่าสามารถวางตามทิศทางที่แนะนำได้",demo:"คลิก AI Optimization และเลือกแผนที่แนะนำ"},
+        {selector:".topKpiBar",type:"kpi",title:"ดูผลลัพธ์สำคัญ",text:"แถบ KPI แสดงการใช้พื้นที่ จำนวนกล่อง ความสูง และน้ำหนัก",hint:"ควรตรวจสอบบริเวณนี้ก่อนหลังคำนวณ",demo:"ค่าจะอัปเดตอัตโนมัติหลังคำนวณ"},
+        {selector:"#canvasWrap",type:"view3d",title:"ใช้งานมุมมอง 3D",text:"ลากเพื่อหมุน และใช้ล้อเมาส์เพื่อซูม",hint:"ใช้มุมมองแยกชั้นเพื่อตรวจสอบแต่ละชั้น",demo:"ลากเพื่อหมุนและเลื่อนล้อเพื่อซูม"},
+        {selector:"#boxAnimationControls",type:"animation",title:"เล่นแอนิเมชันวางกล่อง",text:"เล่นทั้งหมด เลือกชั้น กล่องก่อนหน้า หรือกล่องถัดไป",hint:"แอนิเมชันแสดงหมายเลข ตำแหน่ง และทิศทาง",demo:"คลิกเล่นแล้วดูกล่องปรากฏตามลำดับ"},
+        {selector:"#airCargoMode",type:"air",title:"ใช้การวางแผน ULD",text:"เปลี่ยนเป็นโหมดขนส่งทางอากาศเพื่อเปรียบเทียบ PMC, PAG, PLA และ AKE",hint:"ต้องยืนยันข้อจำกัดกับสายการบินก่อนจอง",demo:"เปลี่ยนเป็นโหมดขนส่งทางอากาศแล้วเลือกประเภท ULD"},
+        {selector:"#manualBtn",type:"manual",title:"เปิดคู่มือได้ทุกเวลา",text:"ค้นหาคู่มือเพื่อดูคำอธิบายโดยละเอียด",hint:"คำแนะนำจะเปลี่ยนตามภาษาของระบบโดยอัตโนมัติ",demo:"สามารถเริ่มคำแนะนำนี้อีกครั้งจากในคู่มือ"}
+      ]
+    }
+  };
+
+  function lang(){
+    const active=document.querySelector(".langBtn.active");
+    if(active?.dataset?.lang)return active.dataset.lang;
+    const l=(document.documentElement.lang||"").toLowerCase();
+    return l.startsWith("en")?"en":l.startsWith("th")?"th":"zh";
+  }
+  function pack(){return I18N[lang()]||I18N.zh}
+  function fmt(s,v={}){
+    let x=s;
+    Object.entries(v).forEach(([k,val])=>x=x.split("{"+k+"}").join(String(val)));
+    return x;
+  }
+  function visibleTarget(selector){
+    return [...document.querySelectorAll(selector)].find(el=>{
+      const s=getComputedStyle(el),r=el.getBoundingClientRect();
+      return s.display!=="none"&&s.visibility!=="hidden"&&r.width>0&&r.height>0;
+    })||null;
+  }
+  function buildSteps(){
+    tutorialSteps=pack().steps.filter(step=>visibleTarget(step.selector));
+  }
+  function clearTarget(){
+    if(currentTarget){
+      currentTarget.classList.remove("tutorialDirectTarget","tutorialTargetPulse");
+    }
+    currentTarget=null;
+  }
+
+  function demoMarkup(step){
+    const p=pack();
+    const uiText={
+      zh:{
+        length:"長",width:"寬",height:"高",
+        utilization:"利用率",boxes:"箱數",totalHeight:"總高度",
+        calculate:"開始計算",ai:"🤖 AI 最佳化",
+        pallet:"📦 棧板模式",air:"✈️ 空運模式",
+        advanced:"進階設定",play:"播放"
+      },
+      en:{
+        length:"Length",width:"Width",height:"Height",
+        utilization:"Utilization",boxes:"Boxes",totalHeight:"Total Height",
+        calculate:"Calculate",ai:"🤖 AI Optimize",
+        pallet:"📦 Pallet Mode",air:"✈️ Air Cargo Mode",
+        advanced:"Advanced Settings",play:"Play"
+      },
+      th:{
+        length:"ยาว",width:"กว้าง",height:"สูง",
+        utilization:"การใช้พื้นที่",boxes:"จำนวนกล่อง",totalHeight:"ความสูงรวม",
+        calculate:"คำนวณ",ai:"🤖 เพิ่มประสิทธิภาพด้วย AI",
+        pallet:"📦 โหมดพาเลท",air:"✈️ โหมดขนส่งทางอากาศ",
+        advanced:"การตั้งค่าขั้นสูง",play:"เล่น"
+      }
+    };
+    const ui=uiText[lang()]||uiText.zh;
+    const title='<div class="tutorialDemoTitle">'+p.demoTitle+'</div>';
+    const cursor='<span class="tutorialFakeCursor"></span><span class="tutorialFakeClick"></span>';
+    const fields=(labels,values)=>'<div class="tutorialDemoFields">'+labels.map((x,i)=>'<div class="tutorialFakeField">'+x+'<b class="tutorialType'+(i+1)+'">'+values[i]+'</b></div>').join("")+'</div>';
+    let body="";
+    if(step.type==="pallet"){
+      body=fields([ui.length,ui.width,ui.height],["120","100","15"])+'<div style="text-align:center;margin-top:8px"><span class="tutorialFakeButton">✓</span></div>';
+    }else if(step.type==="carton"){
+      body=fields([ui.length,ui.width,ui.height],["44.45","44.45","31.75"])+'<div style="text-align:center;margin-top:8px"><span class="tutorialFakeButton">✓</span></div>';
+    }else if(step.type==="calculate"){
+      body='<div style="display:flex;justify-content:center;align-items:center;min-height:70px"><span class="tutorialFakeButton">'+ui.calculate+'</span></div>';
+    }else if(step.type==="ai"){
+      body='<div style="display:flex;justify-content:center;align-items:center;min-height:70px"><span class="tutorialFakeButton ai">'+ui.ai+'</span></div>';
+    }else if(step.type==="kpi"){
+      body=fields([ui.utilization,ui.boxes,ui.totalHeight],["92%","96","145 cm"]);
+    }else if(step.type==="view3d"){
+      body='<div style="height:70px;border:1px dashed #94a3b8;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:26px">📦 ↻</div>';
+    }else if(step.type==="animation"){
+      body='<div style="display:flex;gap:5px;justify-content:center;align-items:center;min-height:70px"><span class="tutorialFakeButton">▶ '+ui.play+'</span><span>📦</span><span>→</span><span>📦📦</span></div>';
+    }else if(step.type==="mode"||step.type==="air"){
+      body='<div style="display:grid;grid-template-columns:1fr 1fr;gap:7px"><span class="tutorialFakeButton">'+ui.pallet+'</span><span class="tutorialFakeButton">'+ui.air+'</span></div>';
+    }else if(step.type==="expand"){
+      body='<div style="border:1px solid #cbd5e1;border-radius:8px;padding:9px">'+ui.advanced+' <b style="float:right">＋</b></div>';
+    }else{
+      body='<div style="display:flex;justify-content:center;align-items:center;min-height:70px"><span class="tutorialFakeButton">'+p.launch+'</span></div>';
+    }
+    return title+'<div class="tutorialDemoStage demo-highlight">'+cursor+body+'</div><div class="tutorialDemoStepText">'+step.demo+'</div>';
+  }
+
+  function updateCard(step){
+    const p=pack();
+    document.getElementById("tutorialStepBadge").textContent=fmt(
+      p.badge,{current:tutorialIndex+1,total:tutorialSteps.length}
+    );
+    document.getElementById("tutorialTitle").textContent=step.title;
+    document.getElementById("tutorialText").textContent=step.text;
+    document.getElementById("tutorialHint").textContent=step.hint;
+    document.getElementById("tutorialProgressBar").style.width=
+      ((tutorialIndex+1)/tutorialSteps.length*100)+"%";
+    document.getElementById("tutorialPrev").textContent=p.prev;
+    document.getElementById("tutorialPrev").disabled=tutorialIndex===0;
+    document.getElementById("tutorialSkip").textContent=p.skip;
+    document.getElementById("tutorialNext").textContent=
+      tutorialIndex===tutorialSteps.length-1?p.finish:p.next;
+
+    const demo=document.getElementById("tutorialDemo");
+    demo.classList.remove("play");
+    demo.innerHTML=demoMarkup(step);
+    demo.classList.add("play");
+  }
+
+  function renderStep(){
+    if(stepLock||!tutorialSteps.length)return;
+    stepLock=true;
+
+    tutorialIndex=Math.max(0,Math.min(tutorialIndex,tutorialSteps.length-1));
+    const step=tutorialSteps[tutorialIndex];
+    const target=visibleTarget(step.selector);
+
+    if(!target){
+      tutorialSteps.splice(tutorialIndex,1);
+      if(tutorialIndex>=tutorialSteps.length)tutorialIndex=tutorialSteps.length-1;
+      stepLock=false;
+      return renderStep();
+    }
+
+    clearTarget();
+    currentTarget=target;
+
+    /* 先立即捲動，再直接加高亮；不使用平滑滾動、不顯示移動過程 */
+    target.scrollIntoView({behavior:"auto",block:"center",inline:"nearest"});
+    currentTarget.classList.add("tutorialDirectTarget");
+
+    updateCard(step);
+    stepLock=false;
+  }
+
+  function openTutorial(){
+    document.getElementById("manualModal")?.classList.remove("open");
+    buildSteps();
+    tutorialIndex=0;
+
+    const overlay=document.getElementById("tutorialOverlay");
+    overlay.classList.add("open");
+    overlay.setAttribute("aria-hidden","false");
+
+    /* 不鎖定 body 捲動，避免瀏覽器重新排版閃爍 */
+    renderStep();
+  }
+
+  function closeTutorial(done=true){
+    stepLock=false;
+    clearTarget();
+
+    const overlay=document.getElementById("tutorialOverlay");
+    overlay.classList.remove("open");
+    overlay.setAttribute("aria-hidden","true");
+
+    if(done)localStorage.setItem(TUTORIAL_KEY,"1");
+  }
+
+  function refreshLanguage(){
+    const p=pack();
+    const button=document.getElementById("tutorialLaunchBtn");
+    if(button)button.textContent=p.launch;
+
+    if(document.getElementById("tutorialOverlay")?.classList.contains("open")){
+      buildSteps();
+      renderStep();
+    }
+  }
+
+  function bind(){
+    document.getElementById("tutorialLaunchBtn")?.addEventListener("click",openTutorial);
+    document.getElementById("tutorialClose")?.addEventListener("click",()=>closeTutorial(false));
+    document.getElementById("tutorialSkip")?.addEventListener("click",()=>closeTutorial(true));
+    document.getElementById("tutorialPrev")?.addEventListener("click",()=>{
+      if(stepLock)return;
+      if(tutorialIndex>0){
+        tutorialIndex--;
+        renderStep();
+      }
+    });
+    document.getElementById("tutorialNext")?.addEventListener("click",()=>{
+      if(stepLock)return;
+      if(tutorialIndex>=tutorialSteps.length-1)closeTutorial(true);
+      else{
+        tutorialIndex++;
+        renderStep();
+      }
+    });
+
+    document.querySelectorAll(".langBtn").forEach(button=>{
+      button.addEventListener("click",()=>setTimeout(refreshLanguage,80));
+    });
+
+    document.addEventListener("keydown",event=>{
+      if(!document.getElementById("tutorialOverlay")?.classList.contains("open"))return;
+      if(event.key==="Escape")closeTutorial(false);
+      if(event.key==="ArrowRight")document.getElementById("tutorialNext")?.click();
+      if(event.key==="ArrowLeft")document.getElementById("tutorialPrev")?.click();
+    });
+
+    refreshLanguage();
+  }
+
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind);
+  else bind();
+})();
+</script>
+
+
+
+
+
+<script>
+(function(){
+  const AUDIT_TEXT={
+    zh:{
+      palletMode:"棧板模式",
+      palletSub:"一般棧板堆疊與 AI 最佳化",
+      airMode:"空運模式",
+      airSub:"ULD 規劃、比較與計費重",
+      utilization:"空間利用率",
+      perPallet:"每板總箱數",
+      totalHeight:"總高度",
+      totalWeight:"總重量",
+      chargeable:"計費重",
+      uldCount:"ULD 數量",
+      safety:"進階安全與包材設定",
+      stacking:"進階堆疊設定",
+      quickHint:"先輸入棧板與紙箱基本資料，再按下計算；需要更細緻控制時再展開進階設定。",
+      palletData:"棧板資料（cm / kg）",
+      airData:"棧板／ULD 資料（cm / kg）",
+      demoTitle:"操作動畫示意",
+      demoPallet:"📦 棧板模式",
+      demoAir:"✈️ 空運模式",
+      demoCalculate:"開始計算",
+      demoAi:"🤖 AI 最佳化",
+      demoAdvanced:"進階設定",
+      tutorialLaunch:"🎓 開始互動式教學"
+    },
+    en:{
+      palletMode:"Pallet Mode",
+      palletSub:"Standard pallet stacking and AI optimization",
+      airMode:"Air Cargo Mode",
+      airSub:"ULD planning, comparison, and chargeable weight",
+      utilization:"Space Utilization",
+      perPallet:"Total per Pallet",
+      totalHeight:"Total Height",
+      totalWeight:"Total Weight",
+      chargeable:"Chargeable Weight",
+      uldCount:"ULD Count",
+      safety:"Advanced Safety and Packaging",
+      stacking:"Advanced Stacking Settings",
+      quickHint:"Enter the basic pallet and carton data first, then calculate. Open advanced settings only when more control is needed.",
+      palletData:"Pallet Data (cm / kg)",
+      airData:"Pallet / ULD Data (cm / kg)",
+      demoTitle:"Animated Interface Example",
+      demoPallet:"📦 Pallet Mode",
+      demoAir:"✈️ Air Cargo Mode",
+      demoCalculate:"Calculate",
+      demoAi:"🤖 AI Optimize",
+      demoAdvanced:"Advanced Settings",
+      tutorialLaunch:"🎓 Start Interactive Guide"
+    },
+    th:{
+      palletMode:"โหมดพาเลท",
+      palletSub:"การซ้อนพาเลททั่วไปและการเพิ่มประสิทธิภาพด้วย AI",
+      airMode:"โหมดขนส่งทางอากาศ",
+      airSub:"การวางแผน ULD การเปรียบเทียบ และน้ำหนักคิดค่าระวาง",
+      utilization:"การใช้พื้นที่",
+      perPallet:"จำนวนกล่องต่อพาเลท",
+      totalHeight:"ความสูงรวม",
+      totalWeight:"น้ำหนักรวม",
+      chargeable:"น้ำหนักคิดค่าระวาง",
+      uldCount:"จำนวน ULD",
+      safety:"การตั้งค่าความปลอดภัยและบรรจุภัณฑ์ขั้นสูง",
+      stacking:"การตั้งค่าการซ้อนขั้นสูง",
+      quickHint:"กรอกข้อมูลพาเลทและกล่องพื้นฐานก่อน แล้วกดคำนวณ เปิดการตั้งค่าขั้นสูงเมื่อจำเป็นเท่านั้น",
+      palletData:"ข้อมูลพาเลท (ซม. / กก.)",
+      airData:"ข้อมูลพาเลท / ULD (ซม. / กก.)",
+      demoTitle:"ตัวอย่างแอนิเมชันการใช้งาน",
+      demoPallet:"📦 โหมดพาเลท",
+      demoAir:"✈️ โหมดขนส่งทางอากาศ",
+      demoCalculate:"คำนวณ",
+      demoAi:"🤖 เพิ่มประสิทธิภาพด้วย AI",
+      demoAdvanced:"การตั้งค่าขั้นสูง",
+      tutorialLaunch:"🎓 เริ่มคำแนะนำแบบโต้ตอบ"
+    }
+  };
+
+  let applying=false;
+  let auditTimer=null;
+
+  function currentLanguage(){
+    const active=document.querySelector(".langBtn.active");
+    if(active?.dataset?.lang)return active.dataset.lang;
+    const value=(document.documentElement.lang||"").toLowerCase();
+    if(value.startsWith("en"))return "en";
+    if(value.startsWith("th"))return "th";
+    return "zh";
+  }
+
+  function setExact(node,value){
+    if(node && node.textContent!==value)node.textContent=value;
+  }
+
+  function enforceTutorialDemo(tx){
+    const demo=document.getElementById("tutorialDemo");
+    if(!demo)return;
+    setExact(demo.querySelector(".tutorialDemoTitle"),tx.demoTitle);
+  }
+
+  function enforceTranslations(){
+    if(applying)return;
+    applying=true;
+    try{
+      const lang=currentLanguage();
+      const tx=AUDIT_TEXT[lang]||AUDIT_TEXT.zh;
+
+      // Mark custom dynamically-created regions so the old substring translator skips them.
+      document.querySelectorAll(
+        ".modeSelector,.topKpiBar,.airCargoModePanel,.uiCollapsible,.quickStartHint,#tutorialOverlay"
+      ).forEach(node=>node.setAttribute("data-i18n-managed","true"));
+
+      const modeButtons=document.querySelectorAll(".modeBtn");
+      if(modeButtons.length>=2){
+        setExact(modeButtons[0].querySelector("b"),tx.palletMode);
+        setExact(modeButtons[0].querySelector("small"),tx.palletSub);
+        setExact(modeButtons[1].querySelector("b"),tx.airMode);
+        setExact(modeButtons[1].querySelector("small"),tx.airSub);
+      }
+
+      const kpiKeys=[
+        ["#topKpiBar .topKpiCard:nth-child(1) span","utilization"],
+        ["#topKpiBar .topKpiCard:nth-child(2) span","perPallet"],
+        ["#topKpiBar .topKpiCard:nth-child(3) span","totalHeight"],
+        ["#topKpiBar .topKpiCard:nth-child(4) span","totalWeight"],
+        ["#topKpiBar .topKpiCard:nth-child(5) span","chargeable"],
+        ["#topKpiBar .topKpiCard:nth-child(6) span","uldCount"]
+      ];
+      kpiKeys.forEach(([selector,key])=>setExact(document.querySelector(selector),tx[key]));
+
+      document.querySelectorAll(".uiCollapsible").forEach(details=>{
+        const summary=details.querySelector("summary");
+        const type=details.dataset.collapseType;
+        setExact(summary,type==="safety"?tx.safety:tx.stacking);
+      });
+
+      setExact(document.querySelector(".quickStartHint"),tx.quickHint);
+
+      const mode=localStorage.getItem("palletAiAppModeV1")||"pallet";
+      setExact(document.getElementById("palletUldDataTitle"),mode==="air"?tx.airData:tx.palletData);
+
+      setExact(document.getElementById("tutorialLaunchBtn"),tx.tutorialLaunch);
+      enforceTutorialDemo(tx);
+    }finally{
+      applying=false;
+    }
+  }
+
+  function scheduleAudit(){
+    clearTimeout(auditTimer);
+    auditTimer=setTimeout(enforceTranslations,20);
+  }
+
+  function bindAudit(){
+    document.querySelectorAll(".langBtn").forEach(button=>{
+      button.addEventListener("click",()=>{
+        setTimeout(enforceTranslations,0);
+        setTimeout(enforceTranslations,80);
+        setTimeout(enforceTranslations,180);
+      });
+    });
+
+    const observer=new MutationObserver(mutations=>{
+      if(applying)return;
+      const relevant=mutations.some(mutation=>{
+        if(mutation.type==="attributes"){
+          return mutation.target===document.documentElement ||
+                 mutation.target.classList?.contains("langBtn");
+        }
+        return [...mutation.addedNodes].some(node=>
+          node.nodeType===Node.ELEMENT_NODE &&
+          (
+            node.matches?.(".uiCollapsible,.tutorialDemo,.topKpiBar,.modeSelector,.airCargoModePanel") ||
+            node.querySelector?.(".uiCollapsible,.tutorialDemo,.topKpiBar,.modeSelector,.airCargoModePanel")
+          )
+        );
+      });
+      if(relevant)scheduleAudit();
+    });
+
+    observer.observe(document.body,{childList:true,subtree:true});
+    observer.observe(document.documentElement,{attributes:true,attributeFilter:["lang"]});
+
+    enforceTranslations();
+    setTimeout(enforceTranslations,120);
+    setTimeout(enforceTranslations,400);
+  }
+
+  if(document.readyState==="loading"){
+    document.addEventListener("DOMContentLoaded",bindAudit);
+  }else{
+    bindAudit();
+  }
+})();
+</script>
+
+
+<script>
+(function(){
+  const AI_STATIC={
+    zh:{
+      main:"🤖 AI 一鍵空間最佳化",
+      floating:"🤖 AI 最佳化",
+      history:"📂 歷史與收藏",
+      modal:"🤖 AI 空間最佳化分析",
+      edition:"正式版",
+      waiting:"等待分析。",
+      recalculate:"重新計算並生成全景圖"
+    },
+    en:{
+      main:"🤖 One-Click AI Space Optimization",
+      floating:"🤖 AI Optimize",
+      history:"📂 History & Favorites",
+      modal:"🤖 AI Space Optimization Analysis",
+      edition:"Production",
+      waiting:"Waiting for analysis.",
+      recalculate:"Recalculate and Generate 3D View"
+    },
+    th:{
+      main:"🤖 เพิ่มประสิทธิภาพพื้นที่ด้วย AI",
+      floating:"🤖 เพิ่มประสิทธิภาพด้วย AI",
+      history:"📂 ประวัติและรายการโปรด",
+      modal:"🤖 การวิเคราะห์เพิ่มประสิทธิภาพพื้นที่ด้วย AI",
+      edition:"เวอร์ชันใช้งานจริง",
+      waiting:"รอการวิเคราะห์",
+      recalculate:"คำนวณใหม่และสร้างมุมมอง 3D"
+    }
+  };
+  function lang(){
+    const active=document.querySelector(".langBtn.active");
+    if(active?.dataset?.lang)return active.dataset.lang;
+    const value=(document.documentElement.lang||"").toLowerCase();
+    if(value.startsWith("en"))return "en";
+    if(value.startsWith("th"))return "th";
+    return "zh";
+  }
+  function exact(){
+    const tx=AI_STATIC[lang()]||AI_STATIC.zh;
+    const nodes=[
+      document.getElementById("aiOptimizeBtn"),
+      document.getElementById("v4AiBtn"),
+      document.getElementById("v4HistoryBtn"),
+      document.getElementById("aiModalTitle"),
+      document.getElementById("aiModalEdition"),
+      document.getElementById("calculateBtn")
+    ];
+    nodes.forEach(node=>node?.setAttribute("data-i18n-managed","true"));
+    if(nodes[0])nodes[0].textContent=tx.main;
+    if(nodes[1])nodes[1].textContent=tx.floating;
+    if(nodes[2])nodes[2].textContent=tx.history;
+    if(nodes[3])nodes[3].textContent=tx.modal;
+    if(nodes[4])nodes[4].textContent=tx.edition;
+    if(nodes[5])nodes[5].textContent=tx.recalculate;
+
+    const waiting=document.querySelector("#aiOptimizeBody .historyEmpty");
+    if(waiting && !document.getElementById("aiOptimizeModal")?.classList.contains("open")){
+      waiting.textContent=tx.waiting;
+    }
+  }
+  function bind(){
+    document.querySelectorAll(".langBtn").forEach(button=>{
+      button.addEventListener("click",()=>{
+        setTimeout(exact,0);
+        setTimeout(exact,100);
+      });
+    });
+    const observer=new MutationObserver(()=>setTimeout(exact,0));
+    observer.observe(document.documentElement,{attributes:true,attributeFilter:["lang"]});
+    setTimeout(exact,0);
+    setTimeout(exact,300);
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind);
+  else bind();
+})();
+</script>
+
+
+
+
+
+<script>
+(function(){
+  "use strict";
+
+  const T={
+    zh:{
+      cloudSync:"☁ 雲端同步",teamSpace:"團隊空間",logout:"登出",
+      notSignedIn:"未登入：資料只存在此裝置",
+      cloudTitle:"雲端同步",close:"關閉",
+      cloudIntro:"使用同一組電子郵件與密碼，即可在不同手機、電腦和平板同步歷史紀錄、收藏分類與自訂模板。",
+      email:"電子郵件",password:"密碼",passwordPH:"至少 6 個字元",
+      login:"登入",register:"建立帳號",forgot:"忘記密碼",
+      teamTitle:"團隊共享空間",
+      teamIntro:"建立或加入團隊空間後，成員可使用各自 Email 登入並共用歷史紀錄、分類與模板。團隊代碼等同存取密鑰，請只分享給可信任的人。",
+      workflow:["棧板","紙箱","安全設定","分析結果"],
+      kpi:["空間利用率","每板總箱數","總高度","總重量","計費重","ULD 數量"],
+      recalc:"重新計算並生成全景圖",
+      aiMain:"🤖 AI 一鍵空間最佳化",
+      historyFab:"📂 歷史與收藏",
+      aiFab:"🤖 AI 最佳化"
+    },
+    en:{
+      cloudSync:"☁ Cloud Sync",teamSpace:"Team Workspace",logout:"Sign Out",
+      notSignedIn:"Not signed in: data is stored only on this device",
+      cloudTitle:"Cloud Sync",close:"Close",
+      cloudIntro:"Use the same email and password to sync history, favorite folders, and custom templates across phones, computers, and tablets.",
+      email:"Email",password:"Password",passwordPH:"At least 6 characters",
+      login:"Sign In",register:"Create Account",forgot:"Forgot Password",
+      teamTitle:"Shared Team Workspace",
+      teamIntro:"Create or join a team workspace so members can sign in with their own email accounts while sharing history, folders, and templates. Treat the team code as an access key.",
+      workflow:["Pallet","Carton","Safety","Results"],
+      kpi:["Space Utilization","Cartons per Pallet","Total Height","Total Weight","Chargeable Weight","ULD Count"],
+      recalc:"Recalculate and Generate 3D View",
+      aiMain:"🤖 One-Click AI Space Optimization",
+      historyFab:"📂 History & Favorites",
+      aiFab:"🤖 AI Optimize"
+    },
+    th:{
+      cloudSync:"☁ ซิงค์คลาวด์",teamSpace:"พื้นที่ทำงานของทีม",logout:"ออกจากระบบ",
+      notSignedIn:"ยังไม่ได้เข้าสู่ระบบ: ข้อมูลจัดเก็บอยู่ในอุปกรณ์นี้เท่านั้น",
+      cloudTitle:"ซิงค์คลาวด์",close:"ปิด",
+      cloudIntro:"ใช้อีเมลและรหัสผ่านชุดเดียวกันเพื่อซิงค์ประวัติ โฟลเดอร์รายการโปรด และเทมเพลตระหว่างโทรศัพท์ คอมพิวเตอร์ และแท็บเล็ต",
+      email:"อีเมล",password:"รหัสผ่าน",passwordPH:"อย่างน้อย 6 ตัวอักษร",
+      login:"เข้าสู่ระบบ",register:"สร้างบัญชี",forgot:"ลืมรหัสผ่าน",
+      teamTitle:"พื้นที่ทำงานร่วมกันของทีม",
+      teamIntro:"สร้างหรือเข้าร่วมพื้นที่ทำงานของทีม เพื่อให้สมาชิกใช้อีเมลของตนเองและใช้ประวัติ โฟลเดอร์ และเทมเพลตร่วมกัน โปรดเก็บรหัสทีมไว้เป็นความลับ",
+      workflow:["พาเลท","กล่อง","ความปลอดภัย","ผลลัพธ์"],
+      kpi:["การใช้พื้นที่","จำนวนกล่องต่อพาเลท","ความสูงรวม","น้ำหนักรวม","น้ำหนักคิดค่าระวาง","จำนวน ULD"],
+      recalc:"คำนวณใหม่และสร้างมุมมอง 3D",
+      aiMain:"🤖 เพิ่มประสิทธิภาพพื้นที่ด้วย AI",
+      historyFab:"📂 ประวัติและรายการโปรด",
+      aiFab:"🤖 เพิ่มประสิทธิภาพด้วย AI"
+    }
+  };
+
+  function currentLang(){
+    const active=document.querySelector(".langBtn.active");
+    if(active?.dataset?.lang)return active.dataset.lang;
+    const value=(document.documentElement.lang||"zh").toLowerCase();
+    return value.startsWith("en")?"en":value.startsWith("th")?"th":"zh";
+  }
+
+  function setText(id,value){
+    const el=document.getElementById(id);
+    if(el)el.textContent=value;
+  }
+
+  function translateCloudStatus(text,tx){
+    const raw=String(text||"");
+    if(/未登入|Not signed in|ยังไม่ได้เข้าสู่ระบบ/.test(raw))return tx.notSignedIn;
+    return raw;
+  }
+
+  function applyStableLanguage(){
+    const tx=T[currentLang()]||T.zh;
+
+    // 雲端同步固定介面
+    setText("cloudLoginBtn",tx.cloudSync);
+    setText("teamWorkspaceBtn",tx.teamSpace);
+    setText("cloudLogoutBtn",tx.logout);
+    setText("cloudDialogTitle",tx.cloudTitle);
+    setText("cloudDialogClose",tx.close);
+    setText("cloudEmailLogin",tx.login);
+    setText("cloudEmailRegister",tx.register);
+    setText("cloudResetPassword",tx.forgot);
+    setText("teamTitle",tx.teamTitle);
+    setText("teamClose",tx.close);
+
+    const cloudIntro=document.querySelector("#cloudModal .cloudIntro");
+    if(cloudIntro)cloudIntro.textContent=tx.cloudIntro;
+    const teamIntro=document.querySelector("#teamModal .cloudIntro");
+    if(teamIntro)teamIntro.textContent=tx.teamIntro;
+
+    const cloudFields=document.querySelectorAll("#cloudModal .cloudField");
+    if(cloudFields[0]){
+      const input=cloudFields[0].querySelector("input");
+      const textNode=[...cloudFields[0].childNodes].find(n=>n.nodeType===Node.TEXT_NODE);
+      if(textNode)textNode.nodeValue=tx.email;
+      if(input)input.placeholder="name@example.com";
+    }
+    if(cloudFields[1]){
+      const input=cloudFields[1].querySelector("input");
+      const textNode=[...cloudFields[1].childNodes].find(n=>n.nodeType===Node.TEXT_NODE);
+      if(textNode)textNode.nodeValue=tx.password;
+      if(input)input.placeholder=tx.passwordPH;
+    }
+
+    const cloudStatus=document.getElementById("cloudStatus");
+    if(cloudStatus)cloudStatus.textContent=translateCloudStatus(cloudStatus.textContent,tx);
+
+    // 左側流程：只設定一次，不掃描動態內容
+    document.querySelectorAll(".v4-step").forEach((step,index)=>{
+      if(!tx.workflow[index])return;
+      let textNode=[...step.childNodes].find(n=>n.nodeType===Node.TEXT_NODE);
+      if(!textNode){
+        textNode=document.createTextNode("");
+        step.appendChild(textNode);
+      }
+      textNode.nodeValue=tx.workflow[index];
+    });
+
+    // KPI 標題：精確指定，不使用字串替換
+    document.querySelectorAll("#topKpiBar .topKpiCard span").forEach((el,index)=>{
+      if(tx.kpi[index])el.textContent=tx.kpi[index];
+    });
+
+    // 固定按鈕
+    setText("calculateBtn",tx.recalc);
+    setText("aiOptimizeBtn",tx.aiMain);
+    setText("v4HistoryBtn",tx.historyFab);
+    setText("v4AiBtn",tx.aiFab);
+
+    // 只要求 3D 重畫一次，更新 Canvas 尺寸文字
+    try{
+      if(typeof resizeAndDraw==="function")resizeAndDraw();
+      else if(typeof draw==="function")draw();
+    }catch(_){}
+  }
+
+  function bind(){
+    document.querySelectorAll(".langBtn").forEach(btn=>{
+      btn.addEventListener("click",()=>{
+        setTimeout(applyStableLanguage,30);
+        setTimeout(applyStableLanguage,140);
+      });
+    });
+
+    applyStableLanguage();
+    setTimeout(applyStableLanguage,250);
+  }
+
+  if(document.readyState==="loading"){
+    document.addEventListener("DOMContentLoaded",bind);
+  }else{
+    bind();
+  }
+})();
+</script>
+
 </body>
 </html>
