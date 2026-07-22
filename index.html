@@ -133,7 +133,7 @@
   .manualBtn:hover{background:#ffe59c}
   .manualModal{position:fixed;inset:0;background:rgba(15,31,50,.62);display:none;align-items:center;justify-content:center;padding:18px;z-index:3000}
   .manualModal.open{display:flex}
-  .manualDialog{width:min(980px,96vw);max-height:92vh;background:#fff;border-radius:16px;box-shadow:0 24px 80px rgba(0,0,0,.28);display:grid;grid-template-rows:auto auto 1fr;overflow:hidden}
+  .manualDialog{width:min(1080px,96vw);max-height:92vh;background:#fff;border-radius:16px;box-shadow:0 24px 80px rgba(0,0,0,.28);display:grid;grid-template-rows:auto auto 1fr;overflow:hidden}
   .manualTop{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 18px;background:#0f2f5f;color:#fff}
   .manualTop h2{margin:0;font-size:19px}.manualClose{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.35);padding:7px 10px}
   .manualToolbar{display:flex;gap:8px;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--line);background:#f7f9fc}
@@ -146,7 +146,7 @@
   .guideHero{display:grid;grid-template-columns:64px 1fr;gap:14px;align-items:center;padding:16px;background:linear-gradient(135deg,#eef4ff,#f7fbff);border:1px solid #cfe0fb;border-radius:14px;margin-bottom:14px}
   .guideHeroIcon{width:64px;height:64px;border-radius:18px;background:#175cd3;color:#fff;display:flex;align-items:center;justify-content:center;font-size:32px}
   .guideHero h3{margin:0 0 6px;border:0;padding:0;font-size:18px}.guideHero p{margin:0;color:var(--muted);line-height:1.6}
-  .guideProgress{display:grid;grid-template-columns:repeat(6,1fr);gap:7px;margin-bottom:14px}
+  .guideProgress{display:grid;grid-template-columns:repeat(auto-fit,minmax(108px,1fr));gap:7px;margin-bottom:14px}
   .guideStepBtn{background:#edf2f7;color:#40556f;padding:9px 6px;font-size:11px;border:1px solid transparent}
   .guideStepBtn.active{background:#175cd3;color:#fff;border-color:#175cd3}
   .guidePanel{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff}
@@ -159,7 +159,7 @@
   .guideTip{margin-top:12px;padding:11px 12px;border-left:4px solid #f59e0b;background:#fff8e8;border-radius:8px;line-height:1.55}
   .guideNav{display:flex;justify-content:space-between;gap:8px;margin-top:14px}.guideNav button{min-width:110px}
   .guideQuick{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.guideQuick div{padding:10px;border:1px solid var(--line);border-radius:10px;background:#fff;font-size:12px;line-height:1.5}
-  @media(max-width:700px){.guideProgress{grid-template-columns:repeat(3,1fr)}.guideQuick{grid-template-columns:1fr}.guideHero{grid-template-columns:48px 1fr}.guideHeroIcon{width:48px;height:48px;font-size:24px}}
+  @media(max-width:700px){.guideProgress{grid-template-columns:repeat(2,minmax(0,1fr))}.guideQuick{grid-template-columns:1fr}.guideHero{grid-template-columns:48px 1fr}.guideHeroIcon{width:48px;height:48px;font-size:24px}}
 
   .utilGuideModal{position:fixed;inset:0;background:rgba(15,31,50,.64);display:none;align-items:center;justify-content:center;padding:18px;z-index:3200}
   .utilGuideModal.open{display:flex}
@@ -1463,48 +1463,208 @@ window.confirm=msg=>nativeConfirm(translateString(String(msg),currentUILang));
 let manualStep=0;
 const GUIDE_STEPS=[
   {
-    icon:'1',
-    title:{zh:'選擇或輸入棧板資料',en:'Choose or Enter Pallet Data',th:'เลือกหรือกรอกข้อมูลพาเลท'},
-    intro:{zh:'先決定要使用哪一種棧板。可直接按歐規、美規、澳規，或使用自訂模板。',en:'Start by choosing the pallet. Use EU, US, AU presets or a custom template.',th:'เริ่มจากเลือกพาเลท ใช้ค่ามาตรฐานยุโรป อเมริกา ออสเตรเลีย หรือเทมเพลตกำหนดเอง'},
-    items:{zh:['按「歐規／美規／澳規」可自動帶入長、寬、高、總限高與載重。','使用特殊棧板時，按「自訂模板」建立並儲存常用規格。','確認總限高符合航空公司、貨櫃、倉庫或客戶要求。'],en:['Use EU / US / AU buttons to fill dimensions, total height and load automatically.','Use Custom Template to save special pallet specifications.','Confirm that total height matches airline, container, warehouse or customer limits.'],th:['กดปุ่มยุโรป / อเมริกา / ออสเตรเลีย เพื่อกรอกขนาด ความสูงรวม และน้ำหนักอัตโนมัติ','ใช้เทมเพลตกำหนดเองเพื่อบันทึกพาเลทพิเศษ','ตรวจสอบความสูงรวมให้ตรงตามข้อกำหนดของสายการบิน ตู้สินค้า คลัง หรือผู้รับสินค้า']},
-    tip:{zh:'第一次使用可先按「歐規」，再依實際需求修改。',en:'For a first test, choose the EU preset and adjust as needed.',th:'ครั้งแรกแนะนำให้เลือกค่ามาตรฐานยุโรปแล้วปรับตามงานจริง'}
+    icon:'1', short:{zh:'系統介紹'},
+    title:{zh:'認識 Pallet AI Pro'},
+    intro:{zh:'Pallet AI Pro 是一套棧板堆疊規劃系統，可協助使用者計算箱數、層數、總高度、總重量、空間利用率與需要的棧板數量。'},
+    items:{zh:[
+      '系統會根據棧板尺寸、紙箱尺寸、重量與安全限制，自動搜尋可行的排列方式。',
+      '完成計算後，可以查看3D全景圖、每層排列方式、空間利用率與穩定性。',
+      'AI最佳化功能會比較不同紙箱方向、交叉方式與堆疊方案。',
+      '歷史紀錄可收藏、分類、匯出Excel、製作PDF報告或列印工廠作業單。',
+      '登入雲端帳號後，可以在手機、電腦與平板同步資料。'
+    ]},
+    tip:{zh:'第一次使用時，建議先使用系統預設資料完成一次測試，再輸入正式貨物資料。'}
   },
   {
-    icon:'2',title:{zh:'輸入紙箱與貨物資料',en:'Enter Carton and Cargo Data',th:'กรอกข้อมูลกล่องและสินค้า'},
-    intro:{zh:'填入單箱尺寸、單箱重量與總箱數，系統才能計算每層與每板可放數量。',en:'Enter carton dimensions, unit weight and total quantity so the system can calculate each layer and pallet.',th:'กรอกขนาดกล่อง น้ำหนักต่อกล่อง และจำนวนรวม เพื่อให้ระบบคำนวณต่อชั้นและต่อพาเลท'},
-    items:{zh:['長、寬、高請使用公分；重量使用公斤。','貨物總箱數可填 0，代表只計算單一棧板最大容量。','棧板自重與包材重量會一起計入總重量。'],en:['Use centimeters for dimensions and kilograms for weight.','Set quantity to 0 to calculate only the maximum capacity of one pallet.','Pallet and packaging weights are included in gross weight.'],th:['ใช้เซนติเมตรสำหรับขนาด และกิโลกรัมสำหรับน้ำหนัก','กรอกจำนวนเป็น 0 หากต้องการคำนวณความจุสูงสุดของพาเลทเดียว','น้ำหนักพาเลทและบรรจุภัณฑ์จะรวมในน้ำหนักรวม']},
-    tip:{zh:'尺寸請依照實際外箱尺寸輸入，不要只輸入產品尺寸。',en:'Use the actual outer carton dimensions, not the product dimensions.',th:'ใช้ขนาดภายนอกจริงของกล่อง ไม่ใช่ขนาดสินค้า'}
+    icon:'2', short:{zh:'帳號同步'},
+    title:{zh:'登入帳號與啟用雲端同步'},
+    intro:{zh:'登入後，歷史紀錄、收藏分類與自訂棧板模板可以同步到雲端。'},
+    items:{zh:[
+      '點選網站右上角的「雲端同步」。',
+      '已有帳號時，輸入電子郵件與密碼，再按「登入」。',
+      '第一次使用時，輸入電子郵件與至少6個字元的密碼，再按「建立帳號」。',
+      '若忘記密碼，先輸入電子郵件，再按「忘記密碼」接收重設信。',
+      '登入成功後，右上角會顯示目前的同步狀態。',
+      '顯示「已同步」代表資料已成功儲存在雲端。',
+      '在其他裝置使用同一帳號登入，即可讀取相同的歷史紀錄、收藏與模板。',
+      '若顯示離線或同步失敗，請先確認網路連線，系統會在恢復連線後再次同步。'
+    ]},
+    tip:{zh:'完成重要計算後，請確認右上角顯示「已同步」，再關閉網站。'}
   },
   {
-    icon:'3',title:{zh:'設定安全與堆疊條件',en:'Set Safety and Stacking Rules',th:'ตั้งค่าความปลอดภัยและการซ้อน'},
-    intro:{zh:'依產品特性設定間隙、突出、支撐率、承壓與紙箱方向。',en:'Configure gaps, overhang, support, compression and carton orientation based on the product.',th:'ตั้งค่าระยะห่าง การยื่นออก การรองรับ การรับแรงกด และทิศทางกล่องตามลักษณะสินค้า'},
-    items:{zh:['易碎品建議保持正放，並提高最低支撐率。','需要交叉堆疊時，可選自動、每層交叉或每兩層交叉。','啟用最低空間利用率後，系統會優先找符合目標的方案。','若最上層箱數不足，可勾選允許部分頂層。'],en:['Keep fragile cartons upright and use a higher support threshold.','Choose automatic, alternating every layer, or alternating every two layers.','When minimum utilization is enabled, the system prioritizes qualifying solutions.','Allow a partial top layer when the last layer is not full.'],th:['สินค้าที่แตกง่ายควรวางตั้งตรงและเพิ่มค่าการรองรับขั้นต่ำ','เลือกอัตโนมัติ สลับทุกชั้น หรือสลับทุกสองชั้น','เมื่อกำหนดการใช้พื้นที่ขั้นต่ำ ระบบจะเลือกแบบที่ผ่านเป้าหมายก่อน','อนุญาตชั้นบนไม่เต็มเมื่อจำนวนกล่องไม่พอดี']},
-    tip:{zh:'安全優先時，最佳化目標選「穩定性最高」；容量優先則選「空間利用率最高」。',en:'Choose Maximum Stability for safety, or Maximum Space Utilization for capacity.',th:'เลือกความมั่นคงสูงสุดเมื่อต้องการความปลอดภัย หรือการใช้พื้นที่สูงสุดเมื่อต้องการความจุ'}
+    icon:'3', short:{zh:'棧板資料'},
+    title:{zh:'輸入棧板尺寸與限制'},
+    intro:{zh:'第一個操作區域是棧板資料。請依實際使用的棧板與運輸限制輸入。'},
+    items:{zh:[
+      '「長」是棧板較長一側的尺寸，單位為公分。',
+      '「寬」是棧板較短一側的尺寸，單位為公分。',
+      '「高」是空棧板本身的高度，單位為公分。',
+      '「總限高」包含棧板、紙箱、隔板與頂部包材的全部高度。',
+      '「棧板最大載重」是單一棧板允許承載的最高重量。',
+      '可按「歐規」、「美規」或「澳規」，快速帶入常用尺寸與限制。',
+      '如果使用特殊棧板，可按「自訂模板」建立常用規格。',
+      '建立模板時，輸入模板名稱、長寬高、總限高與最大載重，再按「儲存並套用」。',
+      '已儲存的模板可從下拉選單直接套用，也可刪除不再使用的模板。'
+    ]},
+    tip:{zh:'空運、海運、倉庫與客戶的限高可能不同，請依實際規範設定。'}
   },
   {
-    icon:'4',title:{zh:'重新計算並檢查結果',en:'Calculate and Review Results',th:'คำนวณและตรวจสอบผลลัพธ์'},
-    intro:{zh:'按下「重新計算並生成全景圖」，系統會自動比較可行方案。',en:'Click Recalculate and Generate 3D View to compare feasible solutions automatically.',th:'กดคำนวณใหม่และสร้างภาพ 3 มิติ ระบบจะเปรียบเทียบแบบที่เป็นไปได้อัตโนมัติ'},
-    items:{zh:['查看單層最多、總層數、每板箱數、總高度與總重量。','確認高度與重量沒有超過限制。','空間利用率：80%以上為綠色，70–80%為黃色，70%以下為紅色。','查看80%、85%、90%目標與Top 10排行榜，點擊方案可切換。'],en:['Review cartons per layer, layers, cartons per pallet, total height and weight.','Confirm height and weight are within limits.','Utilization: green ≥80%, yellow 70–80%, red <70%.','Review 80%, 85%, 90% targets and Top 10; click a solution to switch.'],th:['ตรวจสอบจำนวนต่อชั้น จำนวนชั้น จำนวนต่อพาเลท ความสูง และน้ำหนักรวม','ยืนยันว่าความสูงและน้ำหนักไม่เกินกำหนด','การใช้พื้นที่: เขียว ≥80%, เหลือง 70–80%, แดง <70%','ดูเป้าหมาย 80%, 85%, 90% และ 10 อันดับแรก แล้วคลิกเพื่อเปลี่ยนแบบ']},
-    tip:{zh:'若顯示未達目標，可嘗試允許側放、減少安全邊距或調整總限高，但仍要符合實際運輸規範。',en:'If the target is missed, try allowing other orientations, reducing margins or adjusting height—while respecting real shipping rules.',th:'หากไม่ถึงเป้าหมาย ลองอนุญาตทิศทางอื่น ลดระยะขอบ หรือปรับความสูง โดยยังต้องตรงตามกฎขนส่งจริง'}
+    icon:'4', short:{zh:'紙箱資料'},
+    title:{zh:'輸入紙箱尺寸、重量與數量'},
+    intro:{zh:'請使用包裝完成後的實際外箱尺寸，而不是產品本身的尺寸。'},
+    items:{zh:[
+      '依序輸入紙箱的長、寬與高，單位為公分。',
+      '輸入每一箱的實際重量，單位為公斤。',
+      '在「貨物總箱數」輸入本次出貨的總數量。',
+      '如果只想知道一個棧板最多能放多少箱，可將總箱數填0。',
+      '「棧板自重」會加入整板總重量中。',
+      '「最大手動層數」可限制系統最多堆疊幾層。',
+      '尺寸應包含紙箱膨脹、封箱膠帶與外包材所占空間。',
+      '如果同一批貨有不同尺寸紙箱，建議分開計算，避免結果失真。'
+    ]},
+    tip:{zh:'建議實際測量外箱，不要只使用供應商提供的理論尺寸。'}
   },
   {
-    icon:'5',title:{zh:'操作3D全景圖',en:'Use the 3D View',th:'ใช้งานภาพ 3 มิติ'},
-    intro:{zh:'利用3D圖確認實際堆疊外觀、每層位置與限高。',en:'Use the 3D view to verify the stack appearance, layer positions and height limit.',th:'ใช้ภาพ 3 มิติเพื่อตรวจสอบลักษณะการซ้อน ตำแหน่งแต่ละชั้น และความสูง'},
-    items:{zh:['滑鼠拖曳：旋轉視角；滾輪：放大或縮小。','可切換等角、正視、側視與俯視圖。','爆炸圖可將各層拉開，方便逐層檢查。','點選左側的「第1層、第2層…」可單獨查看該層。','需要圖片時按「下載示意圖 PNG」。'],en:['Drag to rotate; use the mouse wheel to zoom.','Switch between isometric, front, side and top views.','Exploded view separates layers for inspection.','Select Layer 1, Layer 2, etc. to inspect one layer.','Use Download PNG when an image is needed.'],th:['ลากเมาส์เพื่อหมุน และใช้ล้อเมาส์เพื่อซูม','สลับมุมมองไอโซเมตริก ด้านหน้า ด้านข้าง และด้านบน','ภาพแยกชั้นช่วยตรวจสอบแต่ละชั้น','เลือกชั้น 1 ชั้น 2 ฯลฯ เพื่อดูเฉพาะชั้น','กดดาวน์โหลด PNG เมื่อต้องการรูปภาพ']},
-    tip:{zh:'出貨前建議至少查看俯視圖、正視圖與爆炸圖。',en:'Before shipping, review at least the top, front and exploded views.',th:'ก่อนส่งสินค้า ควรตรวจสอบมุมมองด้านบน ด้านหน้า และภาพแยกชั้น'}
+    icon:'5', short:{zh:'安全設定'},
+    title:{zh:'設定安全邊距、包材與承壓限制'},
+    intro:{zh:'安全與包材設定會影響可用面積、可堆層數、總高度與整板重量。'},
+    items:{zh:[
+      '「四周安全邊距」是紙箱與棧板邊緣需要保留的距離。',
+      '「允許突出量」是紙箱最多可以超出棧板邊緣的距離；未經允許時建議填0。',
+      '「每層隔板厚度」會加入層與層之間的高度。',
+      '「頂板／包材高度」會加入整板最上方的高度。',
+      '「箱與箱間隙」適用於需要緩衝、散熱或操作空間的貨物。',
+      '「包材總重量」可填入膜包、護角、隔板、綁帶與頂板的合計重量。',
+      '「單箱可承受上方重量」用於檢查下層紙箱是否可能受壓過重。',
+      '「最低支撐率」代表上層紙箱底部至少有多少比例受到下層支撐。',
+      '勾選「啟用層間支撐率檢查」後，不符合最低支撐率的方案會被排除。'
+    ]},
+    tip:{zh:'易碎、容易變形或長途運輸的貨物，建議提高最低支撐率並避免突出。'}
   },
   {
-    icon:'6',title:{zh:'保存、收藏與輸出',en:'Save, Favorite and Export',th:'บันทึก รายการโปรด และส่งออก'},
-    intro:{zh:'每次重新計算都會留下歷史紀錄，可收藏、分類、匯出或製作作業單。',en:'Every recalculation creates a history record that can be favorited, categorized and exported.',th:'ทุกครั้งที่คำนวณใหม่จะบันทึกประวัติ สามารถกดหัวใจ จัดหมวดหมู่ และส่งออกได้'},
-    items:{zh:['點愛心將重要方案加入收藏資料夾。','收藏可分類，之後能快速載入同一組設定。','可匯出所有收藏紀錄與Excel資料。','PDF堆疊報告適合保存或寄給客戶。','工廠作業單會列出層數、箱數與現場確認項目。'],en:['Click the heart to add an important solution to Favorites.','Categorize favorites and reload the same settings later.','Export all favorites and Excel data.','Use the PDF stacking report for records or customers.','The factory work order lists layers, cartons and site checks.'],th:['กดหัวใจเพื่อเพิ่มแบบสำคัญในรายการโปรด','จัดหมวดหมู่และโหลดการตั้งค่าเดิมภายหลัง','ส่งออกรายการโปรดทั้งหมดและข้อมูล Excel','ใช้รายงาน PDF สำหรับเก็บหรือส่งลูกค้า','ใบงานโรงงานจะแสดงจำนวนชั้น จำนวนกล่อง และรายการตรวจสอบ']},
-    tip:{zh:'正式出貨前，建議收藏最終方案並列印工廠作業單。',en:'Before final shipping, favorite the approved solution and print the factory work order.',th:'ก่อนส่งสินค้าจริง ควรบันทึกแบบสุดท้ายและพิมพ์ใบงานโรงงาน'}
+    icon:'6', short:{zh:'堆疊設定'},
+    title:{zh:'選擇紙箱方向、交叉模式與最佳化目標'},
+    intro:{zh:'堆疊設定決定系統可使用哪些方向，以及應優先選擇哪一類方案。'},
+    items:{zh:[
+      '「保持正放」只允許底面旋轉90度，不允許側放或倒放。',
+      '「允許側放／倒放」會比較最多6種箱體方向。',
+      '有方向標示、液體、易碎品或禁止倒放的貨物，請選「保持正放」。',
+      '「自動比較最佳交叉方式」會自動比較全部同向、每層交叉與每兩層交叉。',
+      '「每層旋轉90度」讓相鄰兩層使用不同方向。',
+      '「每兩層交叉」讓兩層為一組再改變方向。',
+      '「全部同向」代表所有層使用相同方向。',
+      '最佳化目標選「箱數最大」時，系統優先增加每板箱數。',
+      '選「穩定性最高」時，系統優先考慮支撐與重心。',
+      '選「空間利用率最高」時，系統優先使用限高內的立體空間。',
+      '勾選「強制達到最低空間利用率」後，可設定80%或其他目標值。',
+      '勾選「允許最上層只放部分箱子」，可在最後一層放置剩餘箱數。',
+      '勾選「最後一板過少時平均分配」，可避免最後一板只有少量箱子。'
+    ]},
+    tip:{zh:'一般貨物可先選「自動比較」與「空間利用率最高」；易碎品建議選「穩定性最高」。'}
+  },
+  {
+    icon:'7', short:{zh:'基本計算'},
+    title:{zh:'執行基本計算並閱讀結果'},
+    intro:{zh:'完成資料輸入後，按下「重新計算並生成全景圖」。'},
+    items:{zh:[
+      '系統會比較符合目前尺寸、限高、限重、承壓與支撐條件的排列方式。',
+      '「單層最多」表示一層最多可以放置多少箱。',
+      '「可堆完整層」表示可完成的完整層數。',
+      '「每板總箱數」表示一個棧板最後可放置的箱數。',
+      '「含棧板總高度」包含棧板、紙箱、隔板與頂部包材。',
+      '「貨物總重量」顯示目前棧板上的貨物重量。',
+      '「需要棧板數」會根據總箱數與每板容量自動計算。',
+      '「穩定性」用於判斷排列、支撐與重心表現。',
+      '「空間利用率」表示紙箱體積占可使用棧板空間的比例。',
+      '請確認結果沒有超過總限高、最大載重或紙箱承壓限制。',
+      '可查看80%、85%、90%目標方案，以及空間利用率排行榜Top 10。',
+      '點選排行榜中的方案，可立即切換3D全景圖。'
+    ]},
+    tip:{zh:'利用率高不一定代表最安全，仍需一起查看穩定性、支撐率、重量與重心。'}
+  },
+  {
+    icon:'8', short:{zh:'AI最佳化'},
+    title:{zh:'使用 AI 一鍵空間最佳化'},
+    intro:{zh:'AI最佳化會綜合比較空間利用率、穩定性、支撐率與重心，並推薦較合適的方案。'},
+    items:{zh:[
+      '完成基本資料輸入後，按下「AI 一鍵空間最佳化」。',
+      '系統會比較不同紙箱方向、交叉模式與排列結果。',
+      '第一個方案是系統綜合評分最高的推薦方案。',
+      '第二、第三方案可能在穩定性、利用率或重心方面具有不同優勢。',
+      '每個方案會顯示空間利用率、穩定性、支撐率與重心資訊。',
+      '閱讀AI推薦原因，確認方案是否符合實際產品限制。',
+      '按下「套用此方案」，即可切換到對應的3D全景圖與計算結果。',
+      '若紙箱禁止側放，即使某方案利用率較高，也不應使用不符合產品要求的方向。',
+      'AI提供的是規劃建議，正式出貨前仍須由現場人員確認。'
+    ]},
+    tip:{zh:'建議先執行基本計算，再使用AI最佳化，比較前後改善幅度。'}
+  },
+  {
+    icon:'9', short:{zh:'3D與輸出'},
+    title:{zh:'檢查3D全景圖與產生報告'},
+    intro:{zh:'3D全景圖可協助確認紙箱位置、層數、方向與整體外觀。'},
+    items:{zh:[
+      '在3D畫面上拖曳滑鼠，可以旋轉觀看角度。',
+      '使用滑鼠滾輪，可以放大或縮小畫面。',
+      '「等角視圖」適合查看整體立體堆疊。',
+      '「正視圖」適合確認總高度與前方排列。',
+      '「側視圖」適合查看側面的堆疊狀況。',
+      '「俯視圖」適合確認單層紙箱排列。',
+      '開啟「爆炸圖」後，各層會分開顯示，方便逐層檢查。',
+      '「限高面」可顯示設定的最高高度位置。',
+      '「尺寸標記」可顯示棧板與紙箱的尺寸資訊。',
+      '左側的「完整全景、第1層、第2層……」可切換整體或單層畫面。',
+      '按「下載示意圖PNG」可儲存目前的3D畫面。',
+      '按「PDF堆疊報告」可建立正式報告。',
+      '按「一鍵列印工廠作業單」可產生現場操作資料。'
+    ]},
+    tip:{zh:'交給工廠前，建議至少檢查等角視圖、俯視圖、正視圖與爆炸圖。'}
+  },
+  {
+    icon:'10', short:{zh:'紀錄與團隊'},
+    title:{zh:'管理歷史紀錄、收藏與團隊空間'},
+    intro:{zh:'系統會保存已完成的計算，方便重新查看、修改、匯出或與團隊共享。'},
+    items:{zh:[
+      '每次重新計算後，系統會建立一筆歷史紀錄。',
+      '點選歷史紀錄，可以重新載入當時的輸入設定與結果。',
+      '使用改善方案或AI方案時，系統會更新目前紀錄，不會額外建立重複紀錄。',
+      '按愛心可將重要方案加入收藏。',
+      '收藏可建立分類，例如客戶、航線、產品或出貨日期。',
+      '「匯出HTML」可匯出已收藏的詳細紀錄。',
+      '「匯出Excel」可整理收藏資料，方便後續分析。',
+      '「清除未收藏」只會移除沒有按愛心的紀錄。',
+      '登入後按「團隊空間」，可以建立新的共享工作空間。',
+      '建立團隊後，將團隊代碼提供給可信任的成員。',
+      '其他成員登入自己的帳號後，可輸入團隊代碼加入。',
+      '團隊成員會共用歷史紀錄、收藏分類與自訂模板。',
+      '若偵測到同步衝突，可選擇合併、使用雲端版本或以本機版本覆蓋。',
+      '團隊代碼相當於存取密鑰，請勿公開在網站或社群平台。'
+    ]},
+    tip:{zh:'正式方案建議先按愛心收藏、加入分類，再確認雲端同步完成。'}
+  },
+  {
+    icon:'11', short:{zh:'常見問題'},
+    title:{zh:'常見問題與排除方式'},
+    intro:{zh:'遇到畫面、計算或同步問題時，可先依照以下方式檢查。'},
+    items:{zh:[
+      '3D畫面沒有更新：先按「重新計算並生成全景圖」，再嘗試重設視角。',
+      '沒有可行方案：確認紙箱尺寸是否大於可用棧板尺寸，以及限高、限重是否過低。',
+      '利用率太低：嘗試允許其他紙箱方向、減少間隙或安全邊距，或改用其他棧板規格。',
+      'AI方案不適用：確認貨物是否禁止側放、倒放或交叉堆疊，再調整方向設定。',
+      '歷史紀錄在其他裝置看不到：確認兩台裝置使用同一帳號與同一工作空間。',
+      '同步狀態顯示離線：確認網路後稍等片刻，系統會自動重新同步。',
+      '手機顯示舊版本：重新整理頁面，必要時關閉瀏覽器分頁後重新開啟。',
+      '修改GitHub後網站沒有更新：等待1至3分鐘，再使用強制重新整理。',
+      '正式出貨前，仍應由現場人員確認實際棧板、紙箱強度、包材與承運規範。'
+    ]},
+    tip:{zh:'計算結果是規劃工具，不應取代現場安全檢查與公司的正式作業規範。'}
   }
 ];
 function guideText(obj){return obj?.[currentUILang]||obj?.zh||''}
 function renderManual(){
   const step=GUIDE_STEPS[manualStep];
-  const labels={zh:['棧板','紙箱','安全','計算','3D檢查','保存'],en:['Pallet','Cartons','Safety','Calculate','3D Check','Save'],th:['พาเลท','กล่อง','ความปลอดภัย','คำนวณ','ภาพ 3 มิติ','บันทึก']}[currentUILang]||[];
-  const welcome={zh:{title:'第一次使用？照著 6 個步驟就能完成',desc:'這不是單純的功能清單，而是一套從輸入到輸出的完整操作流程。'},en:{title:'New here? Complete a plan in 6 steps',desc:'This is a complete guided workflow from data entry to export—not just a feature list.'},th:{title:'เพิ่งใช้งานครั้งแรก? ทำตาม 6 ขั้นตอน',desc:'นี่คือขั้นตอนใช้งานครบตั้งแต่กรอกข้อมูลจนถึงส่งออก ไม่ใช่เพียงรายการฟังก์ชัน'}}[currentUILang];
+  const labels=GUIDE_STEPS.map(step=>guideText(step.short)||guideText(step.title));
+  const welcome={zh:{title:`第一次使用？照著 ${GUIDE_STEPS.length} 個步驟就能完成`,desc:'從建立帳號、輸入資料、AI最佳化、3D檢查，到保存與團隊共享，依序完成整個操作流程。'},en:{title:`New here? Follow ${GUIDE_STEPS.length} steps`,desc:'Follow the full workflow from data entry to AI optimization, 3D review, saving and sharing.'},th:{title:`เริ่มใช้งานครั้งแรก? ทำตาม ${GUIDE_STEPS.length} ขั้นตอน`,desc:'ทำตามขั้นตอนตั้งแต่กรอกข้อมูล การปรับด้วย AI ตรวจสอบภาพ 3 มิติ บันทึก และแชร์ทีม'}}[currentUILang]||{title:`第一次使用？照著 ${GUIDE_STEPS.length} 個步驟就能完成`,desc:'依序完成整個操作流程。'};
   $('manualContent').innerHTML=`
     <div class="guideHero"><div class="guideHeroIcon">?</div><div><h3>${welcome.title}</h3><p>${welcome.desc}</p></div></div>
     <div class="guideProgress">${GUIDE_STEPS.map((x,i)=>`<button class="guideStepBtn ${i===manualStep?'active':''}" data-guide-step="${i}">${i+1}. ${labels[i]}</button>`).join('')}</div>
