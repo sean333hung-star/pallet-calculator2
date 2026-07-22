@@ -1444,6 +1444,7 @@ function applyUILanguage(lang){
   document.documentElement.lang=currentUILang==="zh"?"zh-Hant":currentUILang;
   translateNode(document.body,currentUILang);
   document.querySelectorAll(".langBtn").forEach(btn=>btn.classList.toggle("active",btn.dataset.lang===currentUILang));
+  if(typeof renderManual==="function" && $("manualModal")?.classList.contains("open")) renderManual();
 }
 document.querySelectorAll(".langBtn").forEach(btn=>btn.addEventListener("click",()=>applyUILanguage(btn.dataset.lang)));
 const languageObserver=new MutationObserver(mutations=>{
@@ -1463,203 +1464,129 @@ window.confirm=msg=>nativeConfirm(translateString(String(msg),currentUILang));
 let manualStep=0;
 const GUIDE_STEPS=[
   {
-    icon:'1', short:{zh:'系統介紹'},
-    title:{zh:'認識 Pallet AI Pro'},
-    intro:{zh:'Pallet AI Pro 是一套棧板堆疊規劃系統，可協助使用者計算箱數、層數、總高度、總重量、空間利用率與需要的棧板數量。'},
-    items:{zh:[
-      '系統會根據棧板尺寸、紙箱尺寸、重量與安全限制，自動搜尋可行的排列方式。',
-      '完成計算後，可以查看3D全景圖、每層排列方式、空間利用率與穩定性。',
-      'AI最佳化功能會比較不同紙箱方向、交叉方式與堆疊方案。',
-      '歷史紀錄可收藏、分類、匯出Excel、製作PDF報告或列印工廠作業單。',
-      '登入雲端帳號後，可以在手機、電腦與平板同步資料。'
-    ]},
-    tip:{zh:'第一次使用時，建議先使用系統預設資料完成一次測試，再輸入正式貨物資料。'}
+    icon:'1',
+    short:{zh:'系統介紹',en:'Introduction',th:'แนะนำระบบ'},
+    title:{zh:'認識 Pallet AI Pro',en:'Introduction to Pallet AI Pro',th:'ทำความรู้จัก Pallet AI Pro'},
+    intro:{zh:'Pallet AI Pro 是一套棧板堆疊規劃系統，可協助使用者計算箱數、層數、總高度、總重量、空間利用率與需要的棧板數量。',en:'Pallet AI Pro is a pallet stacking planning system. It helps users calculate carton quantity, layers, total height, total weight, space utilization, and the number of pallets needed.',th:'Pallet AI Pro เป็นระบบวางแผนการจัดเรียงสินค้าบนพาเลท ช่วยคำนวณจำนวนกล่อง จำนวนชั้น ความสูงรวม น้ำหนักรวม การใช้พื้นที่ และจำนวนพาเลทที่ต้องใช้'},
+    items:{
+      zh:['系統會根據棧板尺寸、紙箱尺寸、重量與安全限制，自動搜尋可行的排列方式。','完成計算後，可以查看3D全景圖、每層排列方式、空間利用率與穩定性。','AI最佳化功能會比較不同紙箱方向、交叉方式與堆疊方案。','歷史紀錄可收藏、分類、匯出Excel、製作PDF報告或列印工廠作業單。','登入雲端帳號後，可以在手機、電腦與平板同步資料。'],
+      en:['The system searches for possible layouts based on pallet size, carton size, weight, and safety limits.','After calculation, you can view the 3D model, each layer layout, space utilization, and stability.','AI Optimization compares different carton directions, cross-stacking methods, and stacking plans.','History records can be saved as favorites, organized, exported to Excel, made into PDF reports, or printed as factory work orders.','After signing in, data can be synchronized across phones, computers, and tablets.'],
+      th:['ระบบจะค้นหารูปแบบการจัดเรียงที่เป็นไปได้จากขนาดพาเลท ขนาดกล่อง น้ำหนัก และข้อจำกัดด้านความปลอดภัย','หลังคำนวณ สามารถดูภาพ 3 มิติ รูปแบบแต่ละชั้น การใช้พื้นที่ และความมั่นคง','ฟังก์ชัน AI Optimization จะเปรียบเทียบทิศทางกล่อง รูปแบบการวางสลับ และแผนการซ้อนหลายแบบ','ประวัติสามารถกดรายการโปรด จัดหมวดหมู่ ส่งออก Excel สร้างรายงาน PDF หรือพิมพ์ใบงานโรงงาน','เมื่อลงชื่อเข้าใช้ สามารถซิงค์ข้อมูลระหว่างโทรศัพท์ คอมพิวเตอร์ และแท็บเล็ตได้']
+    },
+    tip:{zh:'第一次使用時，建議先使用系統預設資料完成一次測試，再輸入正式貨物資料。',en:'For your first use, test the system with the default data before entering real cargo information.',th:'สำหรับการใช้งานครั้งแรก แนะนำให้ทดลองด้วยข้อมูลเริ่มต้นก่อนกรอกข้อมูลสินค้าจริง'}
   },
   {
-    icon:'2', short:{zh:'帳號同步'},
-    title:{zh:'登入帳號與啟用雲端同步'},
-    intro:{zh:'登入後，歷史紀錄、收藏分類與自訂棧板模板可以同步到雲端。'},
-    items:{zh:[
-      '點選網站右上角的「雲端同步」。',
-      '已有帳號時，輸入電子郵件與密碼，再按「登入」。',
-      '第一次使用時，輸入電子郵件與至少6個字元的密碼，再按「建立帳號」。',
-      '若忘記密碼，先輸入電子郵件，再按「忘記密碼」接收重設信。',
-      '登入成功後，右上角會顯示目前的同步狀態。',
-      '顯示「已同步」代表資料已成功儲存在雲端。',
-      '在其他裝置使用同一帳號登入，即可讀取相同的歷史紀錄、收藏與模板。',
-      '若顯示離線或同步失敗，請先確認網路連線，系統會在恢復連線後再次同步。'
-    ]},
-    tip:{zh:'完成重要計算後，請確認右上角顯示「已同步」，再關閉網站。'}
+    icon:'2',short:{zh:'帳號同步',en:'Account & Sync',th:'บัญชีและซิงค์'},
+    title:{zh:'登入帳號與啟用雲端同步',en:'Sign In and Enable Cloud Sync',th:'เข้าสู่ระบบและเปิดใช้การซิงค์คลาวด์'},
+    intro:{zh:'登入後，歷史紀錄、收藏分類與自訂棧板模板可以同步到雲端。',en:'After signing in, history, favorite folders, and custom pallet templates can be synchronized to the cloud.',th:'หลังเข้าสู่ระบบ ประวัติ โฟลเดอร์รายการโปรด และเทมเพลตพาเลทสามารถซิงค์ไปยังคลาวด์ได้'},
+    items:{
+      zh:['點選網站右上角的「雲端同步」。','已有帳號時，輸入電子郵件與密碼，再按「登入」。','第一次使用時，輸入電子郵件與至少6個字元的密碼，再按「建立帳號」。','若忘記密碼，先輸入電子郵件，再按「忘記密碼」接收重設信。','登入成功後，右上角會顯示目前的同步狀態。','顯示「已同步」代表資料已成功儲存在雲端。','在其他裝置使用同一帳號登入，即可讀取相同的歷史紀錄、收藏與模板。','若顯示離線或同步失敗，請先確認網路連線，系統會在恢復連線後再次同步。'],
+      en:['Click “Cloud Sync” at the top-right of the website.','If you already have an account, enter your email and password, then click “Sign In”.','For a new account, enter an email and a password with at least 6 characters, then click “Create Account”.','If you forget your password, enter your email and click “Forgot Password” to receive a reset email.','After signing in, the current sync status appears at the top-right.','“Synced” means your data has been saved successfully in the cloud.','Sign in with the same account on another device to access the same history, favorites, and templates.','If the status shows offline or sync failed, check the internet connection. The system will try again when the connection returns.'],
+      th:['คลิก “ซิงค์คลาวด์” ที่มุมขวาบนของเว็บไซต์','หากมีบัญชีแล้ว ให้กรอกอีเมลและรหัสผ่าน แล้วกด “เข้าสู่ระบบ”','หากใช้งานครั้งแรก ให้กรอกอีเมลและรหัสผ่านอย่างน้อย 6 ตัวอักษร แล้วกด “สร้างบัญชี”','หากลืมรหัสผ่าน ให้กรอกอีเมลแล้วกด “ลืมรหัสผ่าน” เพื่อรับอีเมลรีเซ็ต','หลังเข้าสู่ระบบ สถานะการซิงค์จะแสดงที่มุมขวาบน','ข้อความ “ซิงค์แล้ว” หมายถึงข้อมูลบันทึกบนคลาวด์สำเร็จ','เข้าสู่ระบบด้วยบัญชีเดียวกันบนอุปกรณ์อื่นเพื่อดูประวัติ รายการโปรด และเทมเพลตเดียวกัน','หากแสดงออฟไลน์หรือซิงค์ล้มเหลว ให้ตรวจสอบอินเทอร์เน็ต ระบบจะลองซิงค์ใหม่เมื่อเชื่อมต่อได้']
+    },
+    tip:{zh:'完成重要計算後，請確認右上角顯示「已同步」，再關閉網站。',en:'After an important calculation, confirm that “Synced” is shown before closing the website.',th:'หลังคำนวณงานสำคัญ กรุณาตรวจสอบว่าขึ้น “ซิงค์แล้ว” ก่อนปิดเว็บไซต์'}
   },
   {
-    icon:'3', short:{zh:'棧板資料'},
-    title:{zh:'輸入棧板尺寸與限制'},
-    intro:{zh:'第一個操作區域是棧板資料。請依實際使用的棧板與運輸限制輸入。'},
-    items:{zh:[
-      '「長」是棧板較長一側的尺寸，單位為公分。',
-      '「寬」是棧板較短一側的尺寸，單位為公分。',
-      '「高」是空棧板本身的高度，單位為公分。',
-      '「總限高」包含棧板、紙箱、隔板與頂部包材的全部高度。',
-      '「棧板最大載重」是單一棧板允許承載的最高重量。',
-      '可按「歐規」、「美規」或「澳規」，快速帶入常用尺寸與限制。',
-      '如果使用特殊棧板，可按「自訂模板」建立常用規格。',
-      '建立模板時，輸入模板名稱、長寬高、總限高與最大載重，再按「儲存並套用」。',
-      '已儲存的模板可從下拉選單直接套用，也可刪除不再使用的模板。'
-    ]},
-    tip:{zh:'空運、海運、倉庫與客戶的限高可能不同，請依實際規範設定。'}
+    icon:'3',short:{zh:'棧板資料',en:'Pallet Data',th:'ข้อมูลพาเลท'},
+    title:{zh:'輸入棧板尺寸與限制',en:'Enter Pallet Size and Limits',th:'กรอกขนาดและข้อจำกัดของพาเลท'},
+    intro:{zh:'第一個操作區域是棧板資料。請依實際使用的棧板與運輸限制輸入。',en:'The first section is pallet data. Enter the actual pallet size and shipping limits.',th:'ส่วนแรกคือข้อมูลพาเลท กรุณากรอกตามขนาดพาเลทจริงและข้อจำกัดในการขนส่ง'},
+    items:{
+      zh:['「長」是棧板較長一側的尺寸，單位為公分。','「寬」是棧板較短一側的尺寸，單位為公分。','「高」是空棧板本身的高度，單位為公分。','「總限高」包含棧板、紙箱、隔板與頂部包材的全部高度。','「棧板最大載重」是單一棧板允許承載的最高重量。','可按「歐規」、「美規」或「澳規」，快速帶入常用尺寸與限制。','如果使用特殊棧板，可按「自訂模板」建立常用規格。','建立模板時，輸入模板名稱、長寬高、總限高與最大載重，再按「儲存並套用」。','已儲存的模板可從下拉選單直接套用，也可刪除不再使用的模板。'],
+      en:['“Length” is the longer side of the pallet, in centimeters.','“Width” is the shorter side of the pallet, in centimeters.','“Height” is the height of the empty pallet, in centimeters.','“Total Height Limit” includes the pallet, cartons, layer pads, and top packaging.','“Maximum Pallet Load” is the highest weight allowed on one pallet.','Click “EU”, “US”, or “AU” to quickly fill common sizes and limits.','For a special pallet, click “Custom Template” to create a reusable specification.','Enter a template name, dimensions, total height limit, and maximum load, then click “Save and Apply”.','Saved templates can be applied from the list or deleted when no longer needed.'],
+      th:['“ความยาว” คือด้านที่ยาวกว่าของพาเลท หน่วยเป็นเซนติเมตร','“ความกว้าง” คือด้านที่สั้นกว่าของพาเลท หน่วยเป็นเซนติเมตร','“ความสูง” คือความสูงของพาเลทเปล่า หน่วยเป็นเซนติเมตร','“ความสูงรวมสูงสุด” รวมพาเลท กล่อง แผ่นคั่น และวัสดุด้านบน','“น้ำหนักบรรทุกสูงสุด” คือน้ำหนักสูงสุดที่พาเลทหนึ่งแผ่นรับได้','กด “ยุโรป” “อเมริกา” หรือ “ออสเตรเลีย” เพื่อกรอกขนาดมาตรฐานอย่างรวดเร็ว','หากใช้พาเลทพิเศษ ให้กด “เทมเพลตกำหนดเอง” เพื่อสร้างข้อมูลที่ใช้ซ้ำ','กรอกชื่อเทมเพลต ขนาด ความสูงรวมสูงสุด และน้ำหนักสูงสุด แล้วกด “บันทึกและใช้”','เทมเพลตที่บันทึกแล้วสามารถเลือกใช้หรือลบได้']
+    },
+    tip:{zh:'空運、海運、倉庫與客戶的限高可能不同，請依實際規範設定。',en:'Height limits may differ for air freight, sea freight, warehouses, and customers. Use the actual requirement.',th:'ข้อจำกัดความสูงของการขนส่งทางอากาศ ทางเรือ คลังสินค้า และลูกค้าอาจต่างกัน กรุณาใช้ข้อกำหนดจริง'}
   },
   {
-    icon:'4', short:{zh:'紙箱資料'},
-    title:{zh:'輸入紙箱尺寸、重量與數量'},
-    intro:{zh:'請使用包裝完成後的實際外箱尺寸，而不是產品本身的尺寸。'},
-    items:{zh:[
-      '依序輸入紙箱的長、寬與高，單位為公分。',
-      '輸入每一箱的實際重量，單位為公斤。',
-      '在「貨物總箱數」輸入本次出貨的總數量。',
-      '如果只想知道一個棧板最多能放多少箱，可將總箱數填0。',
-      '「棧板自重」會加入整板總重量中。',
-      '「最大手動層數」可限制系統最多堆疊幾層。',
-      '尺寸應包含紙箱膨脹、封箱膠帶與外包材所占空間。',
-      '如果同一批貨有不同尺寸紙箱，建議分開計算，避免結果失真。'
-    ]},
-    tip:{zh:'建議實際測量外箱，不要只使用供應商提供的理論尺寸。'}
+    icon:'4',short:{zh:'紙箱資料',en:'Carton Data',th:'ข้อมูลกล่อง'},
+    title:{zh:'輸入紙箱尺寸、重量與數量',en:'Enter Carton Size, Weight, and Quantity',th:'กรอกขนาด น้ำหนัก และจำนวนกล่อง'},
+    intro:{zh:'請使用包裝完成後的實際外箱尺寸，而不是產品本身的尺寸。',en:'Use the actual outer carton size after packing, not the product size.',th:'กรุณาใช้ขนาดกล่องภายนอกจริงหลังบรรจุ ไม่ใช่ขนาดของสินค้า'},
+    items:{
+      zh:['依序輸入紙箱的長、寬與高，單位為公分。','輸入每一箱的實際重量，單位為公斤。','在「貨物總箱數」輸入本次出貨的總數量。','如果只想知道一個棧板最多能放多少箱，可將總箱數填0。','「棧板自重」會加入整板總重量中。','「最大手動層數」可限制系統最多堆疊幾層。','尺寸應包含紙箱膨脹、封箱膠帶與外包材所占空間。','如果同一批貨有不同尺寸紙箱，建議分開計算，避免結果失真。'],
+      en:['Enter carton length, width, and height in centimeters.','Enter the actual weight of each carton in kilograms.','Enter the total shipment quantity in “Total Cartons”.','To calculate only the maximum capacity of one pallet, enter 0 for total quantity.','“Pallet Weight” is included in the total pallet weight.','“Maximum Manual Layers” limits how many layers the system may stack.','Dimensions should include carton expansion, sealing tape, and outer packaging.','If one shipment has different carton sizes, calculate them separately for better accuracy.'],
+      th:['กรอกความยาว ความกว้าง และความสูงของกล่อง หน่วยเป็นเซนติเมตร','กรอกน้ำหนักจริงต่อกล่อง หน่วยเป็นกิโลกรัม','กรอกจำนวนทั้งหมดของการจัดส่งในช่อง “จำนวนกล่องรวม”','หากต้องการทราบความจุสูงสุดของพาเลทเดียว ให้กรอกจำนวนรวมเป็น 0','“น้ำหนักพาเลท” จะรวมอยู่ในน้ำหนักรวม','“จำนวนชั้นสูงสุดแบบกำหนดเอง” ใช้จำกัดจำนวนชั้น','ขนาดควรรวมการพองของกล่อง เทปปิดกล่อง และวัสดุห่อภายนอก','หากมีหลายขนาดกล่องในงานเดียว ควรแยกคำนวณเพื่อความแม่นยำ']
+    },
+    tip:{zh:'建議實際測量外箱，不要只使用供應商提供的理論尺寸。',en:'Measure the real outer carton instead of using only the supplier’s theoretical size.',th:'แนะนำให้วัดกล่องจริง ไม่ควรใช้เฉพาะขนาดตามทฤษฎีจากผู้ขาย'}
   },
   {
-    icon:'5', short:{zh:'安全設定'},
-    title:{zh:'設定安全邊距、包材與承壓限制'},
-    intro:{zh:'安全與包材設定會影響可用面積、可堆層數、總高度與整板重量。'},
-    items:{zh:[
-      '「四周安全邊距」是紙箱與棧板邊緣需要保留的距離。',
-      '「允許突出量」是紙箱最多可以超出棧板邊緣的距離；未經允許時建議填0。',
-      '「每層隔板厚度」會加入層與層之間的高度。',
-      '「頂板／包材高度」會加入整板最上方的高度。',
-      '「箱與箱間隙」適用於需要緩衝、散熱或操作空間的貨物。',
-      '「包材總重量」可填入膜包、護角、隔板、綁帶與頂板的合計重量。',
-      '「單箱可承受上方重量」用於檢查下層紙箱是否可能受壓過重。',
-      '「最低支撐率」代表上層紙箱底部至少有多少比例受到下層支撐。',
-      '勾選「啟用層間支撐率檢查」後，不符合最低支撐率的方案會被排除。'
-    ]},
-    tip:{zh:'易碎、容易變形或長途運輸的貨物，建議提高最低支撐率並避免突出。'}
+    icon:'5',short:{zh:'安全設定',en:'Safety Settings',th:'ตั้งค่าความปลอดภัย'},
+    title:{zh:'設定安全邊距、包材與承壓限制',en:'Set Safety Margins, Packaging, and Compression Limits',th:'กำหนดระยะปลอดภัย วัสดุบรรจุ และการรับแรงกด'},
+    intro:{zh:'安全與包材設定會影響可用面積、可堆層數、總高度與整板重量。',en:'Safety and packaging settings affect usable area, layer count, total height, and total pallet weight.',th:'การตั้งค่าความปลอดภัยและบรรจุภัณฑ์มีผลต่อพื้นที่ใช้ได้ จำนวนชั้น ความสูงรวม และน้ำหนักรวม'},
+    items:{
+      zh:['「四周安全邊距」是紙箱與棧板邊緣需要保留的距離。','「允許突出量」是紙箱最多可以超出棧板邊緣的距離；未經允許時建議填0。','「每層隔板厚度」會加入層與層之間的高度。','「頂板／包材高度」會加入整板最上方的高度。','「箱與箱間隙」適用於需要緩衝、散熱或操作空間的貨物。','「包材總重量」可填入膜包、護角、隔板、綁帶與頂板的合計重量。','「單箱可承受上方重量」用於檢查下層紙箱是否可能受壓過重。','「最低支撐率」代表上層紙箱底部至少有多少比例受到下層支撐。','勾選「啟用層間支撐率檢查」後，不符合最低支撐率的方案會被排除。'],
+      en:['“Safety Margin” is the distance kept between cartons and pallet edges.','“Allowed Overhang” is how far cartons may extend past the pallet. Use 0 unless overhang is approved.','“Layer Pad Thickness” is added between layers.','“Top Board / Packaging Height” is added above the stack.','“Carton Gap” is useful when cushioning, airflow, or handling space is needed.','“Total Packaging Weight” may include stretch film, corner protectors, pads, straps, and top boards.','“Carton Compression Limit” checks whether lower cartons may carry too much weight.','“Minimum Support Rate” is the minimum percentage of an upper carton’s base supported by the layer below.','When support checking is enabled, plans below the minimum support rate are removed.'],
+      th:['“ระยะขอบปลอดภัย” คือระยะที่เว้นระหว่างกล่องกับขอบพาเลท','“ระยะยื่นที่อนุญาต” คือระยะที่กล่องยื่นเกินพาเลทได้ หากไม่ได้รับอนุญาตแนะนำให้ใส่ 0','“ความหนาแผ่นคั่นแต่ละชั้น” จะเพิ่มในความสูงระหว่างชั้น','“ความสูงแผ่นบน/วัสดุห่อ” จะเพิ่มเหนือกองสินค้า','“ช่องว่างระหว่างกล่อง” เหมาะสำหรับงานที่ต้องการกันกระแทก ระบายอากาศ หรือพื้นที่ทำงาน','“น้ำหนักวัสดุบรรจุรวม” อาจรวมฟิล์มยืด มุมกันกระแทก แผ่นคั่น สายรัด และแผ่นบน','“น้ำหนักด้านบนที่กล่องรับได้” ใช้ตรวจว่ากล่องชั้นล่างรับน้ำหนักมากเกินไปหรือไม่','“อัตราการรองรับขั้นต่ำ” คือสัดส่วนฐานของกล่องชั้นบนที่ได้รับการรองรับจากชั้นล่าง','เมื่อเปิดตรวจสอบการรองรับ แผนที่ต่ำกว่าค่าขั้นต่ำจะถูกตัดออก']
+    },
+    tip:{zh:'易碎、容易變形或長途運輸的貨物，建議提高最低支撐率並避免突出。',en:'For fragile, deformable, or long-distance cargo, use a higher support rate and avoid overhang.',th:'สินค้าที่แตกง่าย เสียรูปง่าย หรือขนส่งไกล ควรเพิ่มอัตราการรองรับและหลีกเลี่ยงการยื่นเกินพาเลท'}
   },
   {
-    icon:'6', short:{zh:'堆疊設定'},
-    title:{zh:'選擇紙箱方向、交叉模式與最佳化目標'},
-    intro:{zh:'堆疊設定決定系統可使用哪些方向，以及應優先選擇哪一類方案。'},
-    items:{zh:[
-      '「保持正放」只允許底面旋轉90度，不允許側放或倒放。',
-      '「允許側放／倒放」會比較最多6種箱體方向。',
-      '有方向標示、液體、易碎品或禁止倒放的貨物，請選「保持正放」。',
-      '「自動比較最佳交叉方式」會自動比較全部同向、每層交叉與每兩層交叉。',
-      '「每層旋轉90度」讓相鄰兩層使用不同方向。',
-      '「每兩層交叉」讓兩層為一組再改變方向。',
-      '「全部同向」代表所有層使用相同方向。',
-      '最佳化目標選「箱數最大」時，系統優先增加每板箱數。',
-      '選「穩定性最高」時，系統優先考慮支撐與重心。',
-      '選「空間利用率最高」時，系統優先使用限高內的立體空間。',
-      '勾選「強制達到最低空間利用率」後，可設定80%或其他目標值。',
-      '勾選「允許最上層只放部分箱子」，可在最後一層放置剩餘箱數。',
-      '勾選「最後一板過少時平均分配」，可避免最後一板只有少量箱子。'
-    ]},
-    tip:{zh:'一般貨物可先選「自動比較」與「空間利用率最高」；易碎品建議選「穩定性最高」。'}
+    icon:'6',short:{zh:'堆疊設定',en:'Stacking Setup',th:'ตั้งค่าการซ้อน'},
+    title:{zh:'選擇紙箱方向、交叉模式與最佳化目標',en:'Choose Carton Direction, Cross Pattern, and Optimization Goal',th:'เลือกทิศทางกล่อง รูปแบบสลับ และเป้าหมายการปรับให้เหมาะสม'},
+    intro:{zh:'堆疊設定決定系統可使用哪些方向，以及應優先選擇哪一類方案。',en:'Stacking settings decide which orientations are allowed and which type of solution is preferred.',th:'การตั้งค่าการซ้อนกำหนดทิศทางที่อนุญาตและประเภทแผนที่ระบบให้ความสำคัญ'},
+    items:{
+      zh:['「保持正放」只允許底面旋轉90度，不允許側放或倒放。','「允許側放／倒放」會比較最多6種箱體方向。','有方向標示、液體、易碎品或禁止倒放的貨物，請選「保持正放」。','「自動比較最佳交叉方式」會自動比較全部同向、每層交叉與每兩層交叉。','「每層旋轉90度」讓相鄰兩層使用不同方向。','「每兩層交叉」讓兩層為一組再改變方向。','「全部同向」代表所有層使用相同方向。','最佳化目標選「箱數最大」時，系統優先增加每板箱數。','選「穩定性最高」時，系統優先考慮支撐與重心。','選「空間利用率最高」時，系統優先使用限高內的立體空間。','勾選「強制達到最低空間利用率」後，可設定80%或其他目標值。','勾選「允許最上層只放部分箱子」，可在最後一層放置剩餘箱數。','勾選「最後一板過少時平均分配」，可避免最後一板只有少量箱子。'],
+      en:['“Keep Upright” allows only a 90-degree rotation on the base. Sideways or upside-down placement is not allowed.','“Allow Sideways / Upside Down” compares up to six carton orientations.','For directional labels, liquids, fragile goods, or cartons that must stay upright, choose “Keep Upright”.','“Auto Compare” compares same direction, alternating every layer, and alternating every two layers.','“Rotate 90° Every Layer” uses different directions on adjacent layers.','“Alternate Every Two Layers” changes direction after each pair of layers.','“Same Direction” uses one direction for all layers.','“Maximum Cartons” gives priority to cartons per pallet.','“Maximum Stability” gives priority to support and center of gravity.','“Maximum Space Utilization” gives priority to usable 3D space within the height limit.','Enable “Minimum Space Utilization” to set an 80% or custom target.','Enable “Partial Top Layer” to place remaining cartons on the last layer.','Enable “Balance the Last Pallet” to avoid leaving only a few cartons on the final pallet.'],
+      th:['“วางตั้งตรง” อนุญาตให้หมุนเฉพาะฐาน 90 องศา ไม่อนุญาตให้นอนหรือคว่ำ','“อนุญาตวางด้านข้าง/คว่ำ” จะเปรียบเทียบได้สูงสุด 6 ทิศทาง','สินค้าที่มีลูกศร ของเหลว สินค้าแตกง่าย หรือห้ามคว่ำ ให้เลือก “วางตั้งตรง”','“เปรียบเทียบอัตโนมัติ” จะเทียบแบบทิศทางเดียว สลับทุกชั้น และสลับทุกสองชั้น','“หมุน 90° ทุกชั้น” ทำให้ชั้นติดกันใช้คนละทิศทาง','“สลับทุกสองชั้น” เปลี่ยนทิศทางหลังครบสองชั้น','“ทิศทางเดียวทั้งหมด” ใช้ทิศทางเดียวทุกชั้น','เป้าหมาย “จำนวนกล่องสูงสุด” ให้ความสำคัญกับจำนวนต่อพาเลท','“ความมั่นคงสูงสุด” ให้ความสำคัญกับการรองรับและจุดศูนย์ถ่วง','“การใช้พื้นที่สูงสุด” ให้ความสำคัญกับพื้นที่สามมิติภายในข้อจำกัดความสูง','เปิด “บังคับการใช้พื้นที่ขั้นต่ำ” เพื่อกำหนดเป้าหมาย 80% หรือค่าอื่น','เปิด “อนุญาตชั้นบนไม่เต็ม” เพื่อวางกล่องที่เหลือในชั้นสุดท้าย','เปิด “เฉลี่ยพาเลทสุดท้าย” เพื่อหลีกเลี่ยงพาเลทสุดท้ายที่มีกล่องน้อยเกินไป']
+    },
+    tip:{zh:'一般貨物可先選「自動比較」與「空間利用率最高」；易碎品建議選「穩定性最高」。',en:'For general cargo, start with “Auto Compare” and “Maximum Space Utilization”. For fragile goods, choose “Maximum Stability”.',th:'สินค้าทั่วไปแนะนำ “เปรียบเทียบอัตโนมัติ” และ “การใช้พื้นที่สูงสุด” ส่วนสินค้าแตกง่ายควรเลือก “ความมั่นคงสูงสุด”'}
   },
   {
-    icon:'7', short:{zh:'基本計算'},
-    title:{zh:'執行基本計算並閱讀結果'},
-    intro:{zh:'完成資料輸入後，按下「重新計算並生成全景圖」。'},
-    items:{zh:[
-      '系統會比較符合目前尺寸、限高、限重、承壓與支撐條件的排列方式。',
-      '「單層最多」表示一層最多可以放置多少箱。',
-      '「可堆完整層」表示可完成的完整層數。',
-      '「每板總箱數」表示一個棧板最後可放置的箱數。',
-      '「含棧板總高度」包含棧板、紙箱、隔板與頂部包材。',
-      '「貨物總重量」顯示目前棧板上的貨物重量。',
-      '「需要棧板數」會根據總箱數與每板容量自動計算。',
-      '「穩定性」用於判斷排列、支撐與重心表現。',
-      '「空間利用率」表示紙箱體積占可使用棧板空間的比例。',
-      '請確認結果沒有超過總限高、最大載重或紙箱承壓限制。',
-      '可查看80%、85%、90%目標方案，以及空間利用率排行榜Top 10。',
-      '點選排行榜中的方案，可立即切換3D全景圖。'
-    ]},
-    tip:{zh:'利用率高不一定代表最安全，仍需一起查看穩定性、支撐率、重量與重心。'}
+    icon:'7',short:{zh:'基本計算',en:'Calculation',th:'การคำนวณ'},
+    title:{zh:'執行基本計算並閱讀結果',en:'Run the Calculation and Read the Results',th:'คำนวณและอ่านผลลัพธ์'},
+    intro:{zh:'完成資料輸入後，按下「重新計算並生成全景圖」。',en:'After entering the data, click “Recalculate and Generate 3D View”.',th:'หลังกรอกข้อมูลแล้ว ให้กด “คำนวณใหม่และสร้างภาพ 3 มิติ”'},
+    items:{
+      zh:['系統會比較符合目前尺寸、限高、限重、承壓與支撐條件的排列方式。','「單層最多」表示一層最多可以放置多少箱。','「可堆完整層」表示可完成的完整層數。','「每板總箱數」表示一個棧板最後可放置的箱數。','「含棧板總高度」包含棧板、紙箱、隔板與頂部包材。','「貨物總重量」顯示目前棧板上的貨物重量。','「需要棧板數」會根據總箱數與每板容量自動計算。','「穩定性」用於判斷排列、支撐與重心表現。','「空間利用率」表示紙箱體積占可使用棧板空間的比例。','請確認結果沒有超過總限高、最大載重或紙箱承壓限制。','可查看80%、85%、90%目標方案，以及空間利用率排行榜Top 10。','點選排行榜中的方案，可立即切換3D全景圖。'],
+      en:['The system compares layouts that meet the current size, height, weight, compression, and support limits.','“Maximum per Layer” is the largest number of cartons on one layer.','“Full Layers” is the number of complete layers that can be stacked.','“Cartons per Pallet” is the final number of cartons on one pallet.','“Total Height with Pallet” includes the pallet, cartons, pads, and top packaging.','“Cargo Weight” shows the cargo weight on the current pallet.','“Pallets Needed” is calculated from total quantity and pallet capacity.','“Stability” evaluates layout, support, and center of gravity.','“Space Utilization” is the carton volume as a percentage of usable pallet space.','Confirm that the result does not exceed height, load, or carton compression limits.','Review 80%, 85%, and 90% target plans and the Top 10 space-utilization ranking.','Click a ranked plan to switch the 3D view immediately.'],
+      th:['ระบบจะเปรียบเทียบรูปแบบที่ผ่านข้อจำกัดด้านขนาด ความสูง น้ำหนัก การรับแรงกด และการรองรับ','“สูงสุดต่อชั้น” คือจำนวนกล่องมากที่สุดในหนึ่งชั้น','“จำนวนชั้นเต็ม” คือจำนวนชั้นที่วางได้เต็ม','“จำนวนกล่องต่อพาเลท” คือจำนวนสุดท้ายบนพาเลทหนึ่งแผ่น','“ความสูงรวมพร้อมพาเลท” รวมพาเลท กล่อง แผ่นคั่น และวัสดุด้านบน','“น้ำหนักสินค้า” แสดงน้ำหนักสินค้าบนพาเลทปัจจุบัน','“จำนวนพาเลทที่ต้องใช้” คำนวณจากจำนวนรวมและความจุต่อพาเลท','“ความมั่นคง” ประเมินรูปแบบ การรองรับ และจุดศูนย์ถ่วง','“การใช้พื้นที่” คือสัดส่วนปริมาตรกล่องต่อพื้นที่พาเลทที่ใช้ได้','ตรวจสอบว่าผลไม่เกินความสูง น้ำหนักบรรทุก หรือการรับแรงกดของกล่อง','สามารถดูแผนเป้าหมาย 80%, 85%, 90% และอันดับ Top 10','คลิกแผนในอันดับเพื่อเปลี่ยนภาพ 3 มิติทันที']
+    },
+    tip:{zh:'利用率高不一定代表最安全，仍需一起查看穩定性、支撐率、重量與重心。',en:'High utilization does not always mean maximum safety. Also review stability, support, weight, and center of gravity.',th:'การใช้พื้นที่สูงไม่ได้หมายความว่าปลอดภัยที่สุด ควรดูความมั่นคง การรองรับ น้ำหนัก และจุดศูนย์ถ่วงร่วมด้วย'}
   },
   {
-    icon:'8', short:{zh:'AI最佳化'},
-    title:{zh:'使用 AI 一鍵空間最佳化'},
-    intro:{zh:'AI最佳化會綜合比較空間利用率、穩定性、支撐率與重心，並推薦較合適的方案。'},
-    items:{zh:[
-      '完成基本資料輸入後，按下「AI 一鍵空間最佳化」。',
-      '系統會比較不同紙箱方向、交叉模式與排列結果。',
-      '第一個方案是系統綜合評分最高的推薦方案。',
-      '第二、第三方案可能在穩定性、利用率或重心方面具有不同優勢。',
-      '每個方案會顯示空間利用率、穩定性、支撐率與重心資訊。',
-      '閱讀AI推薦原因，確認方案是否符合實際產品限制。',
-      '按下「套用此方案」，即可切換到對應的3D全景圖與計算結果。',
-      '若紙箱禁止側放，即使某方案利用率較高，也不應使用不符合產品要求的方向。',
-      'AI提供的是規劃建議，正式出貨前仍須由現場人員確認。'
-    ]},
-    tip:{zh:'建議先執行基本計算，再使用AI最佳化，比較前後改善幅度。'}
+    icon:'8',short:{zh:'AI最佳化',en:'AI Optimization',th:'AI Optimization'},
+    title:{zh:'使用 AI 一鍵空間最佳化',en:'Use One-Click AI Space Optimization',th:'ใช้ AI ปรับพื้นที่ในคลิกเดียว'},
+    intro:{zh:'AI最佳化會綜合比較空間利用率、穩定性、支撐率與重心，並推薦較合適的方案。',en:'AI Optimization compares space utilization, stability, support, and center of gravity to recommend suitable plans.',th:'AI Optimization จะเปรียบเทียบการใช้พื้นที่ ความมั่นคง การรองรับ และจุดศูนย์ถ่วง เพื่อแนะนำแผนที่เหมาะสม'},
+    items:{
+      zh:['完成基本資料輸入後，按下「AI 一鍵空間最佳化」。','系統會比較不同紙箱方向、交叉模式與排列結果。','第一個方案是系統綜合評分最高的推薦方案。','第二、第三方案可能在穩定性、利用率或重心方面具有不同優勢。','每個方案會顯示空間利用率、穩定性、支撐率與重心資訊。','閱讀AI推薦原因，確認方案是否符合實際產品限制。','按下「套用此方案」，即可切換到對應的3D全景圖與計算結果。','若紙箱禁止側放，即使某方案利用率較高，也不應使用不符合產品要求的方向。','AI提供的是規劃建議，正式出貨前仍須由現場人員確認。'],
+      en:['After entering the basic data, click “AI One-Click Space Optimization”.','The system compares carton orientations, cross patterns, and layout results.','The first plan has the highest overall system score.','The second and third plans may offer different advantages in stability, utilization, or center of gravity.','Each plan shows space utilization, stability, support rate, and center-of-gravity information.','Read the AI reason and confirm that the plan matches real product limits.','Click “Apply This Plan” to switch to the related 3D view and results.','If cartons must not be placed sideways, do not use an unsuitable orientation even if its utilization is higher.','AI gives planning suggestions. On-site staff must still verify the final shipment.'],
+      th:['หลังกรอกข้อมูลพื้นฐาน ให้กด “AI ปรับพื้นที่ในคลิกเดียว”','ระบบจะเปรียบเทียบทิศทางกล่อง รูปแบบสลับ และผลการจัดเรียง','แผนแรกคือแผนที่ได้คะแนนรวมสูงสุด','แผนที่สองและสามอาจเด่นด้านความมั่นคง การใช้พื้นที่ หรือจุดศูนย์ถ่วงต่างกัน','แต่ละแผนจะแสดงการใช้พื้นที่ ความมั่นคง อัตราการรองรับ และจุดศูนย์ถ่วง','อ่านเหตุผลจาก AI และตรวจสอบว่าเหมาะกับข้อจำกัดสินค้าจริง','กด “ใช้แผนนี้” เพื่อเปลี่ยนไปยังภาพ 3 มิติและผลคำนวณที่เกี่ยวข้อง','หากห้ามวางกล่องด้านข้าง ไม่ควรใช้ทิศทางที่ไม่เหมาะ แม้การใช้พื้นที่จะสูงกว่า','AI เป็นคำแนะนำในการวางแผน เจ้าหน้าที่หน้างานยังต้องตรวจสอบก่อนส่งจริง']
+    },
+    tip:{zh:'建議先執行基本計算，再使用AI最佳化，比較前後改善幅度。',en:'Run the basic calculation first, then use AI Optimization to compare the improvement.',th:'แนะนำให้คำนวณพื้นฐานก่อน แล้วใช้ AI Optimization เพื่อเปรียบเทียบการปรับปรุง'}
   },
   {
-    icon:'9', short:{zh:'3D與輸出'},
-    title:{zh:'檢查3D全景圖與產生報告'},
-    intro:{zh:'3D全景圖可協助確認紙箱位置、層數、方向與整體外觀。'},
-    items:{zh:[
-      '在3D畫面上拖曳滑鼠，可以旋轉觀看角度。',
-      '使用滑鼠滾輪，可以放大或縮小畫面。',
-      '「等角視圖」適合查看整體立體堆疊。',
-      '「正視圖」適合確認總高度與前方排列。',
-      '「側視圖」適合查看側面的堆疊狀況。',
-      '「俯視圖」適合確認單層紙箱排列。',
-      '開啟「爆炸圖」後，各層會分開顯示，方便逐層檢查。',
-      '「限高面」可顯示設定的最高高度位置。',
-      '「尺寸標記」可顯示棧板與紙箱的尺寸資訊。',
-      '左側的「完整全景、第1層、第2層……」可切換整體或單層畫面。',
-      '按「下載示意圖PNG」可儲存目前的3D畫面。',
-      '按「PDF堆疊報告」可建立正式報告。',
-      '按「一鍵列印工廠作業單」可產生現場操作資料。'
-    ]},
-    tip:{zh:'交給工廠前，建議至少檢查等角視圖、俯視圖、正視圖與爆炸圖。'}
+    icon:'9',short:{zh:'3D與輸出',en:'3D & Export',th:'3D และส่งออก'},
+    title:{zh:'檢查3D全景圖與產生報告',en:'Review the 3D View and Create Reports',th:'ตรวจสอบภาพ 3 มิติและสร้างรายงาน'},
+    intro:{zh:'3D全景圖可協助確認紙箱位置、層數、方向與整體外觀。',en:'The 3D view helps confirm carton positions, layer count, directions, and the overall stack.',th:'ภาพ 3 มิติช่วยตรวจสอบตำแหน่งกล่อง จำนวนชั้น ทิศทาง และลักษณะโดยรวม'},
+    items:{
+      zh:['在3D畫面上拖曳滑鼠，可以旋轉觀看角度。','使用滑鼠滾輪，可以放大或縮小畫面。','「等角視圖」適合查看整體立體堆疊。','「正視圖」適合確認總高度與前方排列。','「側視圖」適合查看側面的堆疊狀況。','「俯視圖」適合確認單層紙箱排列。','開啟「爆炸圖」後，各層會分開顯示，方便逐層檢查。','「限高面」可顯示設定的最高高度位置。','「尺寸標記」可顯示棧板與紙箱的尺寸資訊。','左側的「完整全景、第1層、第2層……」可切換整體或單層畫面。','按「下載示意圖PNG」可儲存目前的3D畫面。','按「PDF堆疊報告」可建立正式報告。','按「一鍵列印工廠作業單」可產生現場操作資料。'],
+      en:['Drag on the 3D view to rotate the camera.','Use the mouse wheel to zoom in or out.','“Isometric View” is useful for viewing the complete stack.','“Front View” helps check total height and the front arrangement.','“Side View” shows the side stacking condition.','“Top View” helps check one-layer carton layout.','“Exploded View” separates the layers for easier inspection.','“Height Limit Plane” shows the maximum height position.','“Dimension Labels” show pallet and carton sizes.','Use “Full View, Layer 1, Layer 2…” to switch between the complete stack and one layer.','Click “Download PNG” to save the current 3D image.','Click “PDF Stacking Report” to create a formal report.','Click “Print Factory Work Order” to create on-site operating information.'],
+      th:['ลากเมาส์บนภาพ 3 มิติเพื่อหมุนมุมมอง','ใช้ล้อเมาส์เพื่อซูมเข้าและออก','“มุมมองไอโซเมตริก” เหมาะสำหรับดูภาพรวมทั้งกอง','“มุมมองด้านหน้า” ใช้ตรวจความสูงรวมและการเรียงด้านหน้า','“มุมมองด้านข้าง” ใช้ดูการซ้อนจากด้านข้าง','“มุมมองด้านบน” ใช้ตรวจรูปแบบกล่องในหนึ่งชั้น','“ภาพแยกชั้น” จะแยกแต่ละชั้นเพื่อให้ง่ายต่อการตรวจสอบ','“ระนาบจำกัดความสูง” แสดงตำแหน่งความสูงสูงสุด','“ป้ายขนาด” แสดงขนาดพาเลทและกล่อง','ใช้ “ภาพรวม ชั้น 1 ชั้น 2…” เพื่อสลับดูทั้งกองหรือแต่ละชั้น','กด “ดาวน์โหลด PNG” เพื่อบันทึกภาพ 3 มิติปัจจุบัน','กด “รายงานการซ้อน PDF” เพื่อสร้างรายงาน','กด “พิมพ์ใบงานโรงงาน” เพื่อสร้างข้อมูลปฏิบัติงานหน้างาน']
+    },
+    tip:{zh:'交給工廠前，建議至少檢查等角視圖、俯視圖、正視圖與爆炸圖。',en:'Before sending the plan to the factory, review the isometric, top, front, and exploded views.',th:'ก่อนส่งแผนให้โรงงาน ควรตรวจมุมมองไอโซเมตริก ด้านบน ด้านหน้า และภาพแยกชั้น'}
   },
   {
-    icon:'10', short:{zh:'紀錄與團隊'},
-    title:{zh:'管理歷史紀錄、收藏與團隊空間'},
-    intro:{zh:'系統會保存已完成的計算，方便重新查看、修改、匯出或與團隊共享。'},
-    items:{zh:[
-      '每次重新計算後，系統會建立一筆歷史紀錄。',
-      '點選歷史紀錄，可以重新載入當時的輸入設定與結果。',
-      '使用改善方案或AI方案時，系統會更新目前紀錄，不會額外建立重複紀錄。',
-      '按愛心可將重要方案加入收藏。',
-      '收藏可建立分類，例如客戶、航線、產品或出貨日期。',
-      '「匯出HTML」可匯出已收藏的詳細紀錄。',
-      '「匯出Excel」可整理收藏資料，方便後續分析。',
-      '「清除未收藏」只會移除沒有按愛心的紀錄。',
-      '登入後按「團隊空間」，可以建立新的共享工作空間。',
-      '建立團隊後，將團隊代碼提供給可信任的成員。',
-      '其他成員登入自己的帳號後，可輸入團隊代碼加入。',
-      '團隊成員會共用歷史紀錄、收藏分類與自訂模板。',
-      '若偵測到同步衝突，可選擇合併、使用雲端版本或以本機版本覆蓋。',
-      '團隊代碼相當於存取密鑰，請勿公開在網站或社群平台。'
-    ]},
-    tip:{zh:'正式方案建議先按愛心收藏、加入分類，再確認雲端同步完成。'}
+    icon:'10',short:{zh:'紀錄與團隊',en:'History & Team',th:'ประวัติและทีม'},
+    title:{zh:'管理歷史紀錄、收藏與團隊空間',en:'Manage History, Favorites, and Team Workspaces',th:'จัดการประวัติ รายการโปรด และพื้นที่ทีม'},
+    intro:{zh:'系統會保存已完成的計算，方便重新查看、修改、匯出或與團隊共享。',en:'The system saves completed calculations for later review, editing, export, or team sharing.',th:'ระบบจะบันทึกผลคำนวณเพื่อให้กลับมาดู แก้ไข ส่งออก หรือแชร์กับทีมได้'},
+    items:{
+      zh:['每次重新計算後，系統會建立一筆歷史紀錄。','點選歷史紀錄，可以重新載入當時的輸入設定與結果。','使用改善方案或AI方案時，系統會更新目前紀錄，不會額外建立重複紀錄。','按愛心可將重要方案加入收藏。','收藏可建立分類，例如客戶、航線、產品或出貨日期。','「匯出HTML」可匯出已收藏的詳細紀錄。','「匯出Excel」可整理收藏資料，方便後續分析。','「清除未收藏」只會移除沒有按愛心的紀錄。','登入後按「團隊空間」，可以建立新的共享工作空間。','建立團隊後，將團隊代碼提供給可信任的成員。','其他成員登入自己的帳號後，可輸入團隊代碼加入。','團隊成員會共用歷史紀錄、收藏分類與自訂模板。','若偵測到同步衝突，可選擇合併、使用雲端版本或以本機版本覆蓋。','團隊代碼相當於存取密鑰，請勿公開在網站或社群平台。'],
+      en:['Each recalculation creates one history record.','Click a history record to reload its inputs and results.','When an improvement or AI plan is applied, the current record is updated instead of creating a duplicate.','Click the heart to add an important plan to Favorites.','Create categories for customers, routes, products, or shipment dates.','“Export HTML” exports detailed favorite records.','“Export Excel” organizes favorite data for later analysis.','“Clear Non-Favorites” removes only records without a heart.','After signing in, click “Team Workspace” to create a shared workspace.','Share the team code only with trusted members.','Other members can sign in with their own accounts and join using the team code.','Team members share history, favorite folders, and custom templates.','If a sync conflict is detected, choose Merge, Use Cloud Version, or Keep Local Version.','A team code is an access key. Do not post it publicly.'],
+      th:['ทุกครั้งที่คำนวณใหม่ ระบบจะสร้างประวัติหนึ่งรายการ','คลิกประวัติเพื่อโหลดข้อมูลและผลลัพธ์เดิม','เมื่อใช้แผนปรับปรุงหรือแผน AI ระบบจะอัปเดตรายการปัจจุบันแทนการสร้างรายการซ้ำ','กดรูปหัวใจเพื่อเพิ่มแผนสำคัญในรายการโปรด','สร้างหมวดหมู่ตามลูกค้า เส้นทาง สินค้า หรือวันที่จัดส่ง','“ส่งออก HTML” ใช้ส่งออกรายละเอียดรายการโปรด','“ส่งออก Excel” ใช้จัดระเบียบข้อมูลสำหรับวิเคราะห์ภายหลัง','“ล้างรายการที่ไม่โปรด” จะลบเฉพาะรายการที่ไม่ได้กดหัวใจ','หลังเข้าสู่ระบบ กด “พื้นที่ทีม” เพื่อสร้างพื้นที่แชร์','แชร์รหัสทีมเฉพาะกับสมาชิกที่เชื่อถือได้','สมาชิกคนอื่นเข้าสู่ระบบด้วยบัญชีตนเองและใช้รหัสทีมเพื่อเข้าร่วม','สมาชิกทีมจะแชร์ประวัติ หมวดหมู่รายการโปรด และเทมเพลต','หากพบความขัดแย้งในการซิงค์ สามารถเลือกผสาน ใช้เวอร์ชันคลาวด์ หรือเก็บเวอร์ชันเครื่อง','รหัสทีมเป็นกุญแจเข้าถึง ห้ามเผยแพร่สาธารณะ']
+    },
+    tip:{zh:'正式方案建議先按愛心收藏、加入分類，再確認雲端同步完成。',en:'For an approved plan, add it to Favorites, assign a category, and confirm cloud sync.',th:'สำหรับแผนที่อนุมัติแล้ว แนะนำให้กดรายการโปรด จัดหมวดหมู่ และตรวจสอบการซิงค์คลาวด์'}
   },
   {
-    icon:'11', short:{zh:'常見問題'},
-    title:{zh:'常見問題與排除方式'},
-    intro:{zh:'遇到畫面、計算或同步問題時，可先依照以下方式檢查。'},
-    items:{zh:[
-      '3D畫面沒有更新：先按「重新計算並生成全景圖」，再嘗試重設視角。',
-      '沒有可行方案：確認紙箱尺寸是否大於可用棧板尺寸，以及限高、限重是否過低。',
-      '利用率太低：嘗試允許其他紙箱方向、減少間隙或安全邊距，或改用其他棧板規格。',
-      'AI方案不適用：確認貨物是否禁止側放、倒放或交叉堆疊，再調整方向設定。',
-      '歷史紀錄在其他裝置看不到：確認兩台裝置使用同一帳號與同一工作空間。',
-      '同步狀態顯示離線：確認網路後稍等片刻，系統會自動重新同步。',
-      '手機顯示舊版本：重新整理頁面，必要時關閉瀏覽器分頁後重新開啟。',
-      '修改GitHub後網站沒有更新：等待1至3分鐘，再使用強制重新整理。',
-      '正式出貨前，仍應由現場人員確認實際棧板、紙箱強度、包材與承運規範。'
-    ]},
-    tip:{zh:'計算結果是規劃工具，不應取代現場安全檢查與公司的正式作業規範。'}
+    icon:'11',short:{zh:'常見問題',en:'Troubleshooting',th:'แก้ปัญหา'},
+    title:{zh:'常見問題與排除方式',en:'Common Problems and Solutions',th:'ปัญหาที่พบบ่อยและวิธีแก้'},
+    intro:{zh:'遇到畫面、計算或同步問題時，可先依照以下方式檢查。',en:'If you have a display, calculation, or sync problem, check the following items first.',th:'หากพบปัญหาด้านภาพ การคำนวณ หรือการซิงค์ ให้ตรวจสอบรายการต่อไปนี้ก่อน'},
+    items:{
+      zh:['3D畫面沒有更新：先按「重新計算並生成全景圖」，再嘗試重設視角。','沒有可行方案：確認紙箱尺寸是否大於可用棧板尺寸，以及限高、限重是否過低。','利用率太低：嘗試允許其他紙箱方向、減少間隙或安全邊距，或改用其他棧板規格。','AI方案不適用：確認貨物是否禁止側放、倒放或交叉堆疊，再調整方向設定。','歷史紀錄在其他裝置看不到：確認兩台裝置使用同一帳號與同一工作空間。','同步狀態顯示離線：確認網路後稍等片刻，系統會自動重新同步。','手機顯示舊版本：重新整理頁面，必要時關閉瀏覽器分頁後重新開啟。','修改GitHub後網站沒有更新：等待1至3分鐘，再使用強制重新整理。','正式出貨前，仍應由現場人員確認實際棧板、紙箱強度、包材與承運規範。'],
+      en:['3D view not updated: click “Recalculate and Generate 3D View”, then try “Reset View”.','No feasible plan: check whether the carton is larger than the usable pallet area, or whether height and weight limits are too low.','Low utilization: allow other carton orientations, reduce gaps or safety margins, or try another pallet size.','AI plan is not suitable: check whether sideways, upside-down, or cross stacking is prohibited, then adjust orientation settings.','History is missing on another device: confirm both devices use the same account and workspace.','Sync shows offline: check the internet and wait. The system will reconnect automatically.','Phone shows an old version: refresh the page or close and reopen the browser tab.','Website not updated after GitHub changes: wait 1–3 minutes, then perform a hard refresh.','Before shipping, on-site staff must confirm the real pallet, carton strength, packaging materials, and carrier rules.'],
+      th:['ภาพ 3 มิติไม่อัปเดต: กด “คำนวณใหม่และสร้างภาพ 3 มิติ” แล้วลอง “รีเซ็ตมุมมอง”','ไม่มีแผนที่เป็นไปได้: ตรวจว่ากล่องใหญ่กว่าพื้นที่พาเลทหรือข้อจำกัดความสูงและน้ำหนักต่ำเกินไปหรือไม่','การใช้พื้นที่ต่ำ: ลองอนุญาตทิศทางอื่น ลดช่องว่างหรือระยะปลอดภัย หรือใช้พาเลทขนาดอื่น','แผน AI ใช้ไม่ได้: ตรวจว่าสินค้าห้ามวางด้านข้าง คว่ำ หรือวางสลับหรือไม่ แล้วปรับทิศทาง','ไม่เห็นประวัติบนอุปกรณ์อื่น: ตรวจว่าทั้งสองอุปกรณ์ใช้บัญชีและพื้นที่งานเดียวกัน','สถานะซิงค์เป็นออฟไลน์: ตรวจอินเทอร์เน็ตและรอสักครู่ ระบบจะเชื่อมต่อใหม่อัตโนมัติ','โทรศัพท์แสดงเวอร์ชันเก่า: รีเฟรชหน้า หรือปิดแท็บแล้วเปิดใหม่','เว็บไซต์ไม่อัปเดตหลังแก้ GitHub: รอ 1–3 นาที แล้วรีเฟรชแบบล้างแคช','ก่อนส่งจริง เจ้าหน้าที่หน้างานต้องตรวจพาเลท ความแข็งแรงของกล่อง วัสดุบรรจุ และกฎของผู้ขนส่ง']
+    },
+    tip:{zh:'計算結果是規劃工具，不應取代現場安全檢查與公司的正式作業規範。',en:'The calculation is a planning tool. It does not replace on-site safety checks or official company procedures.',th:'ผลคำนวณเป็นเครื่องมือวางแผน ไม่สามารถแทนการตรวจความปลอดภัยหน้างานหรือขั้นตอนทางการของบริษัทได้'}
   }
 ];
+
 function guideText(obj){return obj?.[currentUILang]||obj?.zh||''}
 function renderManual(){
   const step=GUIDE_STEPS[manualStep];
