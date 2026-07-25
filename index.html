@@ -1306,8 +1306,22 @@ html[data-theme="dark"] .tutorialDemoStepText,html[data-theme="dark"] .tutorialD
   animation:none!important;
 }
 
+/* KPI 自動填滿可用寬度，避免空運欄位換行後留下大片空白 */
+.topKpiBar{
+  display:flex!important;
+  flex-wrap:wrap;
+  align-items:stretch;
+}
+.topKpiCard{
+  flex:1 1 150px;
+  min-width:0;
+}
+
 /* 手機版固定下方，避免畫面跳動 */
 @media(max-width:760px){
+  .topKpiCard{
+    flex-basis:calc(50% - 8px);
+  }
   .tutorialCard{
     left:8px!important;
     right:8px!important;
@@ -1644,18 +1658,13 @@ html[data-theme="dark"] .tutorialDemoStepText,html[data-theme="dark"] .tutorialD
       <div class="card"><div class="k">貨物總重量</div><div class="v" id="rWeight">—</div></div>
       <div class="card"><div class="k">需要棧板數</div><div class="v" id="rPallets">—</div></div>
       <div class="card"><div class="k">穩定性</div><div class="v" id="rStability">—</div></div>
-      <div class="card"><div class="k">空間利用率</div><div class="v" id="rSpaceUtil">—</div></div>
+      <span id="rSpaceUtil" hidden aria-hidden="true">—</span>
       <div class="card airCargoResult" hidden><div class="k" id="airActualWeightLabel">實際總重</div><div class="v" id="rAirActualWeight">—</div></div>
       <div class="card airCargoResult" hidden><div class="k" id="airVolumeWeightLabel">材積重</div><div class="v" id="rAirVolumeWeight">—</div></div>
       <div class="card airCargoResult" hidden><div class="k" id="airChargeableWeightLabel">預估計費重</div><div class="v" id="rAirChargeableWeight">—</div></div>
       <div class="card airCargoResult" hidden><div class="k" id="airUldCountLabel">預估 ULD 數</div><div class="v" id="rAirUldCount">—</div></div>
     </div>
     <div class="details" id="details">請輸入條件後計算。</div><div class="printActions"><button class="secondary" id="exportPDF">PDF 堆疊報告</button><button class="secondary" id="printWorkOrder">一鍵列印工廠作業單</button></div>
-    <div class="targetSearch" id="targetSearch"></div>
-    <div class="rankingPanel">
-      <div class="rankingHeader"><strong>空間利用率排行榜 Top 10</strong><span style="font-size:11px;color:var(--muted)">點選方案可切換全景圖</span></div>
-      <div class="rankingList" id="rankingList"><div class="historyEmpty">等待計算。</div></div>
-    </div>
   </div>
 </section>
 </main>
@@ -2305,6 +2314,7 @@ function activateCandidate(candidate,updateHistory=false){
 }
 function renderRanking(candidates,best){
   const el=$("rankingList");
+  if(!el)return;
   const ranked=uniqueCandidates([...candidates].sort((a,b)=>b.spaceUtil-a.spaceUtil||b.totalBoxes-a.totalBoxes||b.stability-a.stability)).slice(0,10);
   el.innerHTML='';
   ranked.forEach((x,i)=>{
@@ -2315,7 +2325,9 @@ function renderRanking(candidates,best){
   });
 }
 function renderTargetSearch(candidates){
-  const el=$("targetSearch");el.innerHTML='';
+  const el=$("targetSearch");
+  if(!el)return;
+  el.innerHTML='';
   [80,85,90].forEach(target=>{
     const matches=uniqueCandidates(candidates.filter(x=>x.spaceUtil+1e-9>=target).sort((a,b)=>b.totalBoxes-a.totalBoxes||b.spaceUtil-a.spaceUtil||b.stability-a.stability));
     const x=matches[0];const card=document.createElement('div');card.className='targetCard';
@@ -3958,6 +3970,10 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('utilGuideModal')
       const source=el(from),target=el(to);
       if(source&&target)target.textContent=source.textContent||"—";
     });
+    const uldCard=el("topKpiUldCount")?.closest(".airKpi");
+    const isAir=(localStorage.getItem(UI_MODE_KEY)||"pallet")==="air";
+    const uldValue=el("topKpiUldCount")?.textContent.trim()||"";
+    if(uldCard)uldCard.hidden=!isAir||!uldValue||uldValue==="—";
   }
 
   function createCollapsible(startHeadingText,type){
@@ -4158,6 +4174,11 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('utilGuideModal')
         {selector:".topKpiBar",type:"kpi",title:"查看關鍵結果",text:"KPI 區會顯示利用率、箱數、高度與重量。",hint:"這裡是計算後最先確認的區域。",demo:"計算完成後，數值會自動更新。"},
         {selector:"#canvasWrap",type:"view3d",title:"操作 3D 視圖",text:"拖曳可旋轉視角，滾輪可縮放。",hint:"查看爆炸圖可逐層檢查排列。",demo:"拖曳畫面旋轉，使用滾輪縮放。"},
         {selector:"#boxAnimationControls",type:"animation",title:"播放放箱動畫",text:"可播放全部、指定層、上一箱或下一箱。",hint:"動畫會顯示箱號、位置與方向。",demo:"點擊播放，箱子會依順序逐一放入。"},
+        {selector:".manualPackBtn",type:"manualPackOpen",title:"開啟手動排箱",text:"輸入棧板與紙箱資料後，按下「手動排箱」進入自訂配置工作台。",hint:"手動排箱適合需要自己決定每一箱位置與方向的情況。",demo:"按下「手動排箱」開啟工作台。"},
+        {selector:".mp-toolbar",type:"manualPackAdd",manualPack:true,title:"新增或自動填滿紙箱",text:"可逐箱按「新增一箱」，也可按「自動填滿本層」快速建立初始排列。",hint:"先自動填滿，再手動微調，通常會比較省時間。",demo:"新增紙箱，或讓系統先填滿目前層。"},
+        {selector:"#manualPackCanvas",type:"manualPackDrag",manualPack:true,title:"拖曳、旋轉與刪除紙箱",text:"在平面工作區拖曳紙箱調整位置；選取紙箱後可旋轉 90° 或刪除。",hint:"也可使用 R 鍵旋轉、Delete 鍵刪除，以及復原／重做。",demo:"拖曳紙箱到新位置，再旋轉 90°。"},
+        {selector:"#mpNewLayer",type:"manualPackLayer",manualPack:true,title:"建立多層配置",text:"按「新增一層」建立空白層，或按「複製本層」快速沿用相同排列。",hint:"上層紙箱應盡量對齊下層，避免支撐率不足。",demo:"新增第二層，或複製目前這一層。"},
+        {selector:"#mpApply",type:"manualPackApply",manualPack:true,title:"檢查並套用到 3D",text:"確認沒有紅色紙箱，且高度、重量、重疊、邊界與支撐檢查均通過，再套用到 3D 全景圖。",hint:"若按鈕無法使用，請先依「配置檢查」的紅色提示修正。",demo:"檢查全部條件後，套用到 3D 全景圖。"},
         {selector:"#airCargoMode",type:"air",title:"使用空運 ULD",text:"切換到空運模式後，可比較 PMC、PAG、PLA、AKE。",hint:"正式訂艙前仍需向航空公司確認限制。",demo:"切換空運模式，再選擇 ULD 類型。"},
         {selector:"#manualBtn",type:"manual",title:"隨時查看操作手冊",text:"操作手冊可搜尋完整功能與詳細步驟。",hint:"切換系統語言後，教學也會同步翻譯。",demo:"在操作手冊內可再次啟動本教學。"}
       ]
@@ -4176,6 +4197,11 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('utilGuideModal')
         {selector:".topKpiBar",type:"kpi",title:"Review Key Results",text:"The KPI bar displays utilization, cartons, height, and weight.",hint:"Review this area first after calculation.",demo:"The values update automatically after calculation."},
         {selector:"#canvasWrap",type:"view3d",title:"Use the 3D View",text:"Drag to rotate and use the mouse wheel to zoom.",hint:"Use the exploded view to inspect each layer.",demo:"Drag to rotate and scroll to zoom."},
         {selector:"#boxAnimationControls",type:"animation",title:"Play the Loading Animation",text:"Play all boxes, one layer, previous box, or next box.",hint:"The animation shows box number, position, and direction.",demo:"Click Play and watch the boxes appear in order."},
+        {selector:".manualPackBtn",type:"manualPackOpen",title:"Open Manual Packing",text:"After entering pallet and carton data, open the Manual Packing workbench.",hint:"Use this when you need to control every carton position and orientation.",demo:"Click Manual Packing to open the workbench."},
+        {selector:".mp-toolbar",type:"manualPackAdd",manualPack:true,title:"Add or Auto-Fill Cartons",text:"Add cartons one at a time, or auto-fill the current layer to create a starting layout.",hint:"Auto-fill first, then fine-tune manually to save time.",demo:"Add a carton or auto-fill the current layer."},
+        {selector:"#manualPackCanvas",type:"manualPackDrag",manualPack:true,title:"Drag, Rotate, and Delete",text:"Drag cartons on the plan view. Select a carton to rotate it 90° or delete it.",hint:"You can also press R to rotate, Delete to remove, and use Undo or Redo.",demo:"Drag a carton to a new position and rotate it 90°."},
+        {selector:"#mpNewLayer",type:"manualPackLayer",manualPack:true,title:"Build Multiple Layers",text:"Add a blank layer or duplicate the current layer to reuse the same arrangement.",hint:"Keep upper cartons aligned with the layer below for adequate support.",demo:"Add a second layer or duplicate the current layer."},
+        {selector:"#mpApply",type:"manualPackApply",manualPack:true,title:"Validate and Apply to 3D",text:"When boundary, overlap, height, weight, and support checks pass, apply the layout to the 3D view.",hint:"If the button is disabled, follow the red validation message and correct the layout.",demo:"Complete validation and apply the layout to 3D."},
         {selector:"#airCargoMode",type:"air",title:"Use Air Cargo ULD Planning",text:"Switch to Air Cargo Mode to compare PMC, PAG, PLA, and AKE.",hint:"Confirm all limits with the airline before booking.",demo:"Switch to Air Cargo Mode and choose a ULD type."},
         {selector:"#manualBtn",type:"manual",title:"Open the User Manual Anytime",text:"Search the user manual for detailed instructions.",hint:"The guide changes automatically with the system language.",demo:"You can restart this guide inside the user manual."}
       ]
@@ -4194,6 +4220,11 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('utilGuideModal')
         {selector:".topKpiBar",type:"kpi",title:"ดูผลลัพธ์สำคัญ",text:"แถบ KPI แสดงการใช้พื้นที่ จำนวนกล่อง ความสูง และน้ำหนัก",hint:"ควรตรวจสอบบริเวณนี้ก่อนหลังคำนวณ",demo:"ค่าจะอัปเดตอัตโนมัติหลังคำนวณ"},
         {selector:"#canvasWrap",type:"view3d",title:"ใช้งานมุมมอง 3D",text:"ลากเพื่อหมุน และใช้ล้อเมาส์เพื่อซูม",hint:"ใช้มุมมองแยกชั้นเพื่อตรวจสอบแต่ละชั้น",demo:"ลากเพื่อหมุนและเลื่อนล้อเพื่อซูม"},
         {selector:"#boxAnimationControls",type:"animation",title:"เล่นแอนิเมชันวางกล่อง",text:"เล่นทั้งหมด เลือกชั้น กล่องก่อนหน้า หรือกล่องถัดไป",hint:"แอนิเมชันแสดงหมายเลข ตำแหน่ง และทิศทาง",demo:"คลิกเล่นแล้วดูกล่องปรากฏตามลำดับ"},
+        {selector:".manualPackBtn",type:"manualPackOpen",title:"เปิดการจัดกล่องด้วยตนเอง",text:"หลังกรอกข้อมูลพาเลทและกล่อง ให้เปิดพื้นที่จัดกล่องด้วยตนเอง",hint:"เหมาะเมื่อคุณต้องกำหนดตำแหน่งและทิศทางของแต่ละกล่องเอง",demo:"กดจัดกล่องเองเพื่อเปิดพื้นที่ทำงาน"},
+        {selector:".mp-toolbar",type:"manualPackAdd",manualPack:true,title:"เพิ่มหรือเติมกล่องอัตโนมัติ",text:"เพิ่มกล่องทีละใบ หรือเติมชั้นปัจจุบันอัตโนมัติเพื่อสร้างแบบเริ่มต้น",hint:"เติมอัตโนมัติก่อนแล้วค่อยปรับเองจะประหยัดเวลา",demo:"เพิ่มกล่องหรือเติมชั้นปัจจุบัน"},
+        {selector:"#manualPackCanvas",type:"manualPackDrag",manualPack:true,title:"ลาก หมุน และลบกล่อง",text:"ลากกล่องบนพื้นที่ทำงาน และเลือกกล่องเพื่อหมุน 90° หรือลบ",hint:"ใช้ปุ่ม R เพื่อหมุน Delete เพื่อลบ และใช้ย้อนกลับหรือทำซ้ำได้",demo:"ลากกล่องไปตำแหน่งใหม่แล้วหมุน 90°"},
+        {selector:"#mpNewLayer",type:"manualPackLayer",manualPack:true,title:"สร้างหลายชั้น",text:"เพิ่มชั้นว่างหรือคัดลอกชั้นปัจจุบันเพื่อใช้รูปแบบเดิม",hint:"จัดกล่องชั้นบนให้ตรงกับชั้นล่างเพื่อให้รองรับเพียงพอ",demo:"เพิ่มชั้นที่สองหรือคัดลอกชั้นปัจจุบัน"},
+        {selector:"#mpApply",type:"manualPackApply",manualPack:true,title:"ตรวจสอบและใช้กับภาพ 3 มิติ",text:"เมื่อผ่านการตรวจขอบเขต การซ้อนทับ ความสูง น้ำหนัก และการรองรับ ให้ใช้กับภาพ 3 มิติ",hint:"หากปุ่มใช้ไม่ได้ ให้แก้ตามข้อความสีแดงในส่วนตรวจสอบ",demo:"ตรวจสอบให้ครบแล้วใช้กับภาพ 3 มิติ"},
         {selector:"#airCargoMode",type:"air",title:"ใช้การวางแผน ULD",text:"เปลี่ยนเป็นโหมดขนส่งทางอากาศเพื่อเปรียบเทียบ PMC, PAG, PLA และ AKE",hint:"ต้องยืนยันข้อจำกัดกับสายการบินก่อนจอง",demo:"เปลี่ยนเป็นโหมดขนส่งทางอากาศแล้วเลือกประเภท ULD"},
         {selector:"#manualBtn",type:"manual",title:"เปิดคู่มือได้ทุกเวลา",text:"ค้นหาคู่มือเพื่อดูคำอธิบายโดยละเอียด",hint:"คำแนะนำจะเปลี่ยนตามภาษาของระบบโดยอัตโนมัติ",demo:"สามารถเริ่มคำแนะนำนี้อีกครั้งจากในคู่มือ"}
       ]
@@ -4219,7 +4250,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('utilGuideModal')
     })||null;
   }
   function buildSteps(){
-    tutorialSteps=pack().steps.filter(step=>visibleTarget(step.selector));
+    tutorialSteps=pack().steps.filter(step=>step.manualPack||visibleTarget(step.selector));
   }
   function clearTarget(){
     if(currentTarget){
@@ -4272,6 +4303,16 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('utilGuideModal')
       body='<div style="height:70px;border:1px dashed #94a3b8;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:26px">📦 ↻</div>';
     }else if(step.type==="animation"){
       body='<div style="display:flex;gap:5px;justify-content:center;align-items:center;min-height:70px"><span class="tutorialFakeButton">▶ '+ui.play+'</span><span>📦</span><span>→</span><span>📦📦</span></div>';
+    }else if(step.type==="manualPackOpen"){
+      body='<div style="display:flex;justify-content:center;align-items:center;min-height:70px"><span class="tutorialFakeButton">✋ '+(lang()==="en"?"Manual Packing":lang()==="th"?"จัดกล่องเอง":"手動排箱")+'</span></div>';
+    }else if(step.type==="manualPackAdd"){
+      body='<div style="display:flex;gap:7px;justify-content:center;align-items:center;min-height:70px"><span class="tutorialFakeButton">＋ 📦</span><span class="tutorialFakeButton">📦📦📦</span></div>';
+    }else if(step.type==="manualPackDrag"){
+      body='<div style="height:70px;border:1px dashed #94a3b8;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:24px">📦　→　📦 ↻</div>';
+    }else if(step.type==="manualPackLayer"){
+      body='<div style="display:flex;gap:6px;justify-content:center;align-items:center;min-height:70px"><span class="tutorialFakeButton">1 · 📦📦</span><span>→</span><span class="tutorialFakeButton">2 · 📦📦</span></div>';
+    }else if(step.type==="manualPackApply"){
+      body='<div style="display:flex;gap:8px;justify-content:center;align-items:center;min-height:70px"><span style="color:#18794e;font-weight:800">✓</span><span class="tutorialFakeButton">'+(lang()==="en"?"Apply to 3D":lang()==="th"?"ใช้กับภาพ 3 มิติ":"套用到 3D")+'</span></div>';
     }else if(step.type==="mode"||step.type==="air"){
       body='<div style="display:grid;grid-template-columns:1fr 1fr;gap:7px"><span class="tutorialFakeButton">'+ui.pallet+'</span><span class="tutorialFakeButton">'+ui.air+'</span></div>';
     }else if(step.type==="expand"){
@@ -4310,6 +4351,12 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('utilGuideModal')
 
     tutorialIndex=Math.max(0,Math.min(tutorialIndex,tutorialSteps.length-1));
     const step=tutorialSteps[tutorialIndex];
+    const manualModal=document.getElementById("manualPackModal");
+    if(step.manualPack){
+      if(!manualModal?.classList.contains("open"))document.getElementById("manualPackOpen")?.click();
+    }else if(manualModal?.classList.contains("open")){
+      document.getElementById("manualPackClose")?.click();
+    }
     const target=visibleTarget(step.selector);
 
     if(!target){
@@ -4350,6 +4397,9 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('utilGuideModal')
     const overlay=document.getElementById("tutorialOverlay");
     overlay.classList.remove("open");
     overlay.setAttribute("aria-hidden","true");
+    if(document.getElementById("manualPackModal")?.classList.contains("open")){
+      document.getElementById("manualPackClose")?.click();
+    }
 
     if(done)localStorage.setItem(TUTORIAL_KEY,"1");
   }
@@ -4843,6 +4893,807 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('utilGuideModal')
   }else{
     bind();
   }
+})();
+</script>
+
+<style>
+/* ================= V6.4 手動排箱工作台 ================= */
+.manualPackBtn{
+  background:linear-gradient(135deg,#fff7d6,#ffe085)!important;
+  border-color:#d9a900!important;
+  color:#4b3900!important;
+  font-weight:800!important;
+}
+.manualPackBtn:hover{background:linear-gradient(135deg,#fff2b9,#ffd65a)!important}
+.mp-modal{
+  position:fixed;inset:0;z-index:6200;display:none;align-items:center;justify-content:center;
+  padding:16px;background:rgba(7,22,43,.72);backdrop-filter:blur(5px)
+}
+.mp-modal.open{display:flex}
+.mp-dialog{
+  width:min(1240px,98vw);height:min(900px,96dvh);overflow:hidden;background:#f6f8fc;
+  color:#172033;border:1px solid rgba(255,255,255,.38);border-radius:18px;
+  box-shadow:0 28px 90px rgba(0,0,0,.35);display:grid;grid-template-rows:auto 1fr
+}
+.mp-head{
+  min-height:64px;display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:12px 16px;background:linear-gradient(135deg,#0f2f5f,#174c87);color:#fff
+}
+.mp-head-copy{display:flex;align-items:center;gap:11px;min-width:0}
+.mp-head-icon{
+  width:40px;height:40px;border-radius:12px;display:grid;place-items:center;flex:none;
+  background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);font-size:21px
+}
+.mp-head h2{margin:0;font-size:19px}.mp-head p{margin:3px 0 0;color:#d8e8fb;font-size:12px}
+.mp-close{
+  flex:none;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.12);
+  color:#fff;border-radius:9px;padding:8px 11px;font-weight:700
+}
+.mp-content{min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 310px}
+.mp-work{min-width:0;min-height:0;display:grid;grid-template-rows:auto auto minmax(360px,1fr) auto;background:#eef3f9}
+.mp-summary{
+  display:flex;gap:8px;flex-wrap:wrap;padding:10px 12px;background:#fff;border-bottom:1px solid #d9e1ec
+}
+.mp-pill{
+  display:flex;gap:6px;align-items:baseline;padding:7px 10px;border:1px solid #dce4ef;
+  border-radius:999px;background:#f8fbff;font-size:12px;color:#53657b
+}
+.mp-pill b{font-size:14px;color:#173e73}.mp-pill.good b{color:#18794e}.mp-pill.bad b{color:#b42318}
+.mp-layerbar{
+  display:flex;align-items:center;gap:7px;min-height:48px;padding:8px 12px;
+  overflow-x:auto;background:#f8fafc;border-bottom:1px solid #d9e1ec
+}
+.mp-layer-tab{
+  white-space:nowrap;padding:7px 10px;border-radius:8px;border:1px solid #cdd8e6;
+  background:#fff;color:#344054;font-size:12px;font-weight:700
+}
+.mp-layer-tab.active{background:#175cd3;color:#fff;border-color:#175cd3}
+.mp-canvas-wrap{
+  position:relative;min-height:0;margin:12px;border-radius:14px;overflow:hidden;
+  border:1px solid #cbd6e4;background:
+    radial-gradient(circle at 50% 0,rgba(255,255,255,.95),rgba(235,241,248,.96));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.8)
+}
+#manualPackCanvas{width:100%;height:100%;display:block;touch-action:none;cursor:default}
+#manualPackCanvas.dragging{cursor:grabbing}
+.mp-canvas-help{
+  position:absolute;left:10px;bottom:9px;pointer-events:none;padding:6px 9px;border-radius:8px;
+  background:rgba(15,47,95,.88);color:#fff;font-size:11px;box-shadow:0 4px 14px rgba(0,0,0,.15)
+}
+.mp-toolbar{
+  display:flex;gap:7px;flex-wrap:wrap;padding:10px 12px;background:#fff;border-top:1px solid #d9e1ec
+}
+.mp-toolbar button,.mp-side button{
+  border:1px solid #c7d3e2;background:#fff;color:#193b68;border-radius:8px;padding:8px 10px;
+  font-size:12px;font-weight:800;cursor:pointer
+}
+.mp-toolbar button:hover,.mp-side button:hover{background:#edf4ff;border-color:#8fb6ee}
+.mp-toolbar .mp-primary,.mp-side .mp-primary{background:#175cd3;color:#fff;border-color:#175cd3}
+.mp-toolbar .mp-danger,.mp-side .mp-danger{color:#b42318;border-color:#f0b7b2}
+.mp-toolbar button:disabled,.mp-side button:disabled{opacity:.42;cursor:not-allowed}
+.mp-side{
+  min-height:0;overflow:auto;padding:12px;background:#fff;border-left:1px solid #d9e1ec
+}
+.mp-card{border:1px solid #d9e1ec;border-radius:12px;padding:12px;margin-bottom:10px;background:#fbfcfe}
+.mp-card h3{margin:0 0 9px;font-size:14px;color:#173e73}
+.mp-spec{display:grid;grid-template-columns:1fr auto;gap:6px 10px;font-size:12px;line-height:1.45}
+.mp-spec span{color:#667085}.mp-spec b{text-align:right;color:#27364a}
+.mp-selection-empty{
+  min-height:70px;display:grid;place-items:center;text-align:center;color:#7a8798;font-size:12px;
+  border:1px dashed #c9d4e2;border-radius:9px;background:#fff
+}
+.mp-selection{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.mp-selection div{border:1px solid #e0e7f0;background:#fff;border-radius:8px;padding:8px}
+.mp-selection small{display:block;color:#667085}.mp-selection b{display:block;margin-top:3px;font-size:13px}
+.mp-side-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px}.mp-side-actions .wide{grid-column:1/-1}
+.mp-status{font-size:12px;line-height:1.55;border-radius:10px;padding:10px 11px;background:#edf7f1;color:#146c43}
+.mp-status.error{background:#fff0ef;color:#9e241c}.mp-status.warning{background:#fff7df;color:#7d5900}
+.mp-status ul{margin:5px 0 0;padding-left:18px}
+.mp-apply{
+  width:100%;margin-top:10px!important;padding:11px!important;font-size:13px!important;
+  box-shadow:0 7px 18px rgba(23,92,211,.2)
+}
+.mp-footnote{margin:9px 2px 0;color:#7a8798;font-size:10px;line-height:1.45}
+html[data-theme="dark"] .mp-dialog{background:#0f172a;color:#e5edf7}
+html[data-theme="dark"] .mp-work{background:#0b1220}
+html[data-theme="dark"] .mp-summary,
+html[data-theme="dark"] .mp-layerbar,
+html[data-theme="dark"] .mp-toolbar,
+html[data-theme="dark"] .mp-side{background:#101b2d;border-color:#2b3a50}
+html[data-theme="dark"] .mp-pill,
+html[data-theme="dark"] .mp-layer-tab,
+html[data-theme="dark"] .mp-card,
+html[data-theme="dark"] .mp-selection div,
+html[data-theme="dark"] .mp-selection-empty,
+html[data-theme="dark"] .mp-toolbar button,
+html[data-theme="dark"] .mp-side button{
+  background:#16243a;color:#dce8f7;border-color:#33445c
+}
+html[data-theme="dark"] .mp-pill b,
+html[data-theme="dark"] .mp-card h3,
+html[data-theme="dark"] .mp-spec b{color:#9cc4ff}
+html[data-theme="dark"] .mp-layer-tab.active,
+html[data-theme="dark"] .mp-toolbar .mp-primary,
+html[data-theme="dark"] .mp-side .mp-primary{background:#2d72d9;color:#fff;border-color:#5c98f0}
+@media(max-width:900px){
+  .mp-modal{padding:0}.mp-dialog{width:100%;height:100dvh;border-radius:0}
+  .mp-content{grid-template-columns:1fr;overflow:auto}
+  .mp-work{min-height:680px}.mp-side{border-left:0;border-top:1px solid #d9e1ec}
+}
+@media(max-width:560px){
+  .mp-head p{display:none}.mp-head{min-height:56px}.mp-work{grid-template-rows:auto auto 470px auto;min-height:0}
+  .mp-canvas-wrap{margin:8px}.mp-summary{gap:5px}.mp-pill{padding:6px 8px}
+  .mp-toolbar{gap:5px;padding:8px}.mp-toolbar button{flex:1 1 calc(33.333% - 5px)}
+  .mp-side{padding:9px}.mp-canvas-help{font-size:10px}
+}
+</style>
+
+<script>
+(function(){
+  "use strict";
+
+  const DRAFT_KEY="palletProManualLayoutV1";
+  const EPS=.0001;
+  const TEXT={
+    zh:{
+      open:"✋ 手動排箱",title:"手動排箱工作台",sub:"拖曳紙箱、旋轉方向並逐層建立自訂配置",
+      close:"關閉",pallet:"棧板",carton:"紙箱",total:"已排箱數",remaining:"剩餘箱數",
+      height:"總高度",load:"整板重量",layer:"層",dragHint:"拖曳移動｜R 旋轉｜Delete 刪除｜0.5 cm 貼齊",
+      add:"＋ 新增一箱",rotate:"↻ 旋轉 90°",remove:"刪除選取",autoFill:"自動填滿本層",
+      clearLayer:"清空本層",undo:"復原",redo:"重做",currentSpec:"目前輸入尺寸",
+      selected:"選取紙箱",noSelection:"點選畫布上的紙箱後，可查看位置與方向。",
+      position:"位置 X / Y",size:"底面尺寸",orientation:"方向",normal:"正常",rotated:"旋轉 90°",
+      manage:"層次管理",newLayer:"＋ 新增一層",duplicate:"複製本層",deleteLayer:"刪除本層",
+      reload:"重新讀取輸入尺寸",status:"配置檢查",apply:"套用到 3D 全景圖",
+      footnote:"手動配置會自動儲存在此裝置。套用前仍應確認紙箱耐壓、層間支撐、固定方式與承運限制。",
+      valid:"配置有效，可以套用到 3D。",empty:"請至少放入一箱。",
+      out:"有紙箱超出可用棧板邊界。",overlap:"同一層有紙箱互相重疊或未保留設定間隙。",
+      qtyOver:"已排箱數超過貨物總箱數。",heightOver:"配置高度超過總限高。",
+      weightOver:"整板重量超過最大載重。",supportLow:"上層紙箱的支撐率低於設定值。",
+      noSpace:"目前這一層已找不到可放置的位置。",qtyReached:"已達貨物總箱數。",
+      confirmReload:"要清除目前手動配置，並重新讀取左側最新尺寸嗎？",
+      confirmDelete:"確定刪除目前這一層嗎？",oneLayer:"至少要保留一層。",
+      applied:"已套用手動配置",boxes:"箱",unlimited:"未限制"
+    },
+    en:{
+      open:"✋ Manual Packing",title:"Manual Packing Workbench",sub:"Drag, rotate, and build a custom pallet layer by layer",
+      close:"Close",pallet:"Pallet",carton:"Carton",total:"Placed",remaining:"Remaining",
+      height:"Total height",load:"Gross weight",layer:"Layer",dragHint:"Drag to move · R rotate · Delete remove · 0.5 cm snap",
+      add:"+ Add carton",rotate:"↻ Rotate 90°",remove:"Delete selected",autoFill:"Auto-fill layer",
+      clearLayer:"Clear layer",undo:"Undo",redo:"Redo",currentSpec:"Current input sizes",
+      selected:"Selected carton",noSelection:"Select a carton on the canvas to inspect its position and orientation.",
+      position:"Position X / Y",size:"Footprint",orientation:"Orientation",normal:"Normal",rotated:"Rotated 90°",
+      manage:"Layer management",newLayer:"+ New layer",duplicate:"Duplicate layer",deleteLayer:"Delete layer",
+      reload:"Reload input sizes",status:"Validation",apply:"Apply to 3D view",
+      footnote:"The draft is saved on this device. Confirm compression strength, support, securing, and carrier limits before shipment.",
+      valid:"The layout is valid and ready for 3D.",empty:"Add at least one carton.",
+      out:"One or more cartons are outside the usable pallet boundary.",overlap:"Cartons overlap or violate the configured gap.",
+      qtyOver:"Placed cartons exceed the shipment quantity.",heightOver:"The layout exceeds the height limit.",
+      weightOver:"The gross weight exceeds the pallet limit.",supportLow:"An upper carton is below the required support ratio.",
+      noSpace:"No additional position is available on this layer.",qtyReached:"The shipment quantity has been reached.",
+      confirmReload:"Clear this draft and reload the latest input sizes?",confirmDelete:"Delete the current layer?",
+      oneLayer:"At least one layer must remain.",applied:"Manual layout applied",boxes:"cartons",unlimited:"Unlimited"
+    },
+    th:{
+      open:"✋ จัดกล่องเอง",title:"พื้นที่จัดกล่องด้วยตนเอง",sub:"ลาก หมุน และสร้างการจัดเรียงทีละชั้น",
+      close:"ปิด",pallet:"พาเลท",carton:"กล่อง",total:"จัดแล้ว",remaining:"คงเหลือ",
+      height:"ความสูงรวม",load:"น้ำหนักรวม",layer:"ชั้น",dragHint:"ลากเพื่อย้าย · R หมุน · Delete ลบ · ล็อกระยะ 0.5 ซม.",
+      add:"+ เพิ่มกล่อง",rotate:"↻ หมุน 90°",remove:"ลบที่เลือก",autoFill:"เติมชั้นอัตโนมัติ",
+      clearLayer:"ล้างชั้นนี้",undo:"ย้อนกลับ",redo:"ทำซ้ำ",currentSpec:"ขนาดจากข้อมูลปัจจุบัน",
+      selected:"กล่องที่เลือก",noSelection:"เลือกกล่องบนพื้นที่ทำงานเพื่อดูตำแหน่งและทิศทาง",
+      position:"ตำแหน่ง X / Y",size:"ขนาดฐาน",orientation:"ทิศทาง",normal:"ปกติ",rotated:"หมุน 90°",
+      manage:"จัดการชั้น",newLayer:"+ เพิ่มชั้น",duplicate:"คัดลอกชั้น",deleteLayer:"ลบชั้น",
+      reload:"โหลดขนาดใหม่",status:"ตรวจสอบการจัดวาง",apply:"ใช้กับภาพ 3 มิติ",
+      footnote:"แบบร่างจะบันทึกในอุปกรณ์นี้ โปรดตรวจความแข็งแรง การรองรับ การยึดตรึง และข้อจำกัดผู้ขนส่งก่อนส่งจริง",
+      valid:"การจัดวางถูกต้องและพร้อมใช้กับภาพ 3 มิติ",empty:"โปรดเพิ่มอย่างน้อยหนึ่งกล่อง",
+      out:"มีกล่องเกินขอบเขตพาเลท",overlap:"กล่องซ้อนทับหรือไม่เป็นไปตามช่องว่างที่ตั้งไว้",
+      qtyOver:"จำนวนกล่องเกินจำนวนสินค้าทั้งหมด",heightOver:"ความสูงเกินค่าจำกัด",
+      weightOver:"น้ำหนักรวมเกินพิกัดพาเลท",supportLow:"กล่องชั้นบนมีพื้นที่รองรับต่ำกว่าค่าที่กำหนด",
+      noSpace:"ชั้นนี้ไม่มีตำแหน่งว่างเพิ่ม",qtyReached:"ครบจำนวนสินค้าทั้งหมดแล้ว",
+      confirmReload:"ล้างแบบปัจจุบันและโหลดขนาดล่าสุดหรือไม่?",confirmDelete:"ลบชั้นปัจจุบันหรือไม่?",
+      oneLayer:"ต้องเหลืออย่างน้อยหนึ่งชั้น",applied:"ใช้การจัดวางด้วยตนเองแล้ว",boxes:"กล่อง",unlimited:"ไม่จำกัด"
+    }
+  };
+
+  function lang(){
+    const active=document.querySelector(".langBtn.active")?.dataset?.lang;
+    if(active)return active;
+    const value=(document.documentElement.lang||"zh").toLowerCase();
+    return value.startsWith("en")?"en":value.startsWith("th")?"th":"zh";
+  }
+  function tr(key){return (TEXT[lang()]||TEXT.zh)[key]||key}
+  function value(id,fallback=0){
+    const number=Number(document.getElementById(id)?.value);
+    return Number.isFinite(number)?number:fallback;
+  }
+  function round2(number){return Math.round(number*100)/100}
+  function clone(data){return JSON.parse(JSON.stringify(data))}
+
+  const openButton=document.createElement("button");
+  openButton.type="button";
+  openButton.id="manualPackOpen";
+  openButton.className="secondary manualPackBtn";
+  openButton.textContent=tr("open");
+  const viewActions=document.querySelector(".quickViews .viewActions");
+  if(viewActions)viewActions.parentNode.insertBefore(openButton,viewActions);
+  else document.querySelector(".quickViews")?.appendChild(openButton);
+
+  const modal=document.createElement("div");
+  modal.id="manualPackModal";
+  modal.className="mp-modal";
+  modal.setAttribute("aria-hidden","true");
+  modal.setAttribute("data-i18n-managed","true");
+  modal.innerHTML=`
+    <div class="mp-dialog" role="dialog" aria-modal="true" aria-labelledby="manualPackTitle">
+      <header class="mp-head">
+        <div class="mp-head-copy"><div class="mp-head-icon">✋</div><div>
+          <h2 id="manualPackTitle" data-mp-t="title"></h2>
+          <p data-mp-t="sub"></p>
+        </div></div>
+        <button class="mp-close" id="manualPackClose" type="button" data-mp-t="close"></button>
+      </header>
+      <div class="mp-content">
+        <section class="mp-work">
+          <div class="mp-summary">
+            <div class="mp-pill"><span data-mp-t="total"></span><b id="mpTotal">0</b></div>
+            <div class="mp-pill"><span data-mp-t="remaining"></span><b id="mpRemaining">—</b></div>
+            <div class="mp-pill" id="mpHeightPill"><span data-mp-t="height"></span><b id="mpHeight">0 cm</b></div>
+            <div class="mp-pill" id="mpWeightPill"><span data-mp-t="load"></span><b id="mpWeight">0 kg</b></div>
+          </div>
+          <div class="mp-layerbar" id="mpLayerTabs"></div>
+          <div class="mp-canvas-wrap" id="mpCanvasWrap">
+            <canvas id="manualPackCanvas" aria-label="手動排箱平面工作區"></canvas>
+            <div class="mp-canvas-help" data-mp-t="dragHint"></div>
+          </div>
+          <div class="mp-toolbar">
+            <button class="mp-primary" id="mpAdd" type="button" data-mp-t="add"></button>
+            <button id="mpRotate" type="button" data-mp-t="rotate"></button>
+            <button class="mp-danger" id="mpRemove" type="button" data-mp-t="remove"></button>
+            <button id="mpAutoFill" type="button" data-mp-t="autoFill"></button>
+            <button class="mp-danger" id="mpClearLayer" type="button" data-mp-t="clearLayer"></button>
+            <button id="mpUndo" type="button" data-mp-t="undo"></button>
+            <button id="mpRedo" type="button" data-mp-t="redo"></button>
+          </div>
+        </section>
+        <aside class="mp-side">
+          <div class="mp-card">
+            <h3 data-mp-t="currentSpec"></h3>
+            <div class="mp-spec">
+              <span data-mp-t="pallet"></span><b id="mpPalletSpec">—</b>
+              <span data-mp-t="carton"></span><b id="mpCartonSpec">—</b>
+            </div>
+          </div>
+          <div class="mp-card">
+            <h3 data-mp-t="selected"></h3>
+            <div id="mpSelection"></div>
+          </div>
+          <div class="mp-card">
+            <h3 data-mp-t="manage"></h3>
+            <div class="mp-side-actions">
+              <button id="mpNewLayer" type="button" data-mp-t="newLayer"></button>
+              <button id="mpDuplicateLayer" type="button" data-mp-t="duplicate"></button>
+              <button class="mp-danger" id="mpDeleteLayer" type="button" data-mp-t="deleteLayer"></button>
+              <button class="wide" id="mpReload" type="button" data-mp-t="reload"></button>
+            </div>
+          </div>
+          <div class="mp-card">
+            <h3 data-mp-t="status"></h3>
+            <div class="mp-status" id="mpStatus"></div>
+          </div>
+          <button class="mp-primary mp-apply" id="mpApply" type="button" data-mp-t="apply"></button>
+          <p class="mp-footnote" data-mp-t="footnote"></p>
+        </aside>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+
+  const byId=id=>document.getElementById(id);
+  const canvas=byId("manualPackCanvas");
+  const ctx=canvas.getContext("2d");
+  let state=null;
+  let nextId=1;
+  let dragInfo=null;
+  let history=[];
+  let historyIndex=-1;
+  let canvasView={scale:1,ox:0,oy:0};
+
+  function currentSpec(){
+    return {
+      PL:value("pL"),PW:value("pW"),PH:value("pH"),maxH:value("maxH"),maxW:value("maxW"),
+      L:value("bL"),W:value("bW"),H:value("bH"),boxWeight:value("boxWeight"),quantity:Math.floor(value("quantity")),
+      palletWeight:value("palletWeight"),layerPad:value("layerPad"),topPack:value("topPack"),
+      packWeight:value("packWeight"),gap:value("boxGap"),edge:value("edgeMargin"),
+      overhang:value("overhang"),minSupport:value("minSupport"),enforceSupport:!!byId("enforceSupport")?.checked
+    };
+  }
+  function validSpec(spec){
+    return spec.PL>0&&spec.PW>0&&spec.L>0&&spec.W>0&&spec.H>0&&spec.maxH>=spec.PH;
+  }
+  function newState(spec){return {...spec,layers:[[]],activeLayer:0,selectedId:null}}
+  function sameSpec(a,b){
+    return ["PL","PW","PH","maxH","maxW","L","W","H","boxWeight","quantity","palletWeight","layerPad","topPack","packWeight","gap","edge","overhang","minSupport","enforceSupport"]
+      .every(key=>a?.[key]===b?.[key]);
+  }
+  function refreshNextId(){
+    nextId=1;
+    state.layers.flat().forEach(box=>{nextId=Math.max(nextId,(Number(box.id)||0)+1)});
+  }
+  function saveDraft(){
+    try{localStorage.setItem(DRAFT_KEY,JSON.stringify(state))}catch(_){}
+  }
+  function restoreOrCreate(spec){
+    try{
+      const saved=JSON.parse(localStorage.getItem(DRAFT_KEY)||"null");
+      if(saved&&Array.isArray(saved.layers)&&sameSpec(saved,spec)){
+        saved.activeLayer=Math.max(0,Math.min(saved.layers.length-1,Number(saved.activeLayer)||0));
+        saved.selectedId=null;
+        state=saved;
+        refreshNextId();
+        return;
+      }
+    }catch(_){}
+    state=newState(spec);
+    nextId=1;
+  }
+  function snapshot(){return JSON.stringify(state)}
+  function pushHistory(){
+    const data=snapshot();
+    if(history[historyIndex]===data){saveDraft();return}
+    history=history.slice(0,historyIndex+1);
+    history.push(data);
+    if(history.length>60)history.shift();
+    historyIndex=history.length-1;
+    saveDraft();
+  }
+  function restoreHistory(index){
+    if(index<0||index>=history.length)return;
+    historyIndex=index;
+    state=JSON.parse(history[index]);
+    refreshNextId();
+    renderAll();
+    saveDraft();
+  }
+  function activeLayer(){return state.layers[state.activeLayer]}
+  function totalBoxes(){return state.layers.reduce((sum,layer)=>sum+layer.length,0)}
+  function usedLayers(){return state.layers.filter(layer=>layer.length)}
+  function maxLayers(){
+    return Math.max(0,Math.floor((state.maxH-state.PH-state.topPack+state.layerPad)/(state.H+state.layerPad)+EPS));
+  }
+  function totalHeight(){
+    const count=usedLayers().length;
+    return state.PH+count*state.H+Math.max(0,count-1)*state.layerPad+state.topPack;
+  }
+  function grossWeight(){return totalBoxes()*state.boxWeight+state.palletWeight+state.packWeight}
+  function bounds(){
+    return {
+      minX:state.edge-state.overhang,minY:state.edge-state.overhang,
+      maxX:state.PL-state.edge+state.overhang,maxY:state.PW-state.edge+state.overhang
+    };
+  }
+  function inside(box){
+    const area=bounds();
+    return box.x>=area.minX-EPS&&box.y>=area.minY-EPS&&
+      box.x+box.l<=area.maxX+EPS&&box.y+box.w<=area.maxY+EPS;
+  }
+  function overlaps(a,b){
+    const gap=state.gap;
+    return a.x<b.x+b.l+gap-EPS&&
+      a.x+a.l+gap>b.x+EPS&&a.y<b.y+b.w+gap-EPS&&a.y+a.w+gap>b.y+EPS;
+  }
+  function overlapArea(a,b){
+    const width=Math.max(0,Math.min(a.x+a.l,b.x+b.l)-Math.max(a.x,b.x));
+    const depth=Math.max(0,Math.min(a.y+a.w,b.y+b.w)-Math.max(a.y,b.y));
+    return width*depth;
+  }
+  function analyze(){
+    const errors=[];
+    const badIds=new Set();
+    let hasOut=false,hasOverlap=false,minActualSupport=100,hasLowSupport=false;
+    state.layers.forEach((layer,layerIndex)=>{
+      layer.forEach((box,index)=>{
+        if(!inside(box)){hasOut=true;badIds.add(box.id)}
+        for(let j=index+1;j<layer.length;j++){
+          if(overlaps(box,layer[j])){hasOverlap=true;badIds.add(box.id);badIds.add(layer[j].id)}
+        }
+        if(layerIndex>0&&state.enforceSupport){
+          const below=state.layers[layerIndex-1]||[];
+          const support=Math.min(100,below.reduce((sum,item)=>sum+overlapArea(box,item),0)/(box.l*box.w)*100);
+          minActualSupport=Math.min(minActualSupport,support);
+          if(support+EPS<state.minSupport){hasLowSupport=true;badIds.add(box.id)}
+        }
+      });
+    });
+    if(totalBoxes()===0)errors.push(tr("empty"));
+    if(hasOut)errors.push(tr("out"));
+    if(hasOverlap)errors.push(tr("overlap"));
+    if(state.quantity>0&&totalBoxes()>state.quantity)errors.push(tr("qtyOver"));
+    if(totalHeight()>state.maxH+EPS)errors.push(tr("heightOver"));
+    if(grossWeight()>state.maxW+EPS)errors.push(tr("weightOver"));
+    if(hasLowSupport)errors.push(`${tr("supportLow")} (${round2(minActualSupport)}%)`);
+    return {errors,badIds,minSupport:minActualSupport};
+  }
+  function freeAt(box,layer,ignoreId=null){
+    return inside(box)&&!layer.some(item=>item.id!==ignoreId&&overlaps(box,item));
+  }
+  function snap(number){return round2(Math.round(number*2)/2)}
+
+  function candidatePositions(layer){
+    const area=bounds();
+    const positions=[{x:area.minX,y:area.minY}];
+    layer.forEach(box=>{
+      positions.push(
+        {x:box.x+box.l+state.gap,y:box.y},
+        {x:box.x,y:box.y+box.w+state.gap},
+        {x:area.minX,y:box.y+box.w+state.gap},
+        {x:box.x+box.l+state.gap,y:area.minY}
+      );
+    });
+    return positions.sort((a,b)=>a.y-b.y||a.x-b.x);
+  }
+  function findSpot(l,w,layer){
+    for(const point of candidatePositions(layer)){
+      const box={id:-1,x:snap(point.x),y:snap(point.y),l,w};
+      if(freeAt(box,layer))return box;
+    }
+    const area=bounds(),step=Math.max(.5,Math.min(l,w)/10);
+    for(let y=area.minY;y+w<=area.maxY+EPS;y+=step){
+      for(let x=area.minX;x+l<=area.maxX+EPS;x+=step){
+        const box={id:-1,x:snap(x),y:snap(y),l,w};
+        if(freeAt(box,layer))return box;
+      }
+    }
+    return null;
+  }
+  function addOne(silent=false){
+    if(state.quantity>0&&totalBoxes()>=state.quantity){
+      if(!silent)alert(tr("qtyReached"));
+      return false;
+    }
+    const layer=activeLayer();
+    let spot=findSpot(state.L,state.W,layer),rotated=false;
+    if(!spot&&Math.abs(state.L-state.W)>EPS){spot=findSpot(state.W,state.L,layer);rotated=!!spot}
+    if(!spot){if(!silent)alert(tr("noSpace"));return false}
+    const box={...spot,id:nextId++,rotated};
+    layer.push(box);
+    state.selectedId=box.id;
+    return true;
+  }
+  function commit(){pushHistory();renderAll()}
+  function addBox(){if(addOne())commit()}
+  function autoFill(){
+    let added=0,guard=0;
+    while(guard++<500&&addOne(true)){added++}
+    if(!added)alert(state.quantity>0&&totalBoxes()>=state.quantity?tr("qtyReached"):tr("noSpace"));
+    else commit();
+  }
+  function selectedBox(){return state.layers.flat().find(box=>box.id===state.selectedId)||null}
+  function rotateSelected(){
+    const box=selectedBox();if(!box)return;
+    const cx=box.x+box.l/2,cy=box.y+box.w/2;
+    const l=box.w,w=box.l,area=bounds();
+    box.l=l;box.w=w;box.rotated=!box.rotated;
+    box.x=snap(Math.max(area.minX,Math.min(area.maxX-l,cx-l/2)));
+    box.y=snap(Math.max(area.minY,Math.min(area.maxY-w,cy-w/2)));
+    commit();
+  }
+  function removeSelected(){
+    if(state.selectedId==null)return;
+    const layer=activeLayer(),index=layer.findIndex(box=>box.id===state.selectedId);
+    if(index>=0){layer.splice(index,1);state.selectedId=null;commit()}
+  }
+  function clearLayer(){
+    if(!activeLayer().length)return;
+    activeLayer().length=0;state.selectedId=null;commit();
+  }
+  function addLayer(){
+    if(state.layers.length>=maxLayers()&&maxLayers()>0){alert(tr("heightOver"));return}
+    state.layers.push([]);state.activeLayer=state.layers.length-1;state.selectedId=null;commit();
+  }
+  function duplicateLayer(){
+    if(state.layers.length>=maxLayers()&&maxLayers()>0){alert(tr("heightOver"));return}
+    let available=state.quantity>0?Math.max(0,state.quantity-totalBoxes()):Infinity;
+    if(available<=0){alert(tr("qtyReached"));return}
+    const copy=activeLayer().slice(0,available).map(box=>({...box,id:nextId++}));
+    if(!copy.length){alert(tr("empty"));return}
+    state.layers.splice(state.activeLayer+1,0,copy);
+    state.activeLayer++;state.selectedId=null;commit();
+  }
+  function deleteLayer(){
+    if(state.layers.length===1){alert(tr("oneLayer"));return}
+    if(!confirm(tr("confirmDelete")))return;
+    state.layers.splice(state.activeLayer,1);
+    state.activeLayer=Math.min(state.activeLayer,state.layers.length-1);
+    state.selectedId=null;commit();
+  }
+  function reloadInputs(){
+    if(!confirm(tr("confirmReload")))return;
+    const spec=currentSpec();
+    if(!validSpec(spec)){alert("請確認棧板與紙箱長、寬、高皆為有效數值。");return}
+    state=newState(spec);nextId=1;history=[];historyIndex=-1;pushHistory();renderAll();
+  }
+
+  function draw(){
+    if(!state)return;
+    const rect=canvas.getBoundingClientRect();
+    if(rect.width<1||rect.height<1)return;
+    const dpr=Math.min(2,window.devicePixelRatio||1);
+    canvas.width=Math.round(rect.width*dpr);canvas.height=Math.round(rect.height*dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    const width=rect.width,height=rect.height;
+    ctx.clearRect(0,0,width,height);
+    const dark=document.documentElement.getAttribute("data-theme")==="dark";
+    const pad=Math.min(58,Math.max(34,width*.075));
+    const scale=Math.min((width-pad*2)/state.PL,(height-pad*2)/state.PW);
+    const ox=(width-state.PL*scale)/2,oy=(height-state.PW*scale)/2;
+    canvasView={scale,ox,oy};
+
+    ctx.save();
+    ctx.shadowColor="rgba(14,39,75,.18)";ctx.shadowBlur=18;ctx.shadowOffsetY=8;
+    ctx.fillStyle=dark?"#25344a":"#d6a36f";ctx.fillRect(ox,oy,state.PL*scale,state.PW*scale);
+    ctx.restore();
+    ctx.fillStyle=dark?"#1b2a3e":"#e8bd8e";ctx.fillRect(ox+3,oy+3,state.PL*scale-6,state.PW*scale-6);
+
+    ctx.save();ctx.beginPath();ctx.rect(ox,oy,state.PL*scale,state.PW*scale);ctx.clip();
+    ctx.strokeStyle=dark?"rgba(184,205,231,.12)":"rgba(74,91,114,.15)";ctx.lineWidth=1;
+    const grid=10*scale;
+    if(grid>=12){
+      for(let x=ox;x<=ox+state.PL*scale+EPS;x+=grid){ctx.beginPath();ctx.moveTo(x,oy);ctx.lineTo(x,oy+state.PW*scale);ctx.stroke()}
+      for(let y=oy;y<=oy+state.PW*scale+EPS;y+=grid){ctx.beginPath();ctx.moveTo(ox,y);ctx.lineTo(ox+state.PL*scale,y);ctx.stroke()}
+    }
+    ctx.restore();
+
+    const report=analyze();
+    activeLayer().forEach((box,index)=>{
+      const x=ox+box.x*scale,y=oy+box.y*scale,w=box.l*scale,h=box.w*scale;
+      const selected=box.id===state.selectedId,bad=report.badIds.has(box.id);
+      ctx.fillStyle=bad?"rgba(217,45,32,.82)":selected?"rgba(255,193,7,.92)":"rgba(48,121,207,.88)";
+      ctx.strokeStyle=bad?"#8f1710":selected?"#5c4600":"#123f75";ctx.lineWidth=selected?3:1.3;
+      ctx.fillRect(x,y,w,h);ctx.strokeRect(x,y,w,h);
+      ctx.save();ctx.beginPath();ctx.rect(x,y,w,h);ctx.clip();
+      ctx.fillStyle=bad?"#fff":"#fff";ctx.textAlign="center";ctx.textBaseline="middle";
+      ctx.font=`800 ${Math.max(10,Math.min(16,Math.min(w,h)*.25))}px Arial`;
+      ctx.fillText(String(index+1),x+w/2,y+h/2);
+      if(box.rotated&&w>30&&h>24){
+        ctx.font="700 9px Arial";ctx.fillText("90°",x+w/2,y+h-8);
+      }
+      ctx.restore();
+      if(selected){
+        ctx.fillStyle="#fff";
+        [[x,y],[x+w,y],[x+w,y+h],[x,y+h]].forEach(([hx,hy])=>{ctx.beginPath();ctx.arc(hx,hy,4,0,Math.PI*2);ctx.fill();ctx.stroke()});
+      }
+    });
+
+    ctx.fillStyle=dark?"#dce8f7":"#173e73";ctx.font="700 12px Arial";ctx.textAlign="center";
+    ctx.fillText(`${round2(state.PL)} cm`,ox+state.PL*scale/2,oy-15);
+    ctx.save();ctx.translate(ox-18,oy+state.PW*scale/2);ctx.rotate(-Math.PI/2);ctx.fillText(`${round2(state.PW)} cm`,0,0);ctx.restore();
+  }
+  function pointerPoint(event){
+    const rect=canvas.getBoundingClientRect();
+    return {x:(event.clientX-rect.left-canvasView.ox)/canvasView.scale,y:(event.clientY-rect.top-canvasView.oy)/canvasView.scale};
+  }
+  function hitTest(point){
+    const layer=activeLayer();
+    for(let i=layer.length-1;i>=0;i--){
+      const box=layer[i];
+      if(point.x>=box.x&&point.x<=box.x+box.l&&point.y>=box.y&&point.y<=box.y+box.w)return box;
+    }
+    return null;
+  }
+  canvas.addEventListener("pointerdown",event=>{
+    if(!state)return;
+    event.preventDefault();
+    const point=pointerPoint(event),box=hitTest(point);
+    state.selectedId=box?.id??null;
+    if(box){
+      dragInfo={id:box.id,dx:point.x-box.x,dy:point.y-box.y,before:snapshot()};
+      canvas.setPointerCapture(event.pointerId);canvas.classList.add("dragging");
+    }
+    renderSelection();draw();
+  });
+  canvas.addEventListener("pointermove",event=>{
+    if(!dragInfo)return;
+    event.preventDefault();
+    const box=selectedBox();if(!box)return;
+    const point=pointerPoint(event),area=bounds();
+    box.x=snap(Math.max(area.minX,Math.min(area.maxX-box.l,point.x-dragInfo.dx)));
+    box.y=snap(Math.max(area.minY,Math.min(area.maxY-box.w,point.y-dragInfo.dy)));
+    renderStats();renderSelection();draw();
+  });
+  function finishDrag(event){
+    if(!dragInfo)return;
+    try{canvas.releasePointerCapture(event.pointerId)}catch(_){}
+    canvas.classList.remove("dragging");
+    const changed=dragInfo.before!==snapshot();
+    dragInfo=null;
+    if(changed)pushHistory();
+    renderAll();
+  }
+  canvas.addEventListener("pointerup",finishDrag);
+  canvas.addEventListener("pointercancel",finishDrag);
+  canvas.addEventListener("dblclick",event=>{if(hitTest(pointerPoint(event))){rotateSelected()}});
+
+  function renderLayers(){
+    const tabs=byId("mpLayerTabs");tabs.innerHTML="";
+    state.layers.forEach((layer,index)=>{
+      const button=document.createElement("button");
+      button.type="button";button.className=`mp-layer-tab ${index===state.activeLayer?"active":""}`;
+      button.textContent=`${tr("layer")} ${index+1} · ${layer.length} ${tr("boxes")}`;
+      button.onclick=()=>{state.activeLayer=index;state.selectedId=null;renderAll()};
+      tabs.appendChild(button);
+    });
+  }
+  function renderSelection(){
+    const box=selectedBox(),target=byId("mpSelection");
+    if(!box){
+      target.innerHTML=`<div class="mp-selection-empty">${tr("noSelection")}</div>`;
+      byId("mpRotate").disabled=true;byId("mpRemove").disabled=true;
+      return;
+    }
+    target.innerHTML=`<div class="mp-selection">
+      <div><small>${tr("position")}</small><b>${round2(box.x)} / ${round2(box.y)} cm</b></div>
+      <div><small>${tr("size")}</small><b>${round2(box.l)} × ${round2(box.w)} cm</b></div>
+      <div style="grid-column:1/-1"><small>${tr("orientation")}</small><b>${tr(box.rotated?"rotated":"normal")}</b></div>
+    </div>`;
+    byId("mpRotate").disabled=false;byId("mpRemove").disabled=false;
+  }
+  function renderStats(){
+    const count=totalBoxes(),remaining=state.quantity>0?Math.max(0,state.quantity-count):tr("unlimited");
+    const height=totalHeight(),weight=grossWeight(),report=analyze();
+    byId("mpTotal").textContent=`${count} ${tr("boxes")}`;
+    byId("mpRemaining").textContent=typeof remaining==="number"?`${remaining} ${tr("boxes")}`:remaining;
+    byId("mpHeight").textContent=`${round2(height)} / ${round2(state.maxH)} cm`;
+    byId("mpWeight").textContent=`${round2(weight)} / ${round2(state.maxW)} kg`;
+    byId("mpHeightPill").classList.toggle("bad",height>state.maxH+EPS);
+    byId("mpHeightPill").classList.toggle("good",height<=state.maxH+EPS);
+    byId("mpWeightPill").classList.toggle("bad",weight>state.maxW+EPS);
+    byId("mpWeightPill").classList.toggle("good",weight<=state.maxW+EPS);
+    byId("mpPalletSpec").textContent=`${round2(state.PL)} × ${round2(state.PW)} × ${round2(state.PH)} cm`;
+    byId("mpCartonSpec").textContent=`${round2(state.L)} × ${round2(state.W)} × ${round2(state.H)} cm`;
+    const status=byId("mpStatus");
+    if(report.errors.length){
+      status.className="mp-status error";
+      status.innerHTML=`<b>${report.errors.length}</b><ul>${report.errors.map(text=>`<li>${text}</li>`).join("")}</ul>`;
+    }else{
+      status.className="mp-status";
+      status.textContent=tr("valid");
+    }
+    byId("mpApply").disabled=report.errors.length>0;
+    byId("mpUndo").disabled=historyIndex<=0;
+    byId("mpRedo").disabled=historyIndex>=history.length-1;
+  }
+  function renderAll(){updateLanguage();renderLayers();renderStats();renderSelection();requestAnimationFrame(draw)}
+  function updateLanguage(){
+    openButton.textContent=tr("open");
+    modal.querySelectorAll("[data-mp-t]").forEach(node=>{node.textContent=tr(node.dataset.mpT)});
+    if(state){
+      renderLayers();renderStats();renderSelection();
+    }
+  }
+
+  function openWorkbench(){
+    const spec=currentSpec();
+    if(!validSpec(spec)){alert("請確認棧板與紙箱長、寬、高皆為有效數值。");return}
+    if(!state||!sameSpec(state,spec)){
+      restoreOrCreate(spec);history=[];historyIndex=-1;pushHistory();
+    }
+    modal.classList.add("open");modal.setAttribute("aria-hidden","false");
+    document.body.style.overflow="hidden";
+    renderAll();setTimeout(draw,80);
+  }
+  function closeWorkbench(){
+    modal.classList.remove("open");modal.setAttribute("aria-hidden","true");
+    document.body.style.overflow="";
+  }
+
+  function applyTo3D(){
+    const report=analyze();
+    if(report.errors.length){alert(report.errors.join("\n"));return}
+    const layouts=state.layers.filter(layer=>layer.length).map(layer=>({
+      boxes:layer.map(box=>({x:box.x,y:box.y,l:box.l,w:box.w})),
+      count:layer.length,full:true,name:tr("title")
+    }));
+    const count=totalBoxes(),occupied=layouts.length,maxCount=Math.max(...layouts.map(layer=>layer.count));
+    const usedWeight=count*state.boxWeight;
+    const height=totalHeight();
+    const support=report.minSupport;
+    const cg=typeof stackCG==="function"?stackCG(layouts,state.PL,state.PW):{cx:state.PL/2,cy:state.PW/2,d:0};
+    const stability=Math.max(0,Math.min(100,Math.round(support*.65+Math.max(0,25-cg.d*2)+10)));
+    const maxArea=Math.max(...layouts.map(layer=>layer.boxes.reduce((sum,box)=>sum+box.l*box.w,0)));
+    const util=maxArea/(state.PL*state.PW)*100;
+    const availableVolume=state.PL*state.PW*Math.max(0,state.maxH-state.PH-state.topPack);
+    const spaceUtil=availableVolume>0?count*state.L*state.W*state.H/availableVolume*100:0;
+    const fullest=layouts.reduce((best,layer)=>layer.count>best.count?layer:best,layouts[0]);
+    const A={boxes:fullest.boxes.map(box=>({...box})),count:maxCount,name:tr("title")};
+    const candidate={
+      score:[count,occupied,stability,spaceUtil,util],o:{a:state.L,b:state.W,h:state.H,label:`${state.L}×${state.W}×${state.H}`},
+      A,B:A,layerLayouts:layouts,totalBoxes:count,usedWeight,occupiedLayers:occupied,fullLayers:occupied,
+      maxHeightLayers:maxLayers(),totalHeight:height,stability,support,cg,util,spaceUtil,
+      heightFill:state.maxH>0?height/state.maxH*100:0,activeCrossMode:"manual",
+      palletWeight:state.palletWeight,packWeight:state.packWeight,gap:state.gap
+    };
+    const palletsNeeded=state.quantity>0?Math.ceil(state.quantity/count):null;
+    if(typeof resetBoxAnimation==="function")resetBoxAnimation(false);
+    model={
+      PL:state.PL,PW:state.PW,PH:state.PH,maxH:state.maxH,maxLoad:state.maxW,
+      L:state.L,W:state.W,H:state.H,boxWeight:state.boxWeight,quantity:state.quantity,
+      cross:false,partial:true,edge:state.edge,overhang:state.overhang,
+      layerPad:state.layerPad,topPack:state.topPack,...candidate,palletsNeeded,
+      deepVerified:false,verifiedCandidateCount:1,manualLayout:true
+    };
+    byId("rPerLayer").textContent=`${maxCount} ${tr("boxes")}`;
+    byId("rLayers").textContent=`${occupied} ${tr("layer")}`;
+    byId("rTotal").textContent=`${count} ${tr("boxes")}`;
+    byId("rHeight").textContent=`${round2(height).toFixed(2)} cm`;
+    byId("rWeight").textContent=`${round2(usedWeight+state.palletWeight+state.packWeight).toFixed(2)} kg`;
+    byId("rPallets").textContent=palletsNeeded?`${palletsNeeded} ${tr("pallet")}`:"—";
+    byId("rStability").textContent=`${stability}/100`;
+    const utilClass=spaceUtil>=80?"utilGood":spaceUtil>=70?"utilWarn":"utilBad";
+    byId("rSpaceUtil").innerHTML=`<span class="utilBadge ${utilClass}">${round2(spaceUtil).toFixed(2)}%</span>`;
+    byId("details").innerHTML=`<b>${tr("applied")}：</b>${count} ${tr("boxes")}／${occupied} ${tr("layer")}；`+
+      `${tr("height")} ${round2(height).toFixed(2)} cm；${tr("load")} ${round2(usedWeight+state.palletWeight+state.packWeight).toFixed(2)} kg。<br>`+
+      `<b>${tr("status")}：</b>${tr("valid")}`;
+    byId("statusBox").innerHTML=`<b>${tr("applied")}</b><br>${count} ${tr("boxes")}｜${occupied} ${tr("layer")}<br>${round2(spaceUtil).toFixed(2)}%`;
+    if(byId("targetSearch"))byId("targetSearch").innerHTML="";
+    if(byId("rankingList"))byId("rankingList").innerHTML=`<div class="historyEmpty">${tr("applied")}</div>`;
+    selectedLayer=-1;
+    if(typeof buildLayerTabs==="function")buildLayerTabs();
+    if(typeof resetView==="function")resetView();
+    if(typeof resizeAndDraw==="function")resizeAndDraw();
+    closeWorkbench();
+    document.querySelector(".view")?.scrollIntoView({behavior:"smooth",block:"start"});
+  }
+
+  openButton.onclick=openWorkbench;
+  byId("manualPackClose").onclick=closeWorkbench;
+  modal.addEventListener("click",event=>{if(event.target===modal)closeWorkbench()});
+  byId("mpAdd").onclick=addBox;
+  byId("mpRotate").onclick=rotateSelected;
+  byId("mpRemove").onclick=removeSelected;
+  byId("mpAutoFill").onclick=autoFill;
+  byId("mpClearLayer").onclick=clearLayer;
+  byId("mpUndo").onclick=()=>restoreHistory(historyIndex-1);
+  byId("mpRedo").onclick=()=>restoreHistory(historyIndex+1);
+  byId("mpNewLayer").onclick=addLayer;
+  byId("mpDuplicateLayer").onclick=duplicateLayer;
+  byId("mpDeleteLayer").onclick=deleteLayer;
+  byId("mpReload").onclick=reloadInputs;
+  byId("mpApply").onclick=applyTo3D;
+
+  document.addEventListener("keydown",event=>{
+    if(!modal.classList.contains("open"))return;
+    if(event.target.matches("input,select,textarea"))return;
+    if(event.key==="Escape"){closeWorkbench();return}
+    if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==="z"){
+      event.preventDefault();restoreHistory(historyIndex+(event.shiftKey?1:-1));return;
+    }
+    if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==="y"){
+      event.preventDefault();restoreHistory(historyIndex+1);return;
+    }
+    if(event.key==="Delete"||event.key==="Backspace"){event.preventDefault();removeSelected();return}
+    if(event.key.toLowerCase()==="r"){event.preventDefault();rotateSelected()}
+  });
+  document.querySelectorAll(".langBtn").forEach(button=>button.addEventListener("click",()=>{
+    setTimeout(updateLanguage,20);setTimeout(updateLanguage,220);
+  }));
+  new ResizeObserver(()=>{if(modal.classList.contains("open"))draw()}).observe(byId("mpCanvasWrap"));
+
+  try{
+    if(typeof GUIDE_STEPS!=="undefined"&&!GUIDE_STEPS.some(step=>step.manualPacking)){
+      GUIDE_STEPS.splice(8,0,{
+        manualPacking:true,icon:"9",
+        short:{zh:"手動排箱",en:"Manual Packing",th:"จัดกล่องเอง"},
+        title:{zh:"使用手動排箱建立自訂配置",en:"Create a custom layout manually",th:"สร้างการจัดวางด้วยตนเอง"},
+        intro:{zh:"手動排箱可讓你逐箱拖曳、旋轉並建立多層配置。",en:"Manual Packing lets you drag, rotate, and arrange cartons layer by layer.",th:"จัดกล่องด้วยตนเองโดยลาก หมุน และเพิ่มทีละชั้น"},
+        items:{
+          zh:["先在左側輸入棧板長、寬、高、總限高與最大載重。","輸入紙箱長、寬、高、單箱重量與貨物總箱數。","按 3D 操作區上方的「手動排箱」，系統會讀取目前輸入尺寸。","按「新增一箱」逐箱放置，或按「自動填滿本層」快速建立初始排列。","在平面工作區拖曳紙箱調整位置；選取後可按「旋轉 90°」或使用 R 鍵改變方向。","按「刪除選取」或 Delete 鍵移除紙箱；誤操作時可使用「復原」與「重做」。","需要多層時，按「新增一層」建立空白層，或按「複製本層」沿用相同排列。","上方統計會即時顯示已排箱數、剩餘箱數、總高度與整板重量。","紅色紙箱代表超出邊界、互相重疊、未保留箱間隙或層間支撐不足，請依「配置檢查」提示修正。","全部檢查通過後，按「套用到 3D 全景圖」，再從等角、俯視、正視與側視角度確認配置。"],
+          en:["Enter pallet dimensions, total height limit, and maximum load.","Enter carton dimensions, unit weight, and total shipment quantity.","Click Manual Packing above the 3D controls to load the current inputs.","Add cartons one at a time or auto-fill the current layer.","Drag cartons to move them. Select one and click Rotate 90°, or press R.","Delete the selection with the button or Delete key; use Undo and Redo when needed.","Add a blank layer or duplicate the current layer to reuse its arrangement.","The summary updates placed cartons, remaining quantity, total height, and gross weight.","Red cartons indicate a boundary, overlap, gap, or support problem. Follow the validation message.","When all checks pass, apply the layout to 3D and review it from isometric, top, front, and side views."],
+          th:["กรอกขนาดพาเลท ความสูงรวมสูงสุด และน้ำหนักบรรทุกสูงสุด","กรอกขนาดกล่อง น้ำหนักต่อกล่อง และจำนวนสินค้าทั้งหมด","กดจัดกล่องเองเหนือส่วนควบคุม 3 มิติเพื่อโหลดข้อมูลปัจจุบัน","เพิ่มกล่องทีละใบหรือเติมชั้นปัจจุบันอัตโนมัติ","ลากกล่องเพื่อย้าย เลือกแล้วกดหมุน 90° หรือกดปุ่ม R","ลบกล่องที่เลือกด้วยปุ่มหรือ Delete และใช้ย้อนกลับหรือทำซ้ำเมื่อจำเป็น","เพิ่มชั้นว่างหรือคัดลอกชั้นปัจจุบันเพื่อใช้รูปแบบเดิม","ข้อมูลสรุปจะแสดงจำนวนที่จัดแล้ว จำนวนคงเหลือ ความสูงรวม และน้ำหนักรวม","กล่องสีแดงแสดงปัญหาขอบเขต การซ้อนทับ ช่องว่าง หรือการรองรับ ให้แก้ตามข้อความตรวจสอบ","เมื่อผ่านการตรวจทั้งหมด ให้ใช้กับภาพ 3 มิติและตรวจมุมมองไอโซเมตริก ด้านบน ด้านหน้า และด้านข้าง"]
+        },
+        tip:{zh:"手動配置草稿會自動保存在此裝置；若左側尺寸有更新，可按「重新讀取輸入尺寸」。正式出貨前仍需由現場人員確認。",en:"Drafts are saved on this device. Use Reload Input Sizes after changing the main inputs. On-site verification is still required.",th:"แบบร่างบันทึกในอุปกรณ์นี้ หากแก้ข้อมูลหลักให้กดโหลดขนาดใหม่ และยังต้องตรวจสอบหน้างานก่อนส่งจริง"}
+      });
+    }
+  }catch(_){}
+  updateLanguage();
 })();
 </script>
 
