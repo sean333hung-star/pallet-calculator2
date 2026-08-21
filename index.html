@@ -4,7 +4,6 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Pallet AI Pro V4 Enterprise</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23163d73'/><text x='50' y='68' font-size='60' text-anchor='middle'>📦</text></svg>">
 <script>
 /* 每次開啟都從主 3D 畫面開始，不還原上次停留的總覽位置 */
 if("scrollRestoration" in history)history.scrollRestoration="manual";
@@ -24,6 +23,10 @@ window.addEventListener("load",()=>{
   }
   *{box-sizing:border-box}
   body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","Microsoft JhengHei",sans-serif;background:var(--bg);color:var(--text)}
+  .controls input.inputError,.controls select.inputError{border-color:#d92d20!important;background:#fff5f5!important;box-shadow:0 0 0 3px rgba(217,45,32,.12)!important}
+  .inputErrorText{display:block;margin-top:4px;color:#b42318;font-size:11px;font-weight:750;line-height:1.35}
+  .capacityReason{margin-top:9px;padding:9px 11px;border:1px solid #bfd4f5;border-radius:9px;background:#eef5ff;color:#173e73;line-height:1.55}
+  .capacityReason b{color:#0b4bb3}
   header{padding:18px 24px;background:#0f2f5f;color:#fff}
   header h1{margin:0;font-size:22px}
   header p{margin:6px 0 0;opacity:.86;font-size:13px}
@@ -1144,7 +1147,6 @@ main{
 .tutorialPrev{background:#eef4ff;color:#164ca3}
 .tutorialNext{background:#175cd3;color:#fff}
 .tutorialTargetPulse{outline:3px solid rgba(96,165,250,.35);outline-offset:3px}
-50%{filter:brightness(1.08)}}
 html[data-theme="dark"] .tutorialCard{background:#111827!important;color:#e5edf7!important;border-color:#334155!important}
 html[data-theme="dark"] .tutorialCard p,html[data-theme="dark"] .tutorialHint{color:#cbd5e1!important}
 html[data-theme="dark"] .tutorialHint{background:#1e293b!important;border-color:#334155!important}
@@ -1401,6 +1403,42 @@ html[data-theme="dark"] .allPalletHead h3,html[data-theme="dark"] .palletCardHea
 body:not(.hasCalculation) .quickViews,body:not(.hasCalculation) .printActions,body:not(.hasCalculation) #allPalletOverview{display:none!important}.contextNextSteps{display:none;align-items:center;gap:7px;flex-wrap:wrap;padding:8px 10px;border-bottom:1px solid #d9e4f0;background:#f8fbff;color:#52657a;font-size:11px}.hasCalculation .contextNextSteps{display:flex}.contextNextSteps b{color:#067647}.contextNextSteps span{color:#94a3b8}.contextNextSteps button{padding:6px 9px;background:#eef4ff;color:#164ca3;font-size:11px}.contextNextSteps button:hover{background:#dbeafe}.palletsCollapsed .allPalletActions>*:not(#toggleAllPallets){display:none!important}.palletsCollapsed .allPalletActions{display:flex!important}.palletsCollapsed #toggleAllPallets{background:#175cd3;color:#fff}.hasCalculation:not(.hasMultiplePallets) #allPalletOverview{display:none!important}.historyEmptyState .historyTools{display:none!important}
 html[data-theme="dark"] .contextNextSteps{background:#111827;border-color:#334155;color:#cbd5e1}
 .clearAllBtn{width:100%;margin-top:8px;background:#fff;color:#b42318;border:1px solid #f5b7b1}.clearAllBtn:hover{background:#fff1f0;border-color:#e98980}.clearAllBtn:focus{outline:3px solid rgba(180,35,24,.15)}html[data-theme="dark"] .clearAllBtn{background:#2a1719!important;color:#fca5a5!important;border-color:#7f1d1d!important}
+
+/* 高可讀模式：供年長主管與工廠現場清楚辨識 */
+html{font-size:17px}
+body{font-size:15.5px;font-weight:700;line-height:1.58;letter-spacing:.012em;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+body *{font-weight:700}
+body strong,body b,body h1,body h2,body h3,body .v,body .topKpiCard strong{font-weight:850}
+header h1{font-size:25px!important;line-height:1.25}
+header p{font-size:15px!important;line-height:1.5}
+.controls h2{font-size:19px!important}.controls h3,.sectionTitleRow h3{font-size:16px!important;line-height:1.4}
+.controls label{font-size:14.5px!important;line-height:1.45;color:var(--text)}
+input,select,textarea{font-size:15px!important;font-weight:750!important;min-height:42px;line-height:1.35}
+input::placeholder,textarea::placeholder{font-size:14px;opacity:.82;font-weight:700}
+button{font-size:14px!important;font-weight:800!important;line-height:1.25}
+.controls>button,.quickViews button,.viewActions button,.allPalletActions button,.allPalletFilter button,.allPalletModeSwitch button,.printActions button{min-height:40px;padding:9px 12px!important}
+.presetBtn,.miniBtn,.langBtn,.guideStepBtn{font-size:13px!important;min-height:36px;padding:8px 10px!important}
+.card .k,.topKpiCard span{font-size:13px!important;font-weight:750!important;color:#42566f}
+.card .v{font-size:22px!important;line-height:1.25}.topKpiCard strong{font-size:21px!important;line-height:1.25}
+.details,.statusBox,.contextNextSteps{font-size:14px!important;line-height:1.7}
+.historyTitle{font-size:14px!important}.historyMeta,.historyEmpty,.templateHelp{font-size:12.5px!important;line-height:1.55}
+.allPalletHead h3{font-size:18px!important}.allPalletHead p,.allPalletSummary span,.palletViewHint{font-size:12.5px!important}
+.palletCardHead strong{font-size:15px!important}.palletCardHead span,.palletCardMeta small{font-size:12.5px!important}.palletCardMeta b{font-size:15px!important;line-height:1.35}.palletAdvice{font-size:13px!important;line-height:1.55}
+.manualContent,.manualIntro,.manualSteps,.manualFeature,.guideBody,.guideChecklist{font-size:15px!important;line-height:1.75}
+.manualTop h2,.guidePanelHead h3{font-size:20px!important}
+.inputErrorText{font-size:13px!important}.capacityReason{font-size:14px!important}
+.alignedFieldRow{align-items:stretch}
+.alignedFieldRow>label{display:grid;grid-template-rows:1fr auto;align-items:end;height:100%}
+.alignedFieldRow .fieldLabelText{display:flex;align-items:flex-end;min-height:42px;padding-bottom:4px;line-height:1.4}
+small{font-size:12.5px!important;line-height:1.5}
+@media(max-width:640px){
+  html{font-size:16px}
+  body{font-size:15px}
+  header h1{font-size:22px!important}
+  .controls label{font-size:14px!important}
+  input,select,textarea{font-size:16px!important}
+  .allPalletGrid{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>
@@ -1578,9 +1616,9 @@ html[data-theme="dark"] .contextNextSteps{background:#111827;border-color:#33415
     <label>每箱重量<input id="boxWeight" type="number" min="0.001" step="0.01" placeholder="請輸入" autocomplete="off"></label>
     <label>貨物總箱數（選填）<input id="quantity" type="number" min="0" step="1" placeholder="請輸入" autocomplete="off"></label>
   </div>
-  <div class="grid2" style="margin-top:8px">
-    <label>棧板自重（kg）<input id="palletWeight" type="number" min="0" step="0.01" placeholder="請輸入" autocomplete="off"></label>
-    <label>最大手動層數<input id="manualMaxLayers" type="number" min="1" step="1" value="99"></label>
+  <div class="grid2 alignedFieldRow" style="margin-top:8px">
+    <label><span class="fieldLabelText">棧板自重（kg，選填）</span><input id="palletWeight" type="number" min="0" step="0.01" placeholder="留白視為 0" autocomplete="off"></label>
+    <label><span class="fieldLabelText">最大手動層數</span><input id="manualMaxLayers" type="number" min="1" step="1" value="99"></label>
   </div>
 
   <h3>安全與包材設定</h3>
@@ -1942,6 +1980,43 @@ function n(id){
   if(!Number.isFinite(v) || v < 0) throw new Error("請確認所有輸入值皆為有效的正數。");
   return v;
 }
+const CALC_VALIDATION_TEXT={
+  zh:{summary:"請先修正標示為紅色的欄位。",required:"此欄位必須填寫。",positive:"請輸入大於 0 的數值。",nonnegative:"請輸入 0 或正數。",integer:"請輸入至少 1 層。",percent:"請輸入 0～100。",height:"總限高必須高於棧板本身高度。"},
+  en:{summary:"Please correct the fields marked in red.",required:"This field is required.",positive:"Enter a value greater than 0.",nonnegative:"Enter zero or a positive value.",integer:"Enter at least 1 layer.",percent:"Enter a value from 0 to 100.",height:"The total height limit must exceed the pallet height."},
+  th:{summary:"กรุณาแก้ไขช่องที่แสดงเป็นสีแดง",required:"จำเป็นต้องกรอกช่องนี้",positive:"กรอกค่ามากกว่า 0",nonnegative:"กรอกค่า 0 หรือค่าบวก",integer:"กรอกอย่างน้อย 1 ชั้น",percent:"กรอกค่าระหว่าง 0–100",height:"ความสูงรวมต้องมากกว่าความสูงพาเลท"}
+};
+function activeCalcLang(){return document.querySelector(".langBtn.active")?.dataset.lang||document.documentElement.lang?.slice(0,2)||"zh"}
+function clearCalculationFieldErrors(){
+  document.querySelectorAll(".controls .inputError").forEach(el=>el.classList.remove("inputError"));
+  document.querySelectorAll(".controls .inputErrorText").forEach(el=>el.remove());
+}
+function markCalculationField(id,message){
+  const input=$(id);if(!input)return;
+  input.classList.add("inputError");
+  const note=document.createElement("span");note.className="inputErrorText";note.textContent=message;
+  input.insertAdjacentElement("afterend",note);
+}
+function validateCalculationInputs(){
+  clearCalculationFieldErrors();
+  const t=CALC_VALIDATION_TEXT[activeCalcLang()]||CALC_VALIDATION_TEXT.zh,errors=[];
+  const raw=id=>$(id)?.value?.trim()??"",num=id=>Number(raw(id));
+  const requirePositive=id=>{if(raw(id)==="")errors.push([id,t.required]);else if(!Number.isFinite(num(id))||num(id)<=0)errors.push([id,t.positive])};
+  const requireNonnegative=id=>{if(raw(id)==="")errors.push([id,t.required]);else if(!Number.isFinite(num(id))||num(id)<0)errors.push([id,t.nonnegative])};
+  ["pL","pW","maxH","maxW","bL","bW","bH","boxWeight"].forEach(requirePositive);
+  ["pH"].forEach(requireNonnegative);
+  if(raw("palletWeight")!==""&&(!Number.isFinite(num("palletWeight"))||num("palletWeight")<0))errors.push(["palletWeight",t.nonnegative]);
+  if(raw("quantity")!==""&&(!Number.isFinite(num("quantity"))||num("quantity")<0))errors.push(["quantity",t.nonnegative]);
+  if(raw("manualMaxLayers")===""||!Number.isFinite(num("manualMaxLayers"))||num("manualMaxLayers")<1)errors.push(["manualMaxLayers",t.integer]);
+  ["edgeMargin","overhang","layerPad","topPack","boxGap","packWeight","boxCompression"].forEach(id=>{if(raw(id)===""||!Number.isFinite(num(id))||num(id)<0)errors.push([id,t.nonnegative])});
+  ["minSupport","minSpaceUtil"].forEach(id=>{if(raw(id)===""||!Number.isFinite(num(id))||num(id)<0||num(id)>100)errors.push([id,t.percent])});
+  if(raw("maxH")!==""&&raw("pH")!==""&&num("maxH")<=num("pH"))errors.push(["maxH",t.height]);
+  const seen=new Set();errors.forEach(([id,msg])=>{if(!seen.has(id)){seen.add(id);markCalculationField(id,msg)}});
+  if(!errors.length)return true;
+  $("details").innerHTML=`<span class="error"><b>${t.summary}</b></span>`;
+  const first=$(errors[0][0]);first?.scrollIntoView({behavior:"smooth",block:"center"});setTimeout(()=>first?.focus(),250);
+  return false;
+}
+document.addEventListener("input",event=>{const el=event.target;if(!el.classList?.contains("inputError"))return;el.classList.remove("inputError");el.parentElement?.querySelector(".inputErrorText")?.remove()});
 function floorSafe(x){ return Math.floor(x + 1e-9); }
 function f2(x){ return (Math.round(x*100)/100).toFixed(2); }
 
@@ -2270,6 +2345,7 @@ function renderHistory(){
 function calculate(recordHistory=false,deepOptimize=false){
   resetBoxAnimation(false);
   try{
+    if(!validateCalculationInputs())return;
     const PL=n("pL"), PW=n("pW"), PH=n("pH"), maxH=n("maxH"), maxLoad=n("maxW");
     const L=n("bL"), W=n("bW"), H=n("bH"), boxWeight=n("boxWeight");
     const quantity=Math.floor(n("quantity"));
@@ -2358,6 +2434,19 @@ function calculate(recordHistory=false,deepOptimize=false){
     const dist=quantity>0&&best.totalBoxes>0?Array.from({length:Math.ceil(quantity/best.totalBoxes)},(_,i)=>Math.floor(quantity/Math.ceil(quantity/best.totalBoxes))+(i<quantity%Math.ceil(quantity/best.totalBoxes)?1:0)):[];
     if($("avgLastPallet").checked&&dist.length)$("details").innerHTML+=`<br><b>平均分板：</b>${dist.join("、")} 箱／板。`;
     if(deepOptimize)$("details").innerHTML+=`<br><span class="ok"><b>深度最佳化：</b>已比較全部 6 種方向、3 種交叉模式及系統支援的混合排列，共 ${candidates.length} 個候選方案。</span>`;
+    const reasonLang=activeCalcLang(),weightCapacity=Math.max(0,floorSafe((maxLoad-palletWeight-packWeight)/boxWeight));
+    const rawLayerCapacity=Array.from({length:best.maxHeightLayers},(_,k)=>patternAt(k,best.activeCrossMode,best.A,best.B).count).reduce((sum,x)=>sum+x,0);
+    const supportReduced=enforceSupport&&best.layerLayouts.some((layer,k)=>layer.count<patternAt(k,best.activeCrossMode,best.A,best.B).count);
+    const reasons=[];
+    if(quantity>0&&best.totalBoxes>=quantity)reasons.push(reasonLang==='en'?`Only ${quantity} cartons were entered for this shipment.`:reasonLang==='th'?`จำนวนสินค้ารอบนี้มี ${quantity} กล่อง`:`本次貨物總數只有 ${quantity} 箱，並非系統漏排。`);
+    if(weightCapacity<rawLayerCapacity)reasons.push(reasonLang==='en'?`The weight limit allows at most ${weightCapacity} cartons.`:reasonLang==='th'?`ข้อจำกัดน้ำหนักรองรับได้สูงสุด ${weightCapacity} กล่อง`:`重量上限最多允許 ${weightCapacity} 箱。`);
+    if(best.occupiedLayers>=best.maxHeightLayers)reasons.push(reasonLang==='en'?`The height limit allows up to ${best.maxHeightLayers} layers.`:reasonLang==='th'?`ข้อจำกัดความสูงรองรับได้สูงสุด ${best.maxHeightLayers} ชั้น`:`限高最多允許 ${best.maxHeightLayers} 層。`);
+    if(supportReduced)reasons.push(reasonLang==='en'?`Some positions were removed because they did not meet the support requirement.`:reasonLang==='th'?`บางตำแหน่งถูกตัดออกเพราะไม่ผ่านค่าการรองรับ`:`部分位置因未達最低支撐率而取消。`);
+    if(!reasons.length)reasons.push(reasonLang==='en'?`The current carton dimensions and safety settings have reached their feasible capacity.`:reasonLang==='th'?`ขนาดกล่องและค่าความปลอดภัยปัจจุบันถึงความจุที่จัดได้แล้ว`:`目前已達紙箱尺寸與安全設定下的可行容量。`);
+    const reasonTitle=reasonLang==='en'?'Capacity explanation':reasonLang==='th'?'คำอธิบายความจุ':'裝箱數量說明';
+    const geomLabel=reasonLang==='en'?'Geometric layer capacity':reasonLang==='th'?'ความจุเชิงเรขาคณิตต่อชั้น':'單層幾何容量';
+    const actualLabel=reasonLang==='en'?'Actual arrangement':reasonLang==='th'?'จำนวนที่จัดจริง':'實際配置';
+    $("details").innerHTML+=`<div class="capacityReason"><b>${reasonTitle}</b><br>${geomLabel}：${best.A.count}；${actualLabel}：${best.totalBoxes}。<br>${reasons.join(" ")}</div>`;
     $("statusBox").innerHTML=`<b>結果狀態</b><br>最低支撐 ${f2(best.support)}%<br>重心偏移 ${f2(best.cg.d)} cm<br>整板毛重 ${f2(best.usedWeight+best.palletWeight+best.packWeight)} kg`;
     renderTargetSearch(candidates);
     renderRanking(candidates,best);
@@ -2829,7 +2918,7 @@ function line3D(a,b,text,offsetX=0,offsetY=0){
     ctx.lineTo(P.x-7*Math.cos(ang+.45),P.y-7*Math.sin(ang+.45));ctx.stroke();
   }
   const mx=(A.x+B.x)/2+offsetX,my=(A.y+B.y)/2+offsetY;
-  ctx.font="600 12px sans-serif";ctx.textAlign="center";ctx.textBaseline="middle";
+  ctx.font="800 15px sans-serif";ctx.textAlign="center";ctx.textBaseline="middle";
   const w=ctx.measureText(text).width+10;ctx.fillStyle="rgba(255,255,255,.88)";ctx.fillRect(mx-w/2,my-10,w,20);
   ctx.fillStyle="#172033";ctx.fillText(text,mx,my);ctx.restore();
 }
@@ -2880,7 +2969,7 @@ function applyPalletPreset(key){
   $("maxH").value=preset.maxH;
   $("maxW").value=preset.maxW;
   document.querySelectorAll("[data-pallet-preset]").forEach(btn=>btn.classList.toggle("active",btn.dataset.palletPreset===key));
-  calculate(false);
+  if(["bL","bW","bH","boxWeight"].every(id=>$(id).value.trim()!==""))calculate(false);
 }
 document.querySelectorAll("[data-pallet-preset]").forEach(btn=>btn.onclick=()=>applyPalletPreset(btn.dataset.palletPreset));
 ["pL","pW","pH","maxH","maxW"].forEach(id=>$(id).addEventListener("input",()=>{document.querySelectorAll("[data-pallet-preset]").forEach(btn=>btn.classList.remove("active"));$("customPresetBtn").classList.remove("active")}));
@@ -2908,7 +2997,7 @@ function applyCustomTemplate(preset){
   $("pL").value=preset.pL;$("pW").value=preset.pW;$("pH").value=preset.pH;$("maxH").value=preset.maxH;$("maxW").value=preset.maxW;
   document.querySelectorAll("[data-pallet-preset]").forEach(btn=>btn.classList.remove("active"));
   $("customPresetBtn").classList.add("active");
-  calculate(false);
+  if(["bL","bW","bH","boxWeight"].every(id=>$(id).value.trim()!==""))calculate(false);
 }
 $("customPresetBtn").onclick=()=>{fillCustomTemplateForm({...currentPalletValues(),name:""});refreshCustomTemplateSelect();$("templateDialog").showModal()};
 $("closeTemplateDialog").onclick=()=>$("templateDialog").close();
@@ -2978,7 +3067,7 @@ const LANG_MAP={
     "整合高度、重量、承壓、支撐率、重心、安全邊距、突出與3D全景檢查。":"Integrated height, weight, compression, support, center of gravity, safety margin, overhang and 3D inspection.",
     "輸入條件":"Input Conditions","棧板資料（cm / kg）":"Pallet Data (cm / kg)","歐規":"EU","美規":"US","澳規":"AU","自訂模板":"Custom Template",
     "長":"Length","寬":"Width","高":"Height","總限高（含棧板）":"Total Height Limit (incl. pallet)","棧板最大載重":"Maximum Pallet Load",
-    "紙箱資料（cm / kg）":"Carton Data (cm / kg)","每箱重量":"Weight per Carton","貨物總箱數（選填）":"Total Cartons (optional)","棧板自重（kg）":"Pallet Tare Weight (kg)","最大手動層數":"Maximum Manual Layers",
+    "紙箱資料（cm / kg）":"Carton Data (cm / kg)","每箱重量":"Weight per Carton","貨物總箱數（選填）":"Total Cartons (optional)","棧板自重（kg，選填）":"Pallet Tare Weight (kg, optional)","留白視為 0":"Leave blank for 0","最大手動層數":"Maximum Manual Layers",
     "安全與包材設定":"Safety and Packaging","四周安全邊距（cm）":"Safety Margin (cm)","允許突出量（cm）":"Allowed Overhang (cm)","每層隔板厚度（cm）":"Layer Pad Thickness (cm)","頂板／包材高度（cm）":"Top Board / Packaging Height (cm)","箱與箱間隙（cm）":"Carton Gap (cm)","包材總重量（kg）":"Total Packaging Weight (kg)","單箱可承受上方重量（kg）":"Carton Top-load Capacity (kg)","最低支撐率（%）":"Minimum Support Rate (%)",
     "堆疊設定":"Stacking Settings","紙箱方向":"Carton Orientation","保持正放（只旋轉底面90°）":"Keep Upright (base rotation only)","允許側放／倒放（比較6種方向）":"Allow Side / Upside-down (compare 6 orientations)","交叉模式":"Cross-layer Pattern","自動比較最佳交叉方式":"Automatically compare patterns","每層旋轉90°":"Rotate every layer 90°","每兩層交叉":"Cross every two layers","全部同向":"Same direction for all layers",
     "最佳化目標":"Optimization Goal","箱數最大":"Maximum Cartons","穩定性最高":"Maximum Stability","面積利用率最高":"Maximum Floor Utilization","空間利用率最高（限高內最多箱）":"Maximum Space Utilization (most cartons within height limit)","強制達到最低空間利用率":"Enforce minimum space utilization","最低空間利用率（%）":"Minimum Space Utilization (%)","套用 80%":"Apply 80%",
@@ -2996,7 +3085,7 @@ const LANG_MAP={
     "整合高度、重量、承壓、支撐率、重心、安全邊距、突出與3D全景檢查。":"รวมการตรวจสอบความสูง น้ำหนัก แรงกด อัตราการรองรับ จุดศูนย์ถ่วง ระยะปลอดภัย ส่วนยื่น และภาพ 3 มิติ",
     "輸入條件":"ข้อมูลนำเข้า","棧板資料（cm / kg）":"ข้อมูลพาเลท (ซม. / กก.)","歐規":"ยุโรป","美規":"อเมริกา","澳規":"ออสเตรเลีย","自訂模板":"เทมเพลตกำหนดเอง",
     "長":"ยาว","寬":"กว้าง","高":"สูง","總限高（含棧板）":"ความสูงรวมสูงสุด (รวมพาเลท)","棧板最大載重":"น้ำหนักบรรทุกสูงสุดของพาเลท",
-    "紙箱資料（cm / kg）":"ข้อมูลกล่อง (ซม. / กก.)","每箱重量":"น้ำหนักต่อกล่อง","貨物總箱數（選填）":"จำนวนกล่องทั้งหมด (ไม่บังคับ)","棧板自重（kg）":"น้ำหนักพาเลทเปล่า (กก.)","最大手動層數":"จำนวนชั้นสูงสุดที่กำหนดเอง",
+    "紙箱資料（cm / kg）":"ข้อมูลกล่อง (ซม. / กก.)","每箱重量":"น้ำหนักต่อกล่อง","貨物總箱數（選填）":"จำนวนกล่องทั้งหมด (ไม่บังคับ)","棧板自重（kg，選填）":"น้ำหนักพาเลทเปล่า (กก., ไม่บังคับ)","留白視為 0":"เว้นว่างเท่ากับ 0","最大手動層數":"จำนวนชั้นสูงสุดที่กำหนดเอง",
     "安全與包材設定":"ความปลอดภัยและบรรจุภัณฑ์","四周安全邊距（cm）":"ระยะปลอดภัยรอบขอบ (ซม.)","允許突出量（cm）":"ส่วนยื่นที่อนุญาต (ซม.)","每層隔板厚度（cm）":"ความหนาแผ่นคั่นต่อชั้น (ซม.)","頂板／包材高度（cm）":"ความสูงแผ่นบน / บรรจุภัณฑ์ (ซม.)","箱與箱間隙（cm）":"ช่องว่างระหว่างกล่อง (ซม.)","包材總重量（kg）":"น้ำหนักบรรจุภัณฑ์รวม (กก.)","單箱可承受上方重量（kg）":"น้ำหนักกดทับที่กล่องรับได้ (กก.)","最低支撐率（%）":"อัตรารองรับขั้นต่ำ (%)",
     "堆疊設定":"การตั้งค่าการซ้อน","紙箱方向":"ทิศทางกล่อง","保持正放（只旋轉底面90°）":"วางตั้งตรง (หมุนฐานได้ 90°)","允許側放／倒放（比較6種方向）":"อนุญาตวางตะแคง / คว่ำ (เปรียบเทียบ 6 ทิศทาง)","交叉模式":"รูปแบบสลับชั้น","自動比較最佳交叉方式":"เปรียบเทียบรูปแบบที่ดีที่สุดอัตโนมัติ","每層旋轉90°":"หมุนทุกชั้น 90°","每兩層交叉":"สลับทุกสองชั้น","全部同向":"ทุกชั้นทิศทางเดียวกัน",
     "最佳化目標":"เป้าหมายการปรับให้เหมาะสม","箱數最大":"จำนวนกล่องสูงสุด","穩定性最高":"ความมั่นคงสูงสุด","面積利用率最高":"ใช้พื้นที่ฐานสูงสุด","空間利用率最高（限高內最多箱）":"ใช้ปริมาตรสูงสุด (กล่องมากที่สุดภายในความสูงจำกัด)","強制達到最低空間利用率":"บังคับอัตราใช้พื้นที่ขั้นต่ำ","最低空間利用率（%）":"อัตราใช้พื้นที่ขั้นต่ำ (%)","套用 80%":"ใช้ 80%",
@@ -3097,9 +3186,9 @@ const GUIDE_STEPS=[
     title:{zh:'輸入紙箱尺寸、重量與數量',en:'Enter Carton Size, Weight, and Quantity',th:'กรอกขนาด น้ำหนัก และจำนวนกล่อง'},
     intro:{zh:'請使用包裝完成後的實際外箱尺寸，而不是產品本身的尺寸。',en:'Use the actual outer carton size after packing, not the product size.',th:'กรุณาใช้ขนาดกล่องภายนอกจริงหลังบรรจุ ไม่ใช่ขนาดของสินค้า'},
     items:{
-      zh:['依序輸入紙箱的長、寬與高，單位為公分。','輸入每一箱的實際重量，單位為公斤。','在「貨物總箱數」輸入本次出貨的總數量。','如果只想知道一個棧板最多能放多少箱，可將總箱數填0。','「棧板自重」會加入整板總重量中。','「最大手動層數」可限制系統最多堆疊幾層。','尺寸應包含紙箱膨脹、封箱膠帶與外包材所占空間。','如果同一批貨有不同尺寸紙箱，建議分開計算，避免結果失真。'],
-      en:['Enter carton length, width, and height in centimeters.','Enter the actual weight of each carton in kilograms.','Enter the total shipment quantity in “Total Cartons”.','To calculate only the maximum capacity of one pallet, enter 0 for total quantity.','“Pallet Weight” is included in the total pallet weight.','“Maximum Manual Layers” limits how many layers the system may stack.','Dimensions should include carton expansion, sealing tape, and outer packaging.','If one shipment has different carton sizes, calculate them separately for better accuracy.'],
-      th:['กรอกความยาว ความกว้าง และความสูงของกล่อง หน่วยเป็นเซนติเมตร','กรอกน้ำหนักจริงต่อกล่อง หน่วยเป็นกิโลกรัม','กรอกจำนวนทั้งหมดของการจัดส่งในช่อง “จำนวนกล่องรวม”','หากต้องการทราบความจุสูงสุดของพาเลทเดียว ให้กรอกจำนวนรวมเป็น 0','“น้ำหนักพาเลท” จะรวมอยู่ในน้ำหนักรวม','“จำนวนชั้นสูงสุดแบบกำหนดเอง” ใช้จำกัดจำนวนชั้น','ขนาดควรรวมการพองของกล่อง เทปปิดกล่อง และวัสดุห่อภายนอก','หากมีหลายขนาดกล่องในงานเดียว ควรแยกคำนวณเพื่อความแม่นยำ']
+      zh:['依序輸入紙箱的長、寬與高，單位為公分。','輸入每一箱的實際重量，單位為公斤。','在「貨物總箱數」輸入本次出貨的總數量。','如果只想知道一個棧板最多能放多少箱，可將總箱數填0。','「棧板自重」為選填；留白時以 0 kg 計算，填寫後會加入整板總重量。','「最大手動層數」可限制系統最多堆疊幾層。','尺寸應包含紙箱膨脹、封箱膠帶與外包材所占空間。','如果同一批貨有不同尺寸紙箱，建議分開計算，避免結果失真。'],
+      en:['Enter carton length, width, and height in centimeters.','Enter the actual weight of each carton in kilograms.','Enter the total shipment quantity in “Total Cartons”.','To calculate only the maximum capacity of one pallet, enter 0 for total quantity.','“Pallet Tare Weight” is optional. A blank value is treated as 0 kg; an entered value is included in gross weight.','“Maximum Manual Layers” limits how many layers the system may stack.','Dimensions should include carton expansion, sealing tape, and outer packaging.','If one shipment has different carton sizes, calculate them separately for better accuracy.'],
+      th:['กรอกความยาว ความกว้าง และความสูงของกล่อง หน่วยเป็นเซนติเมตร','กรอกน้ำหนักจริงต่อกล่อง หน่วยเป็นกิโลกรัม','กรอกจำนวนทั้งหมดของการจัดส่งในช่อง “จำนวนกล่องรวม”','หากต้องการทราบความจุสูงสุดของพาเลทเดียว ให้กรอกจำนวนรวมเป็น 0','“น้ำหนักพาเลทเปล่า” ไม่บังคับ หากเว้นว่างจะคำนวณเป็น 0 กก. และหากกรอกจะรวมในน้ำหนักทั้งหมด','“จำนวนชั้นสูงสุดแบบกำหนดเอง” ใช้จำกัดจำนวนชั้น','ขนาดควรรวมการพองของกล่อง เทปปิดกล่อง และวัสดุห่อภายนอก','หากมีหลายขนาดกล่องในงานเดียว ควรแยกคำนวณเพื่อความแม่นยำ']
     },
     tip:{zh:'建議實際測量外箱，不要只使用供應商提供的理論尺寸。',en:'Measure the real outer carton instead of using only the supplier’s theoretical size.',th:'แนะนำให้วัดกล่องจริง ไม่ควรใช้เฉพาะขนาดตามทฤษฎีจากผู้ขาย'}
   },
@@ -5556,10 +5645,10 @@ html[data-theme="dark"] .mp-side .mp-primary{background:#2d72d9;color:#fff;borde
       ctx.fillRect(x,y,w,h);ctx.strokeRect(x,y,w,h);
       ctx.save();ctx.beginPath();ctx.rect(x,y,w,h);ctx.clip();
       ctx.fillStyle=bad?"#fff":"#fff";ctx.textAlign="center";ctx.textBaseline="middle";
-      ctx.font=`800 ${Math.max(10,Math.min(16,Math.min(w,h)*.25))}px Arial`;
+      ctx.font=`800 ${Math.max(12,Math.min(18,Math.min(w,h)*.28))}px Arial`;
       ctx.fillText(String(index+1),x+w/2,y+h/2);
       if(box.rotated&&w>30&&h>24){
-        ctx.font="700 9px Arial";ctx.fillText("90°",x+w/2,y+h-8);
+        ctx.font="800 12px Arial";ctx.fillText("90°",x+w/2,y+h-9);
       }
       ctx.restore();
       if(selected){
@@ -5568,7 +5657,7 @@ html[data-theme="dark"] .mp-side .mp-primary{background:#2d72d9;color:#fff;borde
       }
     });
 
-    ctx.fillStyle=dark?"#dce8f7":"#173e73";ctx.font="700 12px Arial";ctx.textAlign="center";
+    ctx.fillStyle=dark?"#dce8f7":"#173e73";ctx.font="800 15px Arial";ctx.textAlign="center";
     ctx.fillText(`${round2(state.PL)} cm`,ox+state.PL*scale/2,oy-15);
     ctx.save();ctx.translate(ox-18,oy+state.PW*scale/2);ctx.rotate(-Math.PI/2);ctx.fillText(`${round2(state.PW)} cm`,0,0);ctx.restore();
   }
@@ -5898,7 +5987,7 @@ html[data-theme="dark"] .mp-side .mp-primary{background:#2d72d9;color:#fff;borde
     if(viewMode==="group")entries=entries.reduce((out,x)=>{const found=out.find(y=>y.count===x.count);if(found){found.last=x.last;found.mult++}else out.push({...x});return out},[]);
     if(!entries.length){grid.innerHTML=`<div class="allPalletEmpty" style="grid-column:1/-1">${t.noTail}</div>`;viewStates.clear();return}
     const dataList=entries.map(x=>palletData(x.count)),digits=String(dist.length).length;
-    grid.innerHTML=entries.map((entry,i)=>{const d=dataList[i],tail=!averaged&&entry.count<capacity,full=entry.count===capacity,balanced=averaged&&!full,remaining=Math.max(0,capacity-entry.count),label=entry.first===entry.last?`PLT ${String(entry.first+1).padStart(digits,"0")}/${dist.length}`:`PLT ${String(entry.first+1).padStart(digits,"0")}–${String(entry.last+1).padStart(digits,"0")}/${dist.length}`;return `<article class="palletOverviewCard ${full?'isFull':balanced?'isBalanced':tail?'isLast':''}" data-entry="${i}"><div class="palletCardHead"><strong>${label}</strong><div><span>${entry.mult>1?`×${entry.mult}`:(balanced?t.balanced:tail?t.last:t.full)}</span><button class="palletZoomBtn" data-entry="${i}" type="button">${t.zoom}</button></div></div>${miniCanvas(i+1)}<div class="palletCardMeta"><div><small>${t.total}</small><b>${entry.count} ${t.cartons}</b></div><div><small>${t.layers}</small><b>${d.layers}</b></div><div><small>${t.height} / ${t.weight}</small><b>${f(d.height)} cm / ${f(d.weight)} kg</b></div><div><small>${t.remaining}</small><b>${remaining} ${t.cartons}</b></div></div>${tail?`<div class="palletAdvice">${t.tailAdvice}</div>`:""}</article>`}).join("");
+    grid.innerHTML=entries.map((entry,i)=>{const d=dataList[i],tail=!averaged&&entry.count<capacity,full=entry.count===capacity,balanced=averaged&&!full,remaining=Math.max(0,capacity-entry.count),label=entry.first===entry.last?`PLT ${String(entry.first+1).padStart(digits,"0")}/${dist.length}`:`PLT ${String(entry.first+1).padStart(digits,"0")}–${String(entry.last+1).padStart(digits,"0")}/${dist.length}`;const reason=tail?(lang()==='en'?`Not full because only ${entry.count} shipment cartons remain; ${remaining} more could fit.`:lang()==='th'?`ไม่เต็มเพราะเหลือสินค้าเพียง ${entry.count} กล่อง และเพิ่มได้อีก ${remaining} กล่อง`:`未裝滿原因：本批貨物只剩 ${entry.count} 箱，並非系統漏排；尚可再放 ${remaining} 箱。`):balanced?(lang()==='en'?`Not full because Balanced distribution spreads cartons evenly across ${dist.length} pallets.`:lang()==='th'?`ไม่เต็มเนื่องจากโหมดกระจายเฉลี่ยแบ่งสินค้าเท่ากันใน ${dist.length} พาเลท`:`未裝滿原因：平均分配模式將貨物平均分散至 ${dist.length} 板。`):"";return `<article class="palletOverviewCard ${full?'isFull':balanced?'isBalanced':tail?'isLast':''}" data-entry="${i}"><div class="palletCardHead"><strong>${label}</strong><div><span>${entry.mult>1?`×${entry.mult}`:(balanced?t.balanced:tail?t.last:t.full)}</span><button class="palletZoomBtn" data-entry="${i}" type="button">${t.zoom}</button></div></div>${miniCanvas(i+1)}<div class="palletCardMeta"><div><small>${t.total}</small><b>${entry.count} ${t.cartons}</b></div><div><small>${t.layers}</small><b>${d.layers}</b></div><div><small>${t.height} / ${t.weight}</small><b>${f(d.height)} cm / ${f(d.weight)} kg</b></div><div><small>${t.remaining}</small><b>${remaining} ${t.cartons}</b></div></div>${reason?`<div class="palletAdvice">${reason}</div>`:""}</article>`}).join("");
     setupMiniViews(dataList);grid.querySelectorAll(".palletZoomBtn,.palletZoomOverlay").forEach(btn=>btn.onclick=e=>{e.stopPropagation();const i=Number(btn.dataset.entry);openDetail(entries[i],dataList[i],dist.length)});grid.querySelectorAll(".palletOverviewCard").forEach(card=>card.onclick=e=>{if(e.target.closest("button,canvas"))return;const i=Number(card.dataset.entry);openDetail(entries[i],dataList[i],dist.length)});
   }
   function printAll(){
@@ -5973,7 +6062,15 @@ html[data-theme="dark"] .mp-side .mp-primary{background:#2d72d9;color:#fff;borde
   function updateLabel(){const b=document.getElementById("clearAllInputsBtn"),t=TEXT[lang()]||TEXT.zh;if(b)b.textContent=t.button}
   function clearAll(){
     const t=TEXT[lang()]||TEXT.zh;if(!confirm(t.confirm))return;
-    document.querySelectorAll(".controls input[type='number']").forEach(input=>{input.value="";input.dispatchEvent(new Event("input",{bubbles:true}));input.dispatchEvent(new Event("change",{bubbles:true}))});
+    const currentDataIds=["pL","pW","pH","maxH","maxW","bL","bW","bH","boxWeight","quantity","palletWeight"];
+    currentDataIds.forEach(id=>{const input=document.getElementById(id);if(!input)return;input.value="";input.dispatchEvent(new Event("input",{bubbles:true}));input.dispatchEvent(new Event("change",{bubbles:true}))});
+    const safeDefaults={manualMaxLayers:99,edgeMargin:0,overhang:0,layerPad:0,topPack:0,boxGap:0,packWeight:0,boxCompression:80,minSupport:80,minSpaceUtil:80};
+    Object.entries(safeDefaults).forEach(([id,value])=>{const input=document.getElementById(id);if(input)input.value=value});
+    const selectDefaults={orientationMode:"upright",crossMode:"auto",objective:"boxes"};
+    Object.entries(selectDefaults).forEach(([id,value])=>{const select=document.getElementById(id);if(select)select.value=value});
+    const checkDefaults={enforceMinSpace:false,partialTop:true,centerBoxes:true,centerPartial:true,enforceSupport:true,avgLastPallet:false};
+    Object.entries(checkDefaults).forEach(([id,value])=>{const input=document.getElementById(id);if(input)input.checked=value});
+    if(typeof clearCalculationFieldErrors==="function")clearCalculationFieldErrors();
     try{model=null;lastOptimizationCandidates=[];lastOptimizationBest=null;activeHistoryId=null;boxAnimationPlaying=false;boxAnimationMode=false}catch(_){ }
     ["rTotal","rPerLayer","rLayers","rHeight","rWeight","rPallets","rStability","rSpaceUtil","rAirActualWeight","rAirVolumeWeight","rAirChargeableWeight","rAirUldCount","topKpiUtil","topKpiBoxes","topKpiHeight","topKpiWeight","topKpiChargeable","topKpiUldCount"].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent="—"});
     const details=document.getElementById("details");if(details)details.textContent=t.details;const status=document.getElementById("statusBox");if(status)status.textContent=t.details;
