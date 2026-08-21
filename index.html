@@ -4,6 +4,17 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Pallet AI Pro V4 Enterprise</title>
+<script>
+/* 每次開啟都從主 3D 畫面開始，不還原上次停留的總覽位置 */
+if("scrollRestoration" in history)history.scrollRestoration="manual";
+window.addEventListener("load",()=>{
+  document.body.classList.remove("v51-focus3d");
+  window.scrollTo({top:0,left:0,behavior:"auto"});
+  document.querySelector(".controls")?.scrollTo({top:0,left:0,behavior:"auto"});
+  document.querySelector(".view")?.scrollTo({top:0,left:0,behavior:"auto"});
+  setTimeout(()=>window.scrollTo(0,0),80);
+});
+</script>
 <style>
   :root{
     --bg:#f4f7fb; --panel:#fff; --text:#172033; --muted:#637083;
@@ -5797,7 +5808,8 @@ html[data-theme="dark"] .mp-side .mp-primary{background:#2d72d9;color:#fff;borde
     en:{title:"All Pallets 3D Overview",hint:"Drag to rotate · Scroll to zoom · Select Enlarge for pallet details.",empty:"Enter the total shipment quantity and calculate first.",collapse:"Collapse",expand:"Expand",print:"Print All Pallets",syncOn:"Sync Views: On",syncOff:"Sync Views: Off",reset:"Reset Views",drag:"Drag to rotate · Scroll to zoom",total:"Total Cartons",capacity:"Capacity / Pallet",pallets:"Total Pallets",pallet:"Pallet",cartons:"cartons",layers:"Layers",height:"Height",weight:"Gross Wt.",full:"Full",last:"Last Partial Pallet",balanced:"Balanced distribution",standard:"Fill Pallets First",fullCount:"Full Pallets",tailCount:"Partial Pallet Cartons",batchWeight:"Batch Gross Wt.",all:"Show All",tailOnly:"Last Partial Only",group:"Group Same Layouts",fillFirst:"Fill Pallets First",balanceMode:"Balanced",modeTitle:"Distribution",remaining:"Available Space",tailAdvice:"The last pallet has fewer cartons. Center the load and verify the center of gravity.",zoom:"Enlarge",noTail:"No partial last pallet. This view is unavailable in balanced mode.",printTitle:"All Pallet Configuration Work Sheet",generated:"Generated"},
     th:{title:"ภาพรวม 3 มิติของพาเลททั้งหมด",hint:"ลากเพื่อหมุน · เลื่อนเพื่อซูม · กดขยายเพื่อดูรายละเอียด",empty:"กรอกจำนวนสินค้าทั้งหมดแล้วคำนวณก่อน",collapse:"ย่อ",expand:"ขยาย",print:"พิมพ์พาเลททั้งหมด",syncOn:"ซิงค์มุมมอง: เปิด",syncOff:"ซิงค์มุมมอง: ปิด",reset:"รีเซ็ตมุมมอง",drag:"ลากเพื่อหมุน · เลื่อนเพื่อซูม",total:"จำนวนกล่องรวม",capacity:"ความจุต่อพาเลท",pallets:"จำนวนพาเลท",pallet:"พาเลท",cartons:"กล่อง",layers:"จำนวนชั้น",height:"ความสูง",weight:"น้ำหนักรวม",full:"เต็ม",last:"พาเลทสุดท้ายที่ไม่เต็ม",balanced:"กระจายเท่ากัน",standard:"เติมพาเลทให้เต็มก่อน",fullCount:"พาเลทเต็ม",tailCount:"กล่องพาเลทไม่เต็ม",batchWeight:"น้ำหนักรวมทั้งชุด",all:"แสดงทั้งหมด",tailOnly:"ดูพาเลทสุดท้ายที่ไม่เต็ม",group:"รวมแบบเดียวกัน",fillFirst:"เติมให้เต็มก่อน",balanceMode:"กระจายเท่ากัน",modeTitle:"วิธีแบ่งพาเลท",remaining:"เพิ่มได้อีก",tailAdvice:"พาเลทสุดท้ายมีกล่องน้อย ควรวางกึ่งกลางและตรวจจุดศูนย์ถ่วง",zoom:"ขยาย",noTail:"ไม่มีพาเลทสุดท้ายที่ไม่เต็ม และโหมดกระจายเท่ากันไม่ใช้ฟังก์ชันนี้",printTitle:"ใบงานพาเลททั้งหมด",generated:"สร้างเมื่อ"}
   };
-  let collapsed=false,syncViews=true,viewMode="group",globalView={yaw:-.72,pitch:.55,zoom:1};
+  /* 預設收合全部棧板，先顯示上方單一棧板主 3D 圖 */
+  let collapsed=true,syncViews=true,viewMode="group",globalView={yaw:-.72,pitch:.55,zoom:1};
   const viewStates=new Map();
   function lang(){return document.querySelector(".langBtn.active")?.dataset.lang||document.documentElement.lang?.slice(0,2)||"zh"}
   function tx(){return LANG[lang()]||LANG.zh}
