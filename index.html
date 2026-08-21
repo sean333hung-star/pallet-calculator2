@@ -140,6 +140,21 @@ window.addEventListener("load",()=>{
   .targetCard b{display:block;font-size:15px;margin-bottom:4px}
   header{display:flex;align-items:center;justify-content:space-between;gap:16px}
   .headerText{min-width:0}
+  .headerText h1 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.headerLogo {
+  display: block;
+  width: auto;
+  height: 38px;
+  max-width: 130px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
   .languageSwitch{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
   .langBtn{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.35);padding:7px 11px;font-size:12px}
   .langBtn:hover,.langBtn.active{background:#fff;color:#0f2f5f}
@@ -1445,7 +1460,11 @@ small{font-size:12.5px!important;line-height:1.5}
 <body>
 <header>
 <div class="headerText">
-  <h1>📦 Emerald Nonwovens Pallet AI <span class="v4-mode-badge">Enterprise</span></h1>
+  <h1>
+    <img src="./emerald-logo.png" class="headerLogo" alt="Emerald Nonwovens Logo">
+    Emerald Nonwovens Pallet AI
+    <span class="v4-mode-badge">Enterprise</span>
+  </h1>
   <p>AI 棧板空間最佳化、3D 堆疊預覽與工廠協作平台</p>
 </div>
   <div class="languageSwitch" aria-label="語言切換">
