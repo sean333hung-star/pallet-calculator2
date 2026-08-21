@@ -359,10 +359,11 @@ input[type=number]:focus,select:focus{
 
 /* 浮動工具 */
 .v4-floating-tools{
-  position:fixed;right:20px;bottom:20px;z-index:2500;display:flex;gap:8px
+  position:static;z-index:auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;width:100%;margin:0 0 12px
 }
 .v4-fab{
-  min-height:44px;padding:0 15px;border-radius:999px;background:var(--v4-navy);color:#fff;
+  width:100%;min-height:44px;padding:8px 12px;border-radius:11px;background:var(--v4-navy);color:#fff;
   box-shadow:0 10px 28px rgba(15,42,67,.25);border:1px solid rgba(255,255,255,.18)
 }
 .v4-fab.primary-fab{background:var(--v4-blue)}
@@ -410,8 +411,8 @@ input[type=number]:focus,select:focus{
   .cards{grid-template-columns:repeat(2,1fr)!important}
   .targetSearch{grid-template-columns:1fr!important}
   .v4-workflow{grid-template-columns:repeat(2,1fr)}
-  .v4-floating-tools{left:10px;right:10px;bottom:10px;justify-content:center}
-  .v4-fab{flex:1}
+  .v4-floating-tools{position:static;grid-template-columns:repeat(2,minmax(0,1fr));width:100%;margin:0 0 10px}
+  .v4-fab{flex:none;width:100%}
   .historyPanel{top:70px;right:6px;bottom:6px;width:calc(100vw - 12px)}
 }
 
@@ -1317,11 +1318,64 @@ html[data-theme="dark"] .tutorialDemoStepText,html[data-theme="dark"] .tutorialD
   min-width:0;
 }
 
+/* 全部棧板總覽 */
+.allPalletOverview{grid-column:1/-1;grid-row:4;margin:10px;padding:14px;border:1px solid var(--line);border-radius:13px;background:#f8fafc;min-width:0}
+.allPalletHead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:11px}
+.allPalletHead h3{margin:0;color:#173e73;font-size:16px}.allPalletHead p{margin:4px 0 0;color:var(--muted);font-size:11px}
+.allPalletActions{display:flex;gap:7px;flex-wrap:wrap}.allPalletActions button{margin:0!important;width:auto!important}
+.allPalletSummary{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:11px}
+.allPalletSummary span{padding:6px 9px;border:1px solid #d7e1ed;border-radius:999px;background:#fff;color:#41566f;font-size:11px}.allPalletSummary b{color:#175cd3}
+.allPalletFilter{display:flex;justify-content:center;gap:7px;flex-wrap:wrap;margin:0 0 11px}
+.allPalletFilter button{margin:0!important;padding:7px 11px!important;border:1px solid #cddbeb!important;background:#fff!important;color:#36526f!important;font-size:11px!important}
+.allPalletFilter button.active{background:#175cd3!important;color:#fff!important;border-color:#175cd3!important}
+.allPalletModeSwitch{display:flex;align-items:center;justify-content:center;gap:7px;margin:0 0 9px;padding:8px;border-radius:10px;background:#eef4fa;border:1px solid #dbe6f0}
+.allPalletModeSwitch b{font-size:11px;color:#52677e;margin-right:3px}.allPalletModeSwitch button{margin:0!important;padding:7px 12px!important;border:1px solid #c6d5e6!important;background:#fff!important;color:#36526f!important;font-size:11px!important}
+.allPalletModeSwitch button.active{background:#067647!important;border-color:#067647!important;color:#fff!important}
+.allPalletFilter button:disabled{opacity:.45;cursor:not-allowed;background:#eef1f5!important;color:#7b8794!important}
+.palletZoomCoach{margin:0 0 10px;padding:9px 12px;border:1px solid #9fc5ff;border-radius:9px;background:#edf5ff;color:#164ca3;text-align:center;font-size:12px;font-weight:700}
+.allPalletGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px}
+.palletOverviewCard{border:1px solid #d8e1ec;border-radius:11px;background:#fff;overflow:hidden;break-inside:avoid;box-shadow:0 2px 5px rgba(16,46,85,.04)}
+.palletOverviewCard.isFull{border-top:4px solid #3b82f6}.palletOverviewCard.isBalanced{border-top:4px solid #eab308}.palletOverviewCard.isLast{border:2px solid #f59e0b;background:#fffdf7}.palletCardHead{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-bottom:1px solid #e5ebf2}
+.palletCardHead strong{color:#173e73;font-size:13px}.palletCardHead span{font-size:10px;padding:3px 7px;border-radius:999px;background:#eaf2ff;color:#175cd3;font-weight:700}
+.palletZoomBtn{margin:0 0 0 5px!important;padding:4px 7px!important;font-size:10px!important;border-radius:7px!important;background:#eef4ff!important;color:#175cd3!important}
+.palletMiniWrap{position:relative}.palletMini{display:block;width:100%;height:150px;background:linear-gradient(#fbfdff,#eef3f8);cursor:grab;touch-action:none}
+.palletMini:active{cursor:grabbing}.palletViewHint{padding:4px 8px;text-align:center;color:#718096;font-size:9px;background:#f8fafc;border-top:1px solid #e7edf4}
+.palletZoomOverlay{position:absolute;left:50%;bottom:9px;transform:translateX(-50%);z-index:3;margin:0!important;padding:7px 12px!important;min-width:132px;border-radius:999px!important;background:rgba(23,92,211,.94)!important;color:#fff!important;border:1px solid rgba(255,255,255,.7)!important;box-shadow:0 5px 16px rgba(23,92,211,.28);font-size:11px!important;white-space:nowrap;opacity:.94}
+.palletZoomOverlay:hover{background:#0b4bb3!important;transform:translateX(-50%) translateY(-1px)}
+.palletOverviewCard{cursor:pointer}.palletOverviewCard:focus-within{box-shadow:0 0 0 3px rgba(23,92,211,.16)}
+.palletCardMeta{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:#e7edf4;border-top:1px solid #e7edf4}
+.palletCardMeta div{display:flex;min-height:62px;flex-direction:column;align-items:center;justify-content:center;background:#fff;padding:9px 7px;text-align:center}
+.palletCardMeta small{display:block;color:#475569;font-size:11px;font-weight:700;line-height:1.35;letter-spacing:.1px}
+.palletCardMeta b{display:block;margin-top:4px;color:#173e73;font-size:14px;font-weight:800;line-height:1.35}
+.palletCardMeta div:nth-child(1) b,.palletCardMeta div:nth-child(2) b{color:#0b4bb3;font-size:16px}
+.palletAdvice{padding:9px 10px;background:#fff7e8;color:#7a4b00;border-top:1px solid #f3d08b;font-size:12px;font-weight:700;line-height:1.55;text-align:center}
+.allPalletEmpty{padding:22px;text-align:center;color:var(--muted);border:1px dashed #cbd6e3;border-radius:10px;background:#fff}
+.palletDetailModal{position:fixed;inset:0;z-index:3600;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(10,25,45,.68)}
+.palletDetailModal.open{display:flex}.palletDetailDialog{width:min(920px,96vw);height:min(720px,90vh);display:grid;grid-template-rows:auto 1fr;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 28px 90px rgba(0,0,0,.35)}
+.palletDetailHead{display:flex;align-items:center;justify-content:space-between;padding:12px 15px;border-bottom:1px solid #d9e1ec}.palletDetailHead h3{margin:0;padding:0;border:0}.palletDetailClose{width:36px;height:36px;padding:0!important;font-size:22px;background:#eef2f7;color:#334155}
+.palletDetailCanvas{width:100%;height:100%;min-height:0;background:linear-gradient(#fbfdff,#e7eef6);touch-action:none;cursor:grab}
+html[data-theme="dark"] .allPalletOverview,html[data-theme="dark"] .palletOverviewCard,html[data-theme="dark"] .allPalletSummary span{background:#111827!important;border-color:#334155!important}
+html[data-theme="dark"] .allPalletHead h3,html[data-theme="dark"] .palletCardHead strong{color:#bfdbfe}html[data-theme="dark"] .palletCardMeta div{background:#162033}html[data-theme="dark"] .palletCardMeta small{color:#cbd5e1}html[data-theme="dark"] .palletCardMeta b{color:#e5edf7}html[data-theme="dark"] .palletCardMeta div:nth-child(1) b,html[data-theme="dark"] .palletCardMeta div:nth-child(2) b{color:#93c5fd}
+
+/* 桌面版右側工作區可獨立捲動，避免多排棧板被固定高度裁切 */
+@media(min-width:1051px){
+  .view{overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior:contain;scrollbar-gutter:stable}
+  .allPalletOverview{align-self:start;padding-bottom:20px}
+}
+@media(max-width:1050px){
+  html,body{height:auto!important;min-height:100%;overflow-y:auto!important}
+  .view{height:auto!important;overflow:visible!important}
+}
+
 /* 手機版固定下方，避免畫面跳動 */
 @media(max-width:760px){
   .topKpiCard{
     flex-basis:calc(50% - 8px);
   }
+  .allPalletOverview{grid-row:5;margin:7px;padding:10px}
+  .allPalletHead{align-items:flex-start;flex-direction:column}
+  .allPalletGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .palletMini{height:120px}
   .tutorialCard{
     left:8px!important;
     right:8px!important;
@@ -1566,7 +1620,7 @@ html[data-theme="dark"] .tutorialDemoStepText,html[data-theme="dark"] .tutorialD
   <label class="check"><input id="centerBoxes" type="checkbox" checked>將每層箱子置中於棧板</label>
   <label class="check"><input id="centerPartial" type="checkbox" checked>最後部分層重新置中</label>
   <label class="check"><input id="enforceSupport" type="checkbox" checked>啟用層間支撐率檢查</label>
-  <label class="check"><input id="avgLastPallet" type="checkbox" checked>最後一板過少時平均分配</label>
+  <label class="check"><input id="avgLastPallet" type="checkbox">最後一板過少時平均分配</label>
 
   <button class="primary" id="calculateBtn">重新計算並生成全景圖</button>
   <button class="primary aiBtn" id="aiOptimizeBtn" type="button">🤖 AI 一鍵空間最佳化</button>
@@ -1666,8 +1720,17 @@ html[data-theme="dark"] .tutorialDemoStepText,html[data-theme="dark"] .tutorialD
     </div>
     <div class="details" id="details">請輸入條件後計算。</div><div class="printActions"><button class="secondary" id="exportPDF">PDF 堆疊報告</button><button class="secondary" id="printWorkOrder">一鍵列印工廠作業單</button></div>
   </div>
+  <section class="allPalletOverview" id="allPalletOverview">
+    <div class="allPalletHead">
+      <div><h3 id="allPalletTitle">全部棧板總覽</h3><p id="allPalletHint">輸入總箱數並計算後，會自動顯示每一板的配置。</p></div>
+      <div class="allPalletActions"><button class="secondary" id="syncAllPallets" type="button">同步角度：開</button><button class="secondary" id="resetAllPalletViews" type="button">重設視角</button><button class="secondary" id="toggleAllPallets" type="button">收合總覽</button><button class="secondary" id="printAllPallets" type="button">列印全部棧板</button></div>
+    </div>
+    <div id="allPalletContent"><div class="allPalletEmpty" id="allPalletEmpty">請先輸入貨物總箱數並執行計算。</div><div class="palletZoomCoach" id="palletZoomCoach" hidden>🔍 點擊棧板或「放大查看」即可開啟單板大圖</div><div class="allPalletModeSwitch" id="allPalletModeSwitch" hidden><b>分板方式</b><button class="active" id="fillPalletsFirst" type="button">優先裝滿</button><button id="balancePallets" type="button">平均分配</button></div><div class="allPalletSummary" id="allPalletSummary" hidden></div><div class="allPalletFilter" id="allPalletFilter" hidden><button id="showAllPallets" type="button">顯示全部</button><button id="showTailPallets" type="button">只看最後未滿板</button><button class="active" id="groupSamePallets" type="button">合併相同配置</button></div><div class="allPalletGrid" id="allPalletGrid"></div></div>
+  </section>
 </section>
 </main>
+
+<div class="palletDetailModal" id="palletDetailModal" aria-hidden="true"><div class="palletDetailDialog" role="dialog" aria-modal="true" aria-labelledby="palletDetailTitle"><div class="palletDetailHead"><h3 id="palletDetailTitle">棧板放大檢視</h3><button class="palletDetailClose" id="palletDetailClose" type="button" aria-label="關閉">×</button></div><canvas class="palletDetailCanvas" id="palletDetailCanvas"></canvas></div></div>
 
 <dialog class="templateDialog" id="templateDialog">
   <div class="templateDialogHeader"><strong>自訂棧板模板</strong><button type="button" class="dialogClose" id="closeTemplateDialog" aria-label="關閉">×</button></div>
@@ -3080,7 +3143,18 @@ const GUIDE_STEPS=[
     tip:{zh:'交給工廠前，建議至少檢查等角視圖、俯視圖、正視圖與爆炸圖。',en:'Before sending the plan to the factory, review the isometric, top, front, and exploded views.',th:'ก่อนส่งแผนให้โรงงาน ควรตรวจมุมมองไอโซเมตริก ด้านบน ด้านหน้า และภาพแยกชั้น'}
   },
   {
-    icon:'10',short:{zh:'紀錄與團隊',en:'History & Team',th:'ประวัติและทีม'},
+    icon:'10',short:{zh:'全部棧板',en:'All Pallets',th:'พาเลททั้งหมด'},
+    title:{zh:'查看與操作全部棧板 3D 總覽',en:'Review and Operate the All-Pallet 3D Overview',th:'ดูและใช้งานภาพรวมพาเลท 3 มิติทั้งหมด'},
+    intro:{zh:'輸入貨物總箱數並完成計算後，系統會一次產生所有棧板，讓主管與工廠直接確認滿板、尾板及每板配置。',en:'After entering the total carton quantity and calculating, the system creates every pallet at once so supervisors and factory staff can review full pallets, the final pallet, and each layout.',th:'หลังกรอกจำนวนกล่องรวมและคำนวณ ระบบจะแสดงพาเลททั้งหมดพร้อมกัน เพื่อให้หัวหน้างานและโรงงานตรวจสอบพาเลทเต็ม พาเลทสุดท้าย และรูปแบบแต่ละพาเลท'},
+    items:{
+      zh:['在「貨物總箱數」輸入本批次總數量，再按「重新計算並生成全景圖」。','「優先裝滿」會先把前面的棧板裝到最大容量，剩餘箱數放在最後一板。','「平均分配」會把總箱數平均分散到各棧板，避免尾板箱數過少。','摘要列會顯示總箱數、棧板總數、滿板數、未滿板箱數與批次總毛重。','「顯示全部」會顯示本批次的所有棧板。','「只看最後未滿板」可快速檢查尾板或部分層；若沒有尾板，系統會顯示提示。','「合併相同配置」會把相同箱數及相同排列的棧板合併顯示，適合大量棧板快速瀏覽；再次點擊可逐板展開。','在任一棧板展示圖上拖曳可旋轉角度，使用滑鼠滾輪可放大或縮小。','「同步角度：開」時，旋轉其中一板會同步其他棧板；關閉後可個別調整每一板。','按「重設視角」可讓全部棧板回到預設觀看角度。','點擊棧板卡片、藍色「放大」或右上角「放大」按鈕，可開啟單板放大視窗，確認尾板、部分層與箱子方向。','放大視窗內同樣支援拖曳旋轉與滾輪縮放；按右上角 × 或點擊視窗外可關閉。','每張卡片下方會顯示總箱數、層數、高度／毛重及尚可增加箱數；尾板會以橘色框線與提醒文字標示。','「收合總覽」可暫時縮小此區；「列印全部棧板」會產生全部棧板配置作業圖供工廠使用。'],
+      en:['Enter the shipment quantity in “Total Cartons”, then click “Recalculate and Generate 3D View”.','“Fill First” fills earlier pallets to maximum capacity and places the remainder on the last pallet.','“Balance” distributes cartons across pallets to avoid an excessively small final pallet.','The summary shows total cartons, pallet count, full-pallet count, cartons on the incomplete pallet, and batch gross weight.','“Show All” displays every pallet in the batch.','“Last Incomplete Only” quickly isolates the tail pallet or partial layer; a message appears when there is no tail pallet.','“Group Identical Layouts” combines pallets with the same carton count and arrangement for faster review; click again to expand them individually.','Drag any pallet view to rotate it and use the mouse wheel to zoom.','When “Sync Angle” is on, rotating one pallet updates the others; turn it off to adjust pallets independently.','“Reset View” returns all pallets to the default angle.','Click a pallet card or either “Zoom” button to open the enlarged single-pallet window for checking the tail pallet, partial layers, and carton orientation.','The enlarged window also supports drag-to-rotate and wheel zoom. Close it with × or by clicking outside.','Each card shows cartons, layers, height/gross weight, and remaining capacity. The tail pallet has an orange border and reminder.','“Collapse Overview” reduces the section, while “Print All Pallets” creates a factory-ready layout sheet.'],
+      th:['กรอกจำนวนใน “จำนวนกล่องรวม” แล้วกด “คำนวณใหม่และสร้างภาพ 3 มิติ”','“เติมให้เต็มก่อน” จะเติมพาเลทแรกให้เต็มความจุ แล้ววางจำนวนที่เหลือในพาเลทสุดท้าย','“กระจายเฉลี่ย” จะแบ่งกล่องไปยังทุกพาเลทเพื่อลดปัญหาพาเลทสุดท้ายมีน้อยเกินไป','แถบสรุปจะแสดงจำนวนกล่องรวม จำนวนพาเลท พาเลทเต็ม จำนวนในพาเลทไม่เต็ม และน้ำหนักรวมทั้งชุด','“แสดงทั้งหมด” ใช้ดูพาเลททุกแผ่น','“ดูเฉพาะพาเลทสุดท้ายที่ไม่เต็ม” ใช้ตรวจพาเลทท้ายหรือชั้นไม่เต็มอย่างรวดเร็ว','“รวมรูปแบบเดียวกัน” จะรวมพาเลทที่มีจำนวนและการจัดเรียงเหมือนกัน และกดอีกครั้งเพื่อแยกดูทีละแผ่น','ลากบนภาพพาเลทเพื่อหมุน และใช้ล้อเมาส์เพื่อซูม','เมื่อเปิด “ซิงค์มุม” การหมุนหนึ่งพาเลทจะเปลี่ยนทุกพาเลท ปิดเพื่อปรับแต่ละแผ่นแยกกัน','“รีเซ็ตมุมมอง” จะคืนทุกพาเลทสู่มุมเริ่มต้น','คลิกการ์ดพาเลทหรือปุ่ม “ขยาย” เพื่อเปิดหน้าต่างพาเลทเดี่ยวสำหรับตรวจพาเลทท้าย ชั้นไม่เต็ม และทิศทางกล่อง','หน้าต่างขยายสามารถลากหมุนและใช้ล้อซูมได้ ปิดด้วย × หรือคลิกนอกหน้าต่าง','ใต้การ์ดจะแสดงจำนวนกล่อง ชั้น ความสูง/น้ำหนัก และความจุที่เหลือ พาเลทท้ายจะแสดงกรอบสีส้ม','“ย่อภาพรวม” ใช้ลดพื้นที่ และ “พิมพ์พาเลททั้งหมด” ใช้สร้างแผ่นงานสำหรับโรงงาน']
+    },
+    tip:{zh:'交給工廠前，建議先用「只看最後未滿板」檢查尾板，再逐板放大確認箱子方向，最後列印全部棧板作業圖。',en:'Before sending the plan to the factory, isolate the last incomplete pallet, enlarge pallets to confirm carton orientation, and then print the complete pallet sheet.',th:'ก่อนส่งให้โรงงาน แนะนำให้ดูพาเลทสุดท้ายที่ไม่เต็ม ขยายแต่ละพาเลทเพื่อตรวจทิศทางกล่อง แล้วพิมพ์แผ่นงานทั้งหมด'}
+  },
+  {
+    icon:'11',short:{zh:'紀錄與團隊',en:'History & Team',th:'ประวัติและทีม'},
     title:{zh:'管理歷史紀錄、收藏與團隊空間',en:'Manage History, Favorites, and Team Workspaces',th:'จัดการประวัติ รายการโปรด และพื้นที่ทีม'},
     intro:{zh:'系統會保存已完成的計算，方便重新查看、修改、匯出或與團隊共享。',en:'The system saves completed calculations for later review, editing, export, or team sharing.',th:'ระบบจะบันทึกผลคำนวณเพื่อให้กลับมาดู แก้ไข ส่งออก หรือแชร์กับทีมได้'},
     items:{
@@ -3091,7 +3165,7 @@ const GUIDE_STEPS=[
     tip:{zh:'正式方案建議先按愛心收藏、加入分類，再確認雲端同步完成。',en:'For an approved plan, add it to Favorites, assign a category, and confirm cloud sync.',th:'สำหรับแผนที่อนุมัติแล้ว แนะนำให้กดรายการโปรด จัดหมวดหมู่ และตรวจสอบการซิงค์คลาวด์'}
   },
   {
-    icon:'11',short:{zh:'常見問題',en:'Troubleshooting',th:'แก้ปัญหา'},
+    icon:'12',short:{zh:'常見問題',en:'Troubleshooting',th:'แก้ปัญหา'},
     title:{zh:'常見問題與排除方式',en:'Common Problems and Solutions',th:'ปัญหาที่พบบ่อยและวิธีแก้'},
     intro:{zh:'遇到畫面、計算或同步問題時，可先依照以下方式檢查。',en:'If you have a display, calculation, or sync problem, check the following items first.',th:'หากพบปัญหาด้านภาพ การคำนวณ หรือการซิงค์ ให้ตรวจสอบรายการต่อไปนี้ก่อน'},
     items:{
@@ -3364,7 +3438,12 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('utilGuideModal')
       tools.innerHTML=
         '<button type="button" class="v4-fab" id="v4HistoryBtn">📂 歷史與收藏</button>'+
         '<button type="button" class="v4-fab primary-fab" id="v4AiBtn">🤖 AI 最佳化</button>';
-      document.body.appendChild(tools);
+      if(controls){
+        const workflow=document.querySelector(".v4-workflow");
+        controls.insertBefore(tools,workflow?.nextSibling||controls.firstChild);
+      }else{
+        document.body.appendChild(tools);
+      }
       document.getElementById("v4HistoryBtn")?.addEventListener("click",()=>{
         history?.classList.toggle("v4-open");
       });
@@ -4174,6 +4253,8 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('utilGuideModal')
         {selector:".topKpiBar",type:"kpi",title:"查看關鍵結果",text:"KPI 區會顯示利用率、箱數、高度與重量。",hint:"這裡是計算後最先確認的區域。",demo:"計算完成後，數值會自動更新。"},
         {selector:"#canvasWrap",type:"view3d",title:"操作 3D 視圖",text:"拖曳可旋轉視角，滾輪可縮放。",hint:"查看爆炸圖可逐層檢查排列。",demo:"拖曳畫面旋轉，使用滾輪縮放。"},
         {selector:"#boxAnimationControls",type:"animation",title:"播放放箱動畫",text:"可播放全部、指定層、上一箱或下一箱。",hint:"動畫會顯示箱號、位置與方向。",demo:"點擊播放，箱子會依順序逐一放入。"},
+        {selector:"#allPalletOverview",type:"allPallets",title:"查看全部棧板與切換分板方式",text:"輸入總箱數並計算後，總覽會一次顯示全部棧板；可切換優先裝滿或平均分配，也能顯示全部、只看尾板及合併相同配置。",hint:"優先裝滿適合依序出貨；平均分配可避免最後一板箱數過少。",demo:"切換分板方式，並用篩選按鈕快速找到尾板。"},
+        {selector:"#allPalletOverview",type:"palletInspect",title:"旋轉、同步與放大單一棧板",text:"每板皆可拖曳旋轉、滾輪縮放；同步角度可讓全部棧板使用同一視角。點擊棧板或「放大」可開啟單板大圖。",hint:"交給工廠前，請特別放大尾板並確認箱子方向、部分層、高度、毛重與尚可增加箱數。",demo:"旋轉棧板、切換同步角度，再放大單板檢查細節。"},
         {selector:".manualPackBtn",type:"manualPackOpen",title:"開啟手動排箱",text:"輸入棧板與紙箱資料後，按下「手動排箱」進入自訂配置工作台。",hint:"手動排箱適合需要自己決定每一箱位置與方向的情況。",demo:"按下「手動排箱」開啟工作台。"},
         {selector:".mp-toolbar",type:"manualPackAdd",manualPack:true,title:"新增或自動填滿紙箱",text:"可逐箱按「新增一箱」，也可按「自動填滿本層」快速建立初始排列。",hint:"先自動填滿，再手動微調，通常會比較省時間。",demo:"新增紙箱，或讓系統先填滿目前層。"},
         {selector:"#manualPackCanvas",type:"manualPackDrag",manualPack:true,title:"拖曳、旋轉與刪除紙箱",text:"在平面工作區拖曳紙箱調整位置；選取紙箱後可旋轉 90° 或刪除。",hint:"也可使用 R 鍵旋轉、Delete 鍵刪除，以及復原／重做。",demo:"拖曳紙箱到新位置，再旋轉 90°。"},
@@ -4197,6 +4278,8 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('utilGuideModal')
         {selector:".topKpiBar",type:"kpi",title:"Review Key Results",text:"The KPI bar displays utilization, cartons, height, and weight.",hint:"Review this area first after calculation.",demo:"The values update automatically after calculation."},
         {selector:"#canvasWrap",type:"view3d",title:"Use the 3D View",text:"Drag to rotate and use the mouse wheel to zoom.",hint:"Use the exploded view to inspect each layer.",demo:"Drag to rotate and scroll to zoom."},
         {selector:"#boxAnimationControls",type:"animation",title:"Play the Loading Animation",text:"Play all boxes, one layer, previous box, or next box.",hint:"The animation shows box number, position, and direction.",demo:"Click Play and watch the boxes appear in order."},
+        {selector:"#allPalletOverview",type:"allPallets",title:"Review All Pallets and Choose Distribution",text:"After entering the total quantity, the overview displays every pallet. Switch between Fill First and Balance, show all or only the tail pallet, and group identical layouts.",hint:"Fill First suits sequential loading; Balance avoids an excessively small final pallet.",demo:"Change the distribution mode and use filters to locate the tail pallet."},
+        {selector:"#allPalletOverview",type:"palletInspect",title:"Rotate, Synchronize, and Enlarge One Pallet",text:"Drag and zoom every pallet independently, or enable synchronized angles. Click a pallet or Zoom to open the enlarged single-pallet view.",hint:"Before factory use, enlarge the tail pallet and verify carton direction, partial layers, height, weight, and remaining capacity.",demo:"Rotate a pallet, toggle angle sync, and enlarge one pallet for inspection."},
         {selector:".manualPackBtn",type:"manualPackOpen",title:"Open Manual Packing",text:"After entering pallet and carton data, open the Manual Packing workbench.",hint:"Use this when you need to control every carton position and orientation.",demo:"Click Manual Packing to open the workbench."},
         {selector:".mp-toolbar",type:"manualPackAdd",manualPack:true,title:"Add or Auto-Fill Cartons",text:"Add cartons one at a time, or auto-fill the current layer to create a starting layout.",hint:"Auto-fill first, then fine-tune manually to save time.",demo:"Add a carton or auto-fill the current layer."},
         {selector:"#manualPackCanvas",type:"manualPackDrag",manualPack:true,title:"Drag, Rotate, and Delete",text:"Drag cartons on the plan view. Select a carton to rotate it 90° or delete it.",hint:"You can also press R to rotate, Delete to remove, and use Undo or Redo.",demo:"Drag a carton to a new position and rotate it 90°."},
@@ -4220,6 +4303,8 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('utilGuideModal')
         {selector:".topKpiBar",type:"kpi",title:"ดูผลลัพธ์สำคัญ",text:"แถบ KPI แสดงการใช้พื้นที่ จำนวนกล่อง ความสูง และน้ำหนัก",hint:"ควรตรวจสอบบริเวณนี้ก่อนหลังคำนวณ",demo:"ค่าจะอัปเดตอัตโนมัติหลังคำนวณ"},
         {selector:"#canvasWrap",type:"view3d",title:"ใช้งานมุมมอง 3D",text:"ลากเพื่อหมุน และใช้ล้อเมาส์เพื่อซูม",hint:"ใช้มุมมองแยกชั้นเพื่อตรวจสอบแต่ละชั้น",demo:"ลากเพื่อหมุนและเลื่อนล้อเพื่อซูม"},
         {selector:"#boxAnimationControls",type:"animation",title:"เล่นแอนิเมชันวางกล่อง",text:"เล่นทั้งหมด เลือกชั้น กล่องก่อนหน้า หรือกล่องถัดไป",hint:"แอนิเมชันแสดงหมายเลข ตำแหน่ง และทิศทาง",demo:"คลิกเล่นแล้วดูกล่องปรากฏตามลำดับ"},
+        {selector:"#allPalletOverview",type:"allPallets",title:"ดูพาเลททั้งหมดและเลือกวิธีกระจาย",text:"หลังกรอกจำนวนรวม ระบบจะแสดงพาเลททั้งหมด สามารถเลือกเติมให้เต็มก่อนหรือกระจายเฉลี่ย ดูทั้งหมดหรือเฉพาะพาเลทท้าย และรวมรูปแบบเดียวกัน",hint:"เติมให้เต็มก่อนเหมาะกับการโหลดตามลำดับ ส่วนกระจายเฉลี่ยช่วยลดพาเลทสุดท้ายที่มีน้อยเกินไป",demo:"เปลี่ยนวิธีกระจายและใช้ตัวกรองเพื่อค้นหาพาเลทท้าย"},
+        {selector:"#allPalletOverview",type:"palletInspect",title:"หมุน ซิงค์มุม และขยายพาเลทเดี่ยว",text:"ลากและซูมแต่ละพาเลท หรือเปิดซิงค์มุมให้ทุกแผ่นใช้มุมเดียวกัน คลิกพาเลทหรือปุ่มขยายเพื่อดูภาพใหญ่",hint:"ก่อนส่งให้โรงงาน ให้ขยายพาเลทท้ายและตรวจทิศทางกล่อง ชั้นไม่เต็ม ความสูง น้ำหนัก และความจุที่เหลือ",demo:"หมุนพาเลท เปิดหรือปิดซิงค์มุม แล้วขยายพาเลทเพื่อตรวจรายละเอียด"},
         {selector:".manualPackBtn",type:"manualPackOpen",title:"เปิดการจัดกล่องด้วยตนเอง",text:"หลังกรอกข้อมูลพาเลทและกล่อง ให้เปิดพื้นที่จัดกล่องด้วยตนเอง",hint:"เหมาะเมื่อคุณต้องกำหนดตำแหน่งและทิศทางของแต่ละกล่องเอง",demo:"กดจัดกล่องเองเพื่อเปิดพื้นที่ทำงาน"},
         {selector:".mp-toolbar",type:"manualPackAdd",manualPack:true,title:"เพิ่มหรือเติมกล่องอัตโนมัติ",text:"เพิ่มกล่องทีละใบ หรือเติมชั้นปัจจุบันอัตโนมัติเพื่อสร้างแบบเริ่มต้น",hint:"เติมอัตโนมัติก่อนแล้วค่อยปรับเองจะประหยัดเวลา",demo:"เพิ่มกล่องหรือเติมชั้นปัจจุบัน"},
         {selector:"#manualPackCanvas",type:"manualPackDrag",manualPack:true,title:"ลาก หมุน และลบกล่อง",text:"ลากกล่องบนพื้นที่ทำงาน และเลือกกล่องเพื่อหมุน 90° หรือลบ",hint:"ใช้ปุ่ม R เพื่อหมุน Delete เพื่อลบ และใช้ย้อนกลับหรือทำซ้ำได้",demo:"ลากกล่องไปตำแหน่งใหม่แล้วหมุน 90°"},
@@ -4313,6 +4398,11 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('utilGuideModal')
       body='<div style="display:flex;gap:6px;justify-content:center;align-items:center;min-height:70px"><span class="tutorialFakeButton">1 · 📦📦</span><span>→</span><span class="tutorialFakeButton">2 · 📦📦</span></div>';
     }else if(step.type==="manualPackApply"){
       body='<div style="display:flex;gap:8px;justify-content:center;align-items:center;min-height:70px"><span style="color:#18794e;font-weight:800">✓</span><span class="tutorialFakeButton">'+(lang()==="en"?"Apply to 3D":lang()==="th"?"ใช้กับภาพ 3 มิติ":"套用到 3D")+'</span></div>';
+    }else if(step.type==="allPallets"){
+      const labels=lang()==="en"?["Fill First","Balance","Last Only","Zoom"]:lang()==="th"?["เติมเต็มก่อน","กระจายเฉลี่ย","ดูพาเลทท้าย","ขยาย"]:["優先裝滿","平均分配","只看尾板","單板放大"];
+      body='<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px">'+labels.map(x=>'<span class="tutorialFakeButton">'+x+'</span>').join("")+'</div>';
+    }else if(step.type==="palletInspect"){
+      body='<div style="height:70px;border:1px dashed #94a3b8;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:23px">📦 ↻　🔍　📦 ↻</div>';
     }else if(step.type==="mode"||step.type==="air"){
       body='<div style="display:grid;grid-template-columns:1fr 1fr;gap:7px"><span class="tutorialFakeButton">'+ui.pallet+'</span><span class="tutorialFakeButton">'+ui.air+'</span></div>';
     }else if(step.type==="expand"){
@@ -5694,6 +5784,133 @@ html[data-theme="dark"] .mp-side .mp-primary{background:#2d72d9;color:#fff;borde
     }
   }catch(_){}
   updateLanguage();
+})();
+</script>
+
+<script>
+/* ================= 全部棧板總覽 ================= */
+(function(){
+  "use strict";
+  const byId=id=>document.getElementById(id);
+  const LANG={
+    zh:{title:"全部棧板 3D 總覽",hint:"拖曳旋轉｜滾輪縮放｜按「放大」查看單板細節。",empty:"請先輸入貨物總箱數並執行計算。",collapse:"收合總覽",expand:"展開總覽",print:"列印全部棧板",syncOn:"同步角度：開",syncOff:"同步角度：關",reset:"重設視角",drag:"拖曳旋轉｜滾輪縮放",total:"總箱數",capacity:"每板容量",pallets:"棧板總數",pallet:"棧板",cartons:"箱",layers:"層數",height:"高度",weight:"毛重",full:"滿板",last:"最後未滿板",balanced:"平均分板",standard:"優先裝滿",fullCount:"滿板數",tailCount:"未滿板箱數",batchWeight:"批次總毛重",all:"顯示全部",tailOnly:"只看最後未滿板",group:"合併相同配置",fillFirst:"優先裝滿",balanceMode:"平均分配",modeTitle:"分板方式",remaining:"尚可增加",tailAdvice:"最後未滿板箱數較少，建議將箱子置中並確認重心。",zoom:"放大",noTail:"目前沒有最後未滿板；平均分配模式下不適用此功能。",printTitle:"全部棧板配置作業圖",generated:"產生時間"},
+    en:{title:"All Pallets 3D Overview",hint:"Drag to rotate · Scroll to zoom · Select Enlarge for pallet details.",empty:"Enter the total shipment quantity and calculate first.",collapse:"Collapse",expand:"Expand",print:"Print All Pallets",syncOn:"Sync Views: On",syncOff:"Sync Views: Off",reset:"Reset Views",drag:"Drag to rotate · Scroll to zoom",total:"Total Cartons",capacity:"Capacity / Pallet",pallets:"Total Pallets",pallet:"Pallet",cartons:"cartons",layers:"Layers",height:"Height",weight:"Gross Wt.",full:"Full",last:"Last Partial Pallet",balanced:"Balanced distribution",standard:"Fill Pallets First",fullCount:"Full Pallets",tailCount:"Partial Pallet Cartons",batchWeight:"Batch Gross Wt.",all:"Show All",tailOnly:"Last Partial Only",group:"Group Same Layouts",fillFirst:"Fill Pallets First",balanceMode:"Balanced",modeTitle:"Distribution",remaining:"Available Space",tailAdvice:"The last pallet has fewer cartons. Center the load and verify the center of gravity.",zoom:"Enlarge",noTail:"No partial last pallet. This view is unavailable in balanced mode.",printTitle:"All Pallet Configuration Work Sheet",generated:"Generated"},
+    th:{title:"ภาพรวม 3 มิติของพาเลททั้งหมด",hint:"ลากเพื่อหมุน · เลื่อนเพื่อซูม · กดขยายเพื่อดูรายละเอียด",empty:"กรอกจำนวนสินค้าทั้งหมดแล้วคำนวณก่อน",collapse:"ย่อ",expand:"ขยาย",print:"พิมพ์พาเลททั้งหมด",syncOn:"ซิงค์มุมมอง: เปิด",syncOff:"ซิงค์มุมมอง: ปิด",reset:"รีเซ็ตมุมมอง",drag:"ลากเพื่อหมุน · เลื่อนเพื่อซูม",total:"จำนวนกล่องรวม",capacity:"ความจุต่อพาเลท",pallets:"จำนวนพาเลท",pallet:"พาเลท",cartons:"กล่อง",layers:"จำนวนชั้น",height:"ความสูง",weight:"น้ำหนักรวม",full:"เต็ม",last:"พาเลทสุดท้ายที่ไม่เต็ม",balanced:"กระจายเท่ากัน",standard:"เติมพาเลทให้เต็มก่อน",fullCount:"พาเลทเต็ม",tailCount:"กล่องพาเลทไม่เต็ม",batchWeight:"น้ำหนักรวมทั้งชุด",all:"แสดงทั้งหมด",tailOnly:"ดูพาเลทสุดท้ายที่ไม่เต็ม",group:"รวมแบบเดียวกัน",fillFirst:"เติมให้เต็มก่อน",balanceMode:"กระจายเท่ากัน",modeTitle:"วิธีแบ่งพาเลท",remaining:"เพิ่มได้อีก",tailAdvice:"พาเลทสุดท้ายมีกล่องน้อย ควรวางกึ่งกลางและตรวจจุดศูนย์ถ่วง",zoom:"ขยาย",noTail:"ไม่มีพาเลทสุดท้ายที่ไม่เต็ม และโหมดกระจายเท่ากันไม่ใช้ฟังก์ชันนี้",printTitle:"ใบงานพาเลททั้งหมด",generated:"สร้างเมื่อ"}
+  };
+  let collapsed=false,syncViews=true,viewMode="group",globalView={yaw:-.72,pitch:.55,zoom:1};
+  const viewStates=new Map();
+  function lang(){return document.querySelector(".langBtn.active")?.dataset.lang||document.documentElement.lang?.slice(0,2)||"zh"}
+  function tx(){return LANG[lang()]||LANG.zh}
+  function esc(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c])}
+  function f(v){return Number(v||0).toFixed(2).replace(/\.00$/,"")}
+  function distribution(quantity,capacity){
+    const count=Math.ceil(quantity/capacity);if(!count)return [];
+    if(byId("avgLastPallet")?.checked){const base=Math.floor(quantity/count),extra=quantity%count;return Array.from({length:count},(_,i)=>base+(i<extra?1:0))}
+    return Array.from({length:count},(_,i)=>Math.min(capacity,quantity-i*capacity));
+  }
+  function palletData(count){
+    let remaining=count;const used=[];
+    for(const source of (model.layerLayouts||[])){
+      if(remaining<=0)break;
+      const take=Math.min(remaining,source.boxes.length);
+      used.push({...source,boxes:source.boxes.slice(0,take),count:take});remaining-=take;
+    }
+    const layers=used.length;
+    const height=model.PH+layers*model.o.h+Math.max(0,layers-1)*model.layerPad+model.topPack;
+    const weight=count*model.boxWeight+(model.palletWeight||0)+(model.packWeight||0);
+    return {used,layers,height,weight};
+  }
+  function miniCanvas(index){return `<div class="palletMiniWrap"><canvas class="palletMini" data-pallet-index="${index}" aria-label="Interactive 3D pallet ${index}"></canvas><button class="palletZoomOverlay" data-entry="${index-1}" type="button">🔍 ${tx().zoom}</button></div><div class="palletViewHint">${tx().drag}</div>`}
+  function cuboidFaces(x,y,z,l,w,h,type){
+    const p=[[x,y,z],[x+l,y,z],[x+l,y+w,z],[x,y+w,z],[x,y,z+h],[x+l,y,z+h],[x+l,y+w,z+h],[x,y+w,z+h]];
+    return [[0,1,2,3],[4,7,6,5],[0,4,5,1],[1,5,6,2],[2,6,7,3],[3,7,4,0]].map(ids=>({pts:ids.map(i=>p[i]),type}));
+  }
+  function drawMini(canvas,state){
+    const data=state.data,rect=canvas.getBoundingClientRect(),dpr=Math.min(2,window.devicePixelRatio||1),W=Math.max(180,rect.width),H=Math.max(110,rect.height);
+    canvas.width=Math.round(W*dpr);canvas.height=Math.round(H*dpr);const c=canvas.getContext("2d");c.setTransform(dpr,0,0,dpr,0,0);
+    const dark=document.documentElement.getAttribute("data-theme")==="dark",g=c.createLinearGradient(0,0,0,H);g.addColorStop(0,dark?"#07101f":"#fbfdff");g.addColorStop(1,dark?"#142033":"#e7eef6");c.fillStyle=g;c.fillRect(0,0,W,H);
+    const cy=Math.cos(state.yaw),sy=Math.sin(state.yaw),cp=Math.cos(state.pitch),sp=Math.sin(state.pitch),cx=model.PL/2,cz=data.height/2;
+    const scale=Math.min(W/(model.PL+model.PW),H/(data.height+Math.max(model.PL,model.PW)*.55))*1.45*state.zoom;
+    function project(p){const x=p[0]-cx,y=p[1]-model.PW/2,z=p[2]-cz,X=x*cy-y*sy,Y=x*sy+y*cy;return {x:W/2+X*scale,y:H/2+(Y*sp-z*cp)*scale,depth:Y*cp+z*sp}}
+    let faces=cuboidFaces(0,0,0,model.PL,model.PW,model.PH,"pallet");
+    data.used.forEach((layer,i)=>{const z=model.PH+i*(model.o.h+model.layerPad);layer.boxes.forEach(b=>faces.push(...cuboidFaces(b.x,b.y,z,b.l,b.w,model.o.h,i%2?"even":"odd")))});
+    faces=faces.map(face=>{const pts=face.pts.map(project);return {...face,pts,depth:pts.reduce((s,p)=>s+p.depth,0)/pts.length}}).sort((a,b)=>a.depth-b.depth);
+    for(const face of faces){c.beginPath();face.pts.forEach((p,i)=>i?c.lineTo(p.x,p.y):c.moveTo(p.x,p.y));c.closePath();c.fillStyle=face.type==="pallet"?"#b9854f":face.type==="odd"?"#4b8bd1":"#df8a43";c.fill();c.strokeStyle=dark?"rgba(226,232,240,.62)":"rgba(23,42,67,.7)";c.lineWidth=.65;c.stroke()}
+  }
+  function drawAllMini(){viewStates.forEach((state,canvas)=>drawMini(canvas,state))}
+  function applyView(source){
+    if(syncViews){globalView={yaw:source.yaw,pitch:source.pitch,zoom:source.zoom};viewStates.forEach(s=>Object.assign(s,globalView))}
+    drawAllMini();
+  }
+  function bindCanvas(canvas,state){
+    canvas.addEventListener("pointerdown",e=>{state.drag=true;state.x=e.clientX;state.y=e.clientY;canvas.setPointerCapture(e.pointerId)});
+    canvas.addEventListener("pointermove",e=>{if(!state.drag)return;state.yaw+=(e.clientX-state.x)*.012;state.pitch=Math.max(-1.25,Math.min(1.25,state.pitch+(e.clientY-state.y)*.009));state.x=e.clientX;state.y=e.clientY;applyView(state)});
+    const stop=e=>{state.drag=false;try{canvas.releasePointerCapture(e.pointerId)}catch(_){}};canvas.addEventListener("pointerup",stop);canvas.addEventListener("pointercancel",stop);
+    canvas.addEventListener("wheel",e=>{e.preventDefault();state.zoom=Math.max(.55,Math.min(2.5,state.zoom*(e.deltaY>0?.9:1.1)));applyView(state)},{passive:false});
+  }
+  function setupMiniViews(dataList){
+    viewStates.clear();document.querySelectorAll("canvas.palletMini").forEach((canvas,i)=>{
+      const state={...(syncViews?globalView:{yaw:-.72,pitch:.55,zoom:1}),data:dataList[i],drag:false,x:0,y:0};viewStates.set(canvas,state);
+      bindCanvas(canvas,state);
+    });requestAnimationFrame(drawAllMini);
+  }
+  function closeDetail(){const modal=byId("palletDetailModal"),canvas=byId("palletDetailCanvas");modal?.classList.remove("open");modal?.setAttribute("aria-hidden","true");if(canvas)viewStates.delete(canvas)}
+  function openDetail(entry,data,total){
+    const modal=byId("palletDetailModal"),canvas=byId("palletDetailCanvas");if(!modal||!canvas)return;
+    byId("palletDetailTitle").textContent=`PLT ${String(entry.first+1).padStart(2,"0")}/${String(total).padStart(2,"0")} · ${entry.count} ${tx().cartons}`;
+    modal.classList.add("open");modal.setAttribute("aria-hidden","false");
+    let state=canvas._palletState;if(!state){state={...globalView,data,drag:false,x:0,y:0};canvas._palletState=state;bindCanvas(canvas,state)}else Object.assign(state,globalView,{data,drag:false});viewStates.set(canvas,state);
+    requestAnimationFrame(()=>drawMini(canvas,state));
+  }
+  function render(){
+    const t=tx(),content=byId("allPalletContent"),grid=byId("allPalletGrid"),summary=byId("allPalletSummary"),empty=byId("allPalletEmpty"),filter=byId("allPalletFilter"),coach=byId("palletZoomCoach"),modeSwitch=byId("allPalletModeSwitch");
+    if(!content||!grid)return;
+    byId("allPalletTitle").textContent=t.title;byId("allPalletHint").textContent=t.hint;byId("toggleAllPallets").textContent=collapsed?t.expand:t.collapse;byId("printAllPallets").textContent=t.print;byId("syncAllPallets").textContent=syncViews?t.syncOn:t.syncOff;byId("resetAllPalletViews").textContent=t.reset;
+    content.hidden=collapsed;
+    const quantity=Math.max(0,Math.floor(Number(byId("quantity")?.value)||0));
+    const capacity=Number(model?.totalBoxes)||0;
+    if(!model||!quantity||!capacity){empty.hidden=false;empty.textContent=t.empty;summary.hidden=true;if(filter)filter.hidden=true;if(coach)coach.hidden=true;if(modeSwitch)modeSwitch.hidden=true;grid.innerHTML="";return}
+    const averaged=!!byId("avgLastPallet")?.checked,dist=distribution(quantity,capacity),fullCount=dist.filter(x=>x===capacity).length,tailCount=!averaged&&dist.at(-1)<capacity?dist.at(-1):0;
+    const batchWeight=quantity*model.boxWeight+dist.length*((model.palletWeight||0)+(model.packWeight||0));
+    empty.hidden=true;summary.hidden=false;if(filter)filter.hidden=false;if(modeSwitch)modeSwitch.hidden=false;if(coach){coach.hidden=false;coach.textContent=`🔍 ${t.hint}`}
+    modeSwitch.querySelector("b").textContent=t.modeTitle;byId("fillPalletsFirst").textContent=t.fillFirst;byId("balancePallets").textContent=t.balanceMode;byId("fillPalletsFirst").classList.toggle("active",!averaged);byId("balancePallets").classList.toggle("active",averaged);
+    summary.innerHTML=`<span>${t.total}：<b>${quantity} ${t.cartons}</b></span><span>${t.pallets}：<b>${dist.length}</b></span><span>${t.fullCount}：<b>${fullCount}</b></span><span>${t.tailCount}：<b>${tailCount||"—"}</b></span><span>${t.batchWeight}：<b>${f(batchWeight)} kg</b></span><span>${byId("avgLastPallet")?.checked?t.balanced:t.standard}</span>`;
+    byId("showAllPallets").textContent=t.all;byId("showTailPallets").textContent=t.tailOnly;byId("groupSamePallets").textContent=t.group;byId("showTailPallets").disabled=averaged;byId("showTailPallets").title=averaged?t.noTail:"";if(averaged&&viewMode==="tail")viewMode="group";
+    [["showAllPallets","all"],["showTailPallets","tail"],["groupSamePallets","group"]].forEach(([id,mode])=>byId(id)?.classList.toggle("active",viewMode===mode));
+    let entries=dist.map((count,i)=>({count,first:i,last:i,mult:1}));
+    if(viewMode==="tail")entries=entries.filter(x=>!averaged&&x.count<capacity);
+    if(viewMode==="group")entries=entries.reduce((out,x)=>{const found=out.find(y=>y.count===x.count);if(found){found.last=x.last;found.mult++}else out.push({...x});return out},[]);
+    if(!entries.length){grid.innerHTML=`<div class="allPalletEmpty" style="grid-column:1/-1">${t.noTail}</div>`;viewStates.clear();return}
+    const dataList=entries.map(x=>palletData(x.count)),digits=String(dist.length).length;
+    grid.innerHTML=entries.map((entry,i)=>{const d=dataList[i],tail=!averaged&&entry.count<capacity,full=entry.count===capacity,balanced=averaged&&!full,remaining=Math.max(0,capacity-entry.count),label=entry.first===entry.last?`PLT ${String(entry.first+1).padStart(digits,"0")}/${dist.length}`:`PLT ${String(entry.first+1).padStart(digits,"0")}–${String(entry.last+1).padStart(digits,"0")}/${dist.length}`;return `<article class="palletOverviewCard ${full?'isFull':balanced?'isBalanced':tail?'isLast':''}" data-entry="${i}"><div class="palletCardHead"><strong>${label}</strong><div><span>${entry.mult>1?`×${entry.mult}`:(balanced?t.balanced:tail?t.last:t.full)}</span><button class="palletZoomBtn" data-entry="${i}" type="button">${t.zoom}</button></div></div>${miniCanvas(i+1)}<div class="palletCardMeta"><div><small>${t.total}</small><b>${entry.count} ${t.cartons}</b></div><div><small>${t.layers}</small><b>${d.layers}</b></div><div><small>${t.height} / ${t.weight}</small><b>${f(d.height)} cm / ${f(d.weight)} kg</b></div><div><small>${t.remaining}</small><b>${remaining} ${t.cartons}</b></div></div>${tail?`<div class="palletAdvice">${t.tailAdvice}</div>`:""}</article>`}).join("");
+    setupMiniViews(dataList);grid.querySelectorAll(".palletZoomBtn,.palletZoomOverlay").forEach(btn=>btn.onclick=e=>{e.stopPropagation();const i=Number(btn.dataset.entry);openDetail(entries[i],dataList[i],dist.length)});grid.querySelectorAll(".palletOverviewCard").forEach(card=>card.onclick=e=>{if(e.target.closest("button,canvas"))return;const i=Number(card.dataset.entry);openDetail(entries[i],dataList[i],dist.length)});
+  }
+  function printAll(){
+    if(!model||!byId("allPalletGrid")?.children.length)return alert(tx().empty);
+    drawAllMini();const clone=byId("allPalletGrid").cloneNode(true),sourceCanvases=[...byId("allPalletGrid").querySelectorAll("canvas.palletMini")];
+    clone.querySelectorAll("canvas.palletMini").forEach((node,i)=>{const img=document.createElement("img");img.className="palletMini";img.src=sourceCanvases[i].toDataURL("image/png");node.replaceWith(img)});clone.querySelectorAll(".palletViewHint,.palletZoomOverlay,.palletZoomBtn").forEach(x=>x.remove());
+    const t=tx(),w=window.open("","_blank");if(!w)return;
+    const css=`body{font-family:Arial,"Microsoft JhengHei",sans-serif;color:#172033;margin:16mm}h1{margin:0;color:#173e73}.sub{color:#667085;margin:5px 0 14px}.summary{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.summary span{border:1px solid #ccd6e3;border-radius:20px;padding:6px 10px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.palletOverviewCard{border:1px solid #ccd6e3;border-radius:8px;overflow:hidden;break-inside:avoid}.palletCardHead{display:flex;justify-content:space-between;padding:7px 9px;border-bottom:1px solid #dde4ed}.palletCardHead span{font-size:10px}.palletMini{display:block;width:100%;height:125px;object-fit:contain}.palletCardMeta{display:grid;grid-template-columns:repeat(2,1fr);border-top:1px solid #dde4ed}.palletCardMeta div{text-align:center;padding:7px 5px;border-right:1px solid #dde4ed}.palletCardMeta div:last-child{border:0}.palletCardMeta small{display:block;color:#475569;font-size:10px;font-weight:700}.palletCardMeta b{display:block;margin-top:3px;color:#173e73;font-size:12px;font-weight:800}.palletCardMeta div:nth-child(1) b,.palletCardMeta div:nth-child(2) b{color:#0b4bb3;font-size:13px}.palletAdvice{padding:7px;text-align:center;background:#fff7e8;color:#7a4b00;font-size:10px;font-weight:700}@page{size:A4 landscape;margin:9mm}@media print{body{margin:0}.grid{grid-template-columns:repeat(4,1fr)}}`;
+    w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${esc(t.printTitle)}</title><style>${css}</style></head><body><h1>${esc(t.printTitle)}</h1><div class="sub">${esc(t.generated)}：${esc(new Date().toLocaleString())}</div><div class="summary">${byId("allPalletSummary").innerHTML}</div><div class="grid">${clone.innerHTML}</div></body></html>`);w.document.close();w.focus();setTimeout(()=>w.print(),250);
+  }
+  byId("syncAllPallets")?.addEventListener("click",()=>{syncViews=!syncViews;if(syncViews){const first=viewStates.values().next().value;if(first)globalView={yaw:first.yaw,pitch:first.pitch,zoom:first.zoom};viewStates.forEach(s=>Object.assign(s,globalView));drawAllMini()}byId("syncAllPallets").textContent=syncViews?tx().syncOn:tx().syncOff});
+  byId("resetAllPalletViews")?.addEventListener("click",()=>{globalView={yaw:-.72,pitch:.55,zoom:1};viewStates.forEach(s=>Object.assign(s,globalView));drawAllMini()});
+  byId("toggleAllPallets")?.addEventListener("click",()=>{collapsed=!collapsed;render()});
+  byId("printAllPallets")?.addEventListener("click",printAll);
+  byId("showAllPallets")?.addEventListener("click",()=>{viewMode="all";render()});
+  byId("showTailPallets")?.addEventListener("click",()=>{viewMode="tail";render()});
+  byId("groupSamePallets")?.addEventListener("click",()=>{viewMode="group";render()});
+  byId("fillPalletsFirst")?.addEventListener("click",()=>{byId("avgLastPallet").checked=false;viewMode="group";render()});
+  byId("balancePallets")?.addEventListener("click",()=>{byId("avgLastPallet").checked=true;viewMode="group";render()});
+  byId("palletDetailClose")?.addEventListener("click",closeDetail);
+  byId("palletDetailModal")?.addEventListener("click",e=>{if(e.target===byId("palletDetailModal"))closeDetail()});
+  document.addEventListener("keydown",e=>{if(e.key==="Escape")closeDetail()});
+  byId("calculateBtn")?.addEventListener("click",()=>setTimeout(render,120));
+  byId("avgLastPallet")?.addEventListener("change",render);
+  document.querySelectorAll(".langBtn").forEach(b=>b.addEventListener("click",()=>setTimeout(render,120)));
+  const resultNode=byId("rPallets");if(resultNode)new MutationObserver(()=>setTimeout(render,0)).observe(resultNode,{childList:true,subtree:true,characterData:true});
+  window.renderAllPalletOverview=render;
+  render();
 })();
 </script>
 
