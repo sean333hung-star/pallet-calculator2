@@ -76,9 +76,9 @@ window.addEventListener("load",()=>{
   .quickViews{display:flex;gap:5px;flex-wrap:wrap;align-items:center;padding:4px 8px;border-bottom:1px solid var(--line);background:#fafbfc}
   .quickViews button{padding:7px 10px;font-size:12px}
   .quickViews .viewActions{display:flex;gap:5px;flex-wrap:wrap;margin-left:auto}
-  .sectionTitleRow{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:18px 0 10px;padding-top:14px;border-top:1px solid var(--line)}
-  .sectionTitleRow h3{margin:0;padding:0;border:0}
-  .palletPresetButtons{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}
+  .sectionTitleRow{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin:18px 0 10px;padding-top:14px;border-top:1px solid var(--line)}
+  .sectionTitleRow h3{margin:0;padding:0;border:0;white-space:nowrap;flex:0 0 auto}
+  .palletPresetButtons{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end;margin-left:auto}
   .presetBtn{padding:6px 9px;font-size:11px;background:#eef4ff;color:#164ca3;border:1px solid #cfe0ff}
   .presetBtn:hover{background:#dce9ff}
   .presetBtn.active{background:#175cd3;color:#fff;border-color:#175cd3}
@@ -1396,6 +1396,10 @@ html[data-theme="dark"] .allPalletHead h3,html[data-theme="dark"] .palletCardHea
   }
 }
 
+/* 依操作階段自動顯示功能 */
+body:not(.hasCalculation) .quickViews,body:not(.hasCalculation) .printActions,body:not(.hasCalculation) #allPalletOverview{display:none!important}.contextNextSteps{display:none;align-items:center;gap:7px;flex-wrap:wrap;padding:8px 10px;border-bottom:1px solid #d9e4f0;background:#f8fbff;color:#52657a;font-size:11px}.hasCalculation .contextNextSteps{display:flex}.contextNextSteps b{color:#067647}.contextNextSteps span{color:#94a3b8}.contextNextSteps button{padding:6px 9px;background:#eef4ff;color:#164ca3;font-size:11px}.contextNextSteps button:hover{background:#dbeafe}.palletsCollapsed .allPalletActions>*:not(#toggleAllPallets){display:none!important}.palletsCollapsed .allPalletActions{display:flex!important}.palletsCollapsed #toggleAllPallets{background:#175cd3;color:#fff}.hasCalculation:not(.hasMultiplePallets) #allPalletOverview{display:none!important}.historyEmptyState .historyTools{display:none!important}
+html[data-theme="dark"] .contextNextSteps{background:#111827;border-color:#334155;color:#cbd5e1}
+.clearAllBtn{width:100%;margin-top:8px;background:#fff;color:#b42318;border:1px solid #f5b7b1}.clearAllBtn:hover{background:#fff1f0;border-color:#e98980}.clearAllBtn:focus{outline:3px solid rgba(180,35,24,.15)}html[data-theme="dark"] .clearAllBtn{background:#2a1719!important;color:#fca5a5!important;border-color:#7f1d1d!important}
 </style>
 </head>
 <body>
@@ -1485,7 +1489,6 @@ html[data-theme="dark"] .allPalletHead h3,html[data-theme="dark"] .palletCardHea
 <main>
 <section class="panel controls">
   <h2>輸入條件</h2>
-
   <div class="modeSelector" id="modeSelector" data-i18n-managed="true">
     <button type="button" class="modeBtn active" data-app-mode="pallet">
       <span class="modeIcon">📦</span>
@@ -1555,27 +1558,27 @@ html[data-theme="dark"] .allPalletHead h3,html[data-theme="dark"] .palletCardHea
     </div>
   </div>
   <div class="grid3">
-    <label>長<input id="pL" type="number" min="0.01" step="0.01" value="120"></label>
-    <label>寬<input id="pW" type="number" min="0.01" step="0.01" value="80"></label>
-    <label>高<input id="pH" type="number" min="0" step="0.01" value="15"></label>
+    <label>長<input id="pL" type="number" min="0.01" step="0.01" placeholder="請輸入" autocomplete="off"></label>
+    <label>寬<input id="pW" type="number" min="0.01" step="0.01" placeholder="請輸入" autocomplete="off"></label>
+    <label>高<input id="pH" type="number" min="0" step="0.01" placeholder="請輸入" autocomplete="off"></label>
   </div>
   <div class="grid2" style="margin-top:8px">
-    <label>總限高（含棧板）<input id="maxH" type="number" min="0.01" step="0.01" value="155"></label>
-    <label>棧板最大載重<input id="maxW" type="number" min="0.01" step="0.01" value="1500"></label>
+    <label>總限高（含棧板）<input id="maxH" type="number" min="0.01" step="0.01" placeholder="請輸入" autocomplete="off"></label>
+    <label>棧板最大載重<input id="maxW" type="number" min="0.01" step="0.01" placeholder="請輸入" autocomplete="off"></label>
   </div>
 
   <h3>紙箱資料（cm / kg）</h3>
   <div class="grid3">
-    <label>長<input id="bL" type="number" min="0.01" step="0.01" value="55.88"></label>
-    <label>寬<input id="bW" type="number" min="0.01" step="0.01" value="40.64"></label>
-    <label>高<input id="bH" type="number" min="0.01" step="0.01" value="29.21"></label>
+    <label>長<input id="bL" type="number" min="0.01" step="0.01" placeholder="請輸入" autocomplete="off"></label>
+    <label>寬<input id="bW" type="number" min="0.01" step="0.01" placeholder="請輸入" autocomplete="off"></label>
+    <label>高<input id="bH" type="number" min="0.01" step="0.01" placeholder="請輸入" autocomplete="off"></label>
   </div>
   <div class="grid2" style="margin-top:8px">
-    <label>每箱重量<input id="boxWeight" type="number" min="0.001" step="0.01" value="10.31"></label>
-    <label>貨物總箱數（選填）<input id="quantity" type="number" min="0" step="1" value="74"></label>
+    <label>每箱重量<input id="boxWeight" type="number" min="0.001" step="0.01" placeholder="請輸入" autocomplete="off"></label>
+    <label>貨物總箱數（選填）<input id="quantity" type="number" min="0" step="1" placeholder="請輸入" autocomplete="off"></label>
   </div>
   <div class="grid2" style="margin-top:8px">
-    <label>棧板自重（kg）<input id="palletWeight" type="number" min="0" step="0.01" value="25"></label>
+    <label>棧板自重（kg）<input id="palletWeight" type="number" min="0" step="0.01" placeholder="請輸入" autocomplete="off"></label>
     <label>最大手動層數<input id="manualMaxLayers" type="number" min="1" step="1" value="99"></label>
   </div>
 
@@ -1635,6 +1638,7 @@ html[data-theme="dark"] .allPalletHead h3,html[data-theme="dark"] .palletCardHea
 
   <button class="primary" id="calculateBtn">重新計算並生成全景圖</button>
   <button class="primary aiBtn" id="aiOptimizeBtn" type="button">🤖 AI 一鍵空間最佳化</button>
+  <button class="clearAllBtn" id="clearAllInputsBtn" type="button">↺ 一鍵清除</button>
   <div class="layerTabs" id="layerTabs"></div>
 
   <div class="historyPanel">
@@ -3402,7 +3406,6 @@ $('aiOptimizeClose').onclick=()=>{$('aiOptimizeModal').classList.remove('open');
 $('aiOptimizeModal').addEventListener('click',e=>{if(e.target===$('aiOptimizeModal'))$('aiOptimizeClose').click()});
 
 renderHistory();
-calculate(false);
 applyUILanguage(currentUILang);
 $('utilGuideClose').onclick=close80UtilGuide;
 $('utilGuideModal').addEventListener('click',e=>{if(e.target===$('utilGuideModal'))close80UtilGuide()});
@@ -5923,6 +5926,63 @@ html[data-theme="dark"] .mp-side .mp-primary{background:#2d72d9;color:#fff;borde
   const resultNode=byId("rPallets");if(resultNode)new MutationObserver(()=>setTimeout(render,0)).observe(resultNode,{childList:true,subtree:true,characterData:true});
   window.renderAllPalletOverview=render;
   render();
+})();
+</script>
+
+<script>
+/* 依計算狀態自動顯示下一步與相關工具 */
+(function(){
+  const TEXT={zh:{done:"✓ 計算完成",view:"檢查 3D",pallets:n=>`查看全部 ${n} 個棧板`,print:"列印作業單"},en:{done:"✓ Calculation complete",view:"Review 3D",pallets:n=>`View all ${n} pallets`,print:"Print work order"},th:{done:"✓ คำนวณเสร็จแล้ว",view:"ตรวจภาพ 3 มิติ",pallets:n=>`ดูพาเลททั้งหมด ${n} แผ่น`,print:"พิมพ์ใบงาน"}};
+  function lang(){return document.querySelector(".langBtn.active")?.dataset.lang||document.documentElement.lang?.slice(0,2)||"zh"}
+  function numberFrom(id){const m=(document.getElementById(id)?.textContent||"").match(/[0-9]+/);return m?Number(m[0]):0}
+  function ensureBar(){
+    let bar=document.getElementById("contextNextSteps");if(bar)return bar;
+    bar=document.createElement("div");bar.id="contextNextSteps";bar.className="contextNextSteps";document.querySelector(".quickViews")?.after(bar);return bar;
+  }
+  function update(){
+    const boxes=numberFrom("rBoxes")||numberFrom("topKpiBoxes"),pallets=numberFrom("rPallets"),calculated=boxes>0;
+    document.body.classList.toggle("hasCalculation",calculated);document.body.classList.toggle("hasMultiplePallets",calculated&&pallets>1);
+    const collapsed=!!document.getElementById("allPalletContent")?.hidden;document.body.classList.toggle("palletsCollapsed",collapsed);
+    document.body.classList.toggle("historyEmptyState",!document.querySelector(".historyList .historyItem"));
+    const t=TEXT[lang()]||TEXT.zh,bar=ensureBar();if(!bar)return;
+    bar.innerHTML=`<b>${t.done}</b><span>›</span><span>${t.view}</span>${pallets>1?`<span>›</span><button type="button" id="contextShowPallets">${t.pallets(pallets)}</button>`:""}<span>›</span><button type="button" id="contextPrintWork">${t.print}</button>`;
+    document.getElementById("contextShowPallets")?.addEventListener("click",()=>{if(document.getElementById("allPalletContent")?.hidden)document.getElementById("toggleAllPallets")?.click();document.getElementById("allPalletOverview")?.scrollIntoView({behavior:"smooth",block:"start"})});
+    document.getElementById("contextPrintWork")?.addEventListener("click",()=>document.getElementById("printWorkOrder")?.click());
+    const toggle=document.getElementById("toggleAllPallets");if(toggle&&collapsed&&pallets>1)toggle.textContent=t.pallets(pallets);
+  }
+  function setup(){
+    ensureBar();["rBoxes","rPallets","allPalletContent"].forEach(id=>{const el=document.getElementById(id);if(el)new MutationObserver(()=>setTimeout(update,0)).observe(el,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:["hidden"]})});
+    const list=document.querySelector(".historyList");if(list)new MutationObserver(update).observe(list,{childList:true,subtree:true});
+    document.querySelectorAll(".langBtn").forEach(b=>b.addEventListener("click",()=>setTimeout(update,100)));document.getElementById("toggleAllPallets")?.addEventListener("click",()=>setTimeout(update,0));
+    setTimeout(update,100);
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",setup);else setup();
+})();
+</script>
+
+<script>
+/* 一鍵清除目前輸入與計算結果；保留歷史、收藏與模板 */
+(function(){
+  const TEXT={
+    zh:{button:"↺ 一鍵清除",confirm:"確定要清除目前所有尺寸、重量、箱數與計算結果嗎？\n歷史紀錄、收藏與自訂模板不會被刪除。",details:"請輸入條件後計算。"},
+    en:{button:"↺ Clear All",confirm:"Clear all current dimensions, weights, quantities, and calculation results?\nHistory, favorites, and templates will be kept.",details:"Enter the conditions and calculate."},
+    th:{button:"↺ ล้างทั้งหมด",confirm:"ต้องการล้างขนาด น้ำหนัก จำนวน และผลคำนวณปัจจุบันทั้งหมดหรือไม่?\nประวัติ รายการโปรด และเทมเพลตจะไม่ถูกลบ",details:"กรอกเงื่อนไขแล้วคำนวณ"}
+  };
+  function lang(){return document.querySelector(".langBtn.active")?.dataset.lang||document.documentElement.lang?.slice(0,2)||"zh"}
+  function updateLabel(){const b=document.getElementById("clearAllInputsBtn"),t=TEXT[lang()]||TEXT.zh;if(b)b.textContent=t.button}
+  function clearAll(){
+    const t=TEXT[lang()]||TEXT.zh;if(!confirm(t.confirm))return;
+    document.querySelectorAll(".controls input[type='number']").forEach(input=>{input.value="";input.dispatchEvent(new Event("input",{bubbles:true}));input.dispatchEvent(new Event("change",{bubbles:true}))});
+    try{model=null;lastOptimizationCandidates=[];lastOptimizationBest=null;activeHistoryId=null;boxAnimationPlaying=false;boxAnimationMode=false}catch(_){ }
+    ["rTotal","rPerLayer","rLayers","rHeight","rWeight","rPallets","rStability","rSpaceUtil","rAirActualWeight","rAirVolumeWeight","rAirChargeableWeight","rAirUldCount","topKpiUtil","topKpiBoxes","topKpiHeight","topKpiWeight","topKpiChargeable","topKpiUldCount"].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent="—"});
+    const details=document.getElementById("details");if(details)details.textContent=t.details;const status=document.getElementById("statusBox");if(status)status.textContent=t.details;
+    const tabs=document.getElementById("layerTabs");if(tabs)tabs.innerHTML="";const grid=document.getElementById("allPalletGrid");if(grid)grid.innerHTML="";
+    const canvas=document.getElementById("scene"),ctx2=canvas?.getContext("2d");if(canvas&&ctx2){ctx2.clearRect(0,0,canvas.width,canvas.height);ctx2.fillStyle=document.documentElement.getAttribute("data-theme")==="dark"?"#0f172a":"#eef3f8";ctx2.fillRect(0,0,canvas.width,canvas.height)}
+    document.body.classList.remove("hasCalculation","hasMultiplePallets");document.body.classList.add("palletsCollapsed");
+    if(typeof window.renderAllPalletOverview==="function")window.renderAllPalletOverview();document.querySelector(".controls")?.scrollTo({top:0,behavior:"smooth"});document.getElementById("pL")?.focus();
+  }
+  function setup(){document.getElementById("clearAllInputsBtn")?.addEventListener("click",clearAll);document.querySelectorAll(".langBtn").forEach(b=>b.addEventListener("click",()=>setTimeout(updateLabel,100)));updateLabel()}
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",setup);else setup();
 })();
 </script>
 
